@@ -1,0 +1,11 @@
+.env
+docs/
+*.pyc
+*.sql
+*.ini
+*.log
+__pycache__/
+env/
+venv/
+personal_notes.md
+.ipynb_checkpoints/

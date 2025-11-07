@@ -1,0 +1,16 @@
+sentence-transformers==5.1.1
+langchain-text-splitters==0.3.11
+python-bidi==0.6.7
+arabic-reshaper==3.0.0
+python-dotenv==1.2.1
+psycopg2-binary==2.9.10
+numpy==2.3.0
+unstructured[pdf]==0.18.6
+rank-bm25==0.2.2
+langdetect==1.0.9
+pdfplumber==0.11.7
+image2pdf==1.0.0
+pillow==12.0.0
+unicodedata2==17.0.0
+console==0.9911
+rich==14.2.0
