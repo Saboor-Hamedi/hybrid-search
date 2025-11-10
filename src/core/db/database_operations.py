@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 # Ensure the parent directory is in sys.path for relative imports
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
@@ -82,17 +83,30 @@ def _hybrid_search_query(query, conn, cursor, model, top_k, threshold, bm25_weig
     Returns (combined_results, semantic_results, bm25_results)
     """
     nor_query = normalize_content(query)
+    get_elapsed = measure_time()
+
+    stats = {} # New stats dictionary
+
+    sem_search = time.time()
 
     # 1. Semantic Search (PostgreSQL)
     semantic_results = _query(query, conn, cursor, model, top_k, threshold)
 
+    stats['semantic_time_ms'] =(time.time() - sem_search) * 1000
+    stats['semantic_count'] = len(semantic_results)
+
+    # Update mb25 the show steps
+    bm25_update_start = time.time()
     # 2. Update bm25
     bm25_utils.update_bm25_index(cursor, normalize_content)
+    bm25_update_get_elapsed = time.time() - bm25_update_start
 
     if bm25_utils.bm25_index is None or not bm25_utils.bm25_corpus:
         # Fallback to pure semantic search result
         results = semantic_results
         bm25_results = []
+        stats['bm25_time_ms'] = bm25_update_get_elapsed * 1000
+        stats['bm25_count'] = 0
     else:
         # Get BM25 resutls
         bm25_scores = bm25_utils.bm25_index.get_scores(nor_query.split())
@@ -139,7 +153,7 @@ def _hybrid_search_query(query, conn, cursor, model, top_k, threshold, bm25_weig
                     current_created,
                 )
             else:
-                # BM25 result not found in semantic results (need to query for lang/created if needed)
+                # BM25 result not found in semantic results
                 # For simplicity and consistency with the original code, use None for missing info.
                 combined_results[doc_id] = (
                     content,
@@ -147,13 +161,18 @@ def _hybrid_search_query(query, conn, cursor, model, top_k, threshold, bm25_weig
                     None,
                     None,
                 )
+        bm25_total_time = (time.time() - bm25_update_start) * 1000
+        stats['bm25_time_ms'] = bm25_total_time
+        stats['bm25_count'] = len(bm25_results)
         # Final list of combined results
         results = [
             (doc_id, content, score, lang, created)
             for doc_id, (content, score, lang, created) in combined_results.items()
+
         ]
         results.sort(key=lambda x: x[2], reverse=True)
-    return results, semantic_results, bm25_results
+    # return results, semantic_results, bm25_results
+    return results, semantic_results, bm25_results, stats
 
 
 # Search function
@@ -179,24 +198,24 @@ def search(
 
     try:
 
-        results, semantic_results, bm25_results = _hybrid_search_query(
+        results, semantic_results, bm25_results, hybrid_stats =  _hybrid_search_query(
             query, conn, cursor, model, top_k, threshold, bm25_weight
         )
 
     except Exception as e:
         print(f"{cs.RED}Error during search: {e}{cs.RESET}")
-        return []
+        return [],{}
 
     if not results:
         print(f"{cs.RED}No relevant results found.{cs.RESET}")
-        return []
+        return [],{}
     # Display results
     display_in_table(results[:top_k], query=query)
 
     # Clean output
     _search_stats(semantic_results, bm25_results, get_elapsed)
 
-    return results[:top_k]
+    return results[:top_k],hybrid_stats
 
 
 def paragraph_search(
@@ -213,19 +232,19 @@ def paragraph_search(
     """
     if check_if_empty_input(query):
         print(f"{cs.RED}Input cannot be empty.{cs.RESET}")
-        return []
+        return [],{}
 
     get_elapsed = measure_time()
 
     try:
-
-       results, semantic_results, bm25_results = _hybrid_search_query(
-            query, conn, cursor, model, top_k, threshold, bm25_weight
+        results, semantic_results, bm25_results, hybrid_stats= _hybrid_search_query(
+             query, conn, cursor, model, top_k, threshold, bm25_weight
         )
+
 
     except Exception as e:
         print(f"{cs.RED}Error during search: {e}{cs.RESET}")
-        return []
+        return [], {}
 
     if not results:
         print(f"{cs.RED}No relevant results found.{cs.RESET}")
@@ -236,7 +255,7 @@ def paragraph_search(
     # Clean output
     _search_stats(semantic_results, bm25_results, get_elapsed)
 
-    return results[:top_k]
+    return results[:top_k], hybrid_stats
 
 def _search_stats(semantic_results, bm25_results, get_elapsed):
     print(f"{cs.GREEN}Semantic results: {len(semantic_results)} documents{cs.RESET}")

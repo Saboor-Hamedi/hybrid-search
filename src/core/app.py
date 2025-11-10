@@ -1,3 +1,4 @@
+# FastAPI backend for Hybrid Search
 import os
 import sys
 import time
@@ -7,7 +8,7 @@ import psycopg2
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -17,10 +18,20 @@ from db.database_operations import search
 from db.db_connection import db_connection, get_model
 from db.db_controller import update_record
 
+# Performance optimizations load model at startup
+model = None
 app = FastAPI(title="Hybrid Search API")
 app.mount('/static', StaticFiles(directory='static'), name='static')
 
 
+@app.on_event("startup")
+def load_model_on_startup():
+    global model
+    model = get_model()
+    if model:
+        print("✅ Model loaded successfully at startup")
+    else:
+        print("⚠️ Model failed to load at startup")
 # CORS
 app.add_middleware(
     CORSMiddleware,
@@ -46,15 +57,6 @@ def get_db_connection_and_cursor():
     cursor = conn.cursor()
     return conn, cursor
 
-# @app.on_event("startup")
-# async def on_startup():
-#     try:
-#         get_db_connection_and_cursor()
-#         print("Database connection initialized successfully.")
-#     except Exception as e:
-#         print(f"Error during startup: {e}")
-
-# Root endpoint
 
 # Models
 class SearchRequest(BaseModel):
@@ -171,7 +173,7 @@ def update_endpoint(request: UpdateRequest):
         cursor.close()
         conn.close()
 # Search endpoint with pagination
-@app.post("/search", response_model=list[SearchResult])
+@app.post("/search")
 def search_endpoint(request: SearchRequest):
     start = time.time()
     conn, cursor = get_db_connection_and_cursor()
@@ -180,11 +182,13 @@ def search_endpoint(request: SearchRequest):
 
     offset = (request.page - 1) * request.page_size
     limit = min(request.page_size, 50)  # Safety cap
+    all_results = []
+    hybrid_stats ={}
 
     try:
         if request.use_hybrid:
             # Fetch MORE results to enable pagination (top_k = offset + limit)
-            all_results = search(
+            all_results, hybrid_stats = search(
                 query=request.query,
                 conn=conn,
                 cursor=cursor,
@@ -212,6 +216,11 @@ def search_endpoint(request: SearchRequest):
 
         # Log
         latency = (time.time() - start) * 1000
+        if search_type == "hybrid":
+            hybrid_stats = {
+                    "keyword_time_ms": round(latency, 2),
+                    "keyword_count": len(paginated),
+                }
         cursor.execute("""
             INSERT INTO search_logs (query, search_type, top_k, results_count, latency_ms)
             VALUES (%s, %s, %s, %s, %s)
@@ -220,30 +229,44 @@ def search_endpoint(request: SearchRequest):
 
         # Format results
         formatted = []
-        # Inside search_endpoint, when building results:
+        cosine_scores = []
         for r in paginated:
-            # Safely handle created_at
             created_at_val = r[4] if len(r) > 4 else None
-            if created_at_val is None:
-                created_at_str = "unknown"
-            elif isinstance(created_at_val, datetime):
-                created_at_str = created_at_val.isoformat()
-            else:
-                created_at_str = str(created_at_val)
-
-            # Safely handle language
+            created_at_str = (
+                created_at_val.isoformat() if isinstance(created_at_val, datetime)
+                else str(created_at_val or "unknown")
+            )
             lang = r[3] if len(r) > 3 else "unknown"
-            if lang is None:
-                lang = "unknown"
+            score_val = float(r[2]) if r[2] is not None else 0.0
+            cosine_scores.append(score_val)
 
-            formatted.append(SearchResult(
-                doc_id=r[0],
-                content=r[1] or "",
-                score=float(r[2]) if r[2] is not None else 0.0,
-                language=str(lang),
-                created_at=created_at_str
-            ))
-        return formatted
+            formatted.append({
+                "doc_id": r[0],
+                "content": r[1] or "",
+                "score": score_val,
+                "language": str(lang),
+                "created_at": created_at_str
+            })
+
+        #  Compute average cosine
+        avg_cosine = (
+            sum(cosine_scores) / len(cosine_scores)
+            if cosine_scores else 0
+        )
+
+        #  Return structured response with stats
+        response_data = {
+            "results": formatted,
+            "stats": {
+                "search_type": search_type,
+                "query_time_ms": round(latency, 2),
+                "num_candidates": len(formatted),
+                "average_cosine": round(avg_cosine, 4),
+                **hybrid_stats
+            },
+        }
+
+        return JSONResponse(content=response_data)
 
     except Exception as e:
         conn.rollback()

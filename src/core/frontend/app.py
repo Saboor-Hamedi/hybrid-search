@@ -1,3 +1,4 @@
+# Flask frontend to interact with FastAPI backend
 import requests
 from flask import Flask, render_template, request
 
@@ -11,6 +12,7 @@ def home():
     query = ""
     use_hybrid = True
     total = 0
+    stats = {}
     if request.method == "POST":
         query = request.form.get("query", "").strip()
         # use_hybrid = bool(request.form.get("use_hybrid"))
@@ -24,11 +26,21 @@ def home():
         try:
             r = requests.post(f"{API_URL}/search", json=payload)
             r.raise_for_status()
-            results = r.json()
+            data = r.json()
+            results = data.get("results", [])
+            stats = data.get("stats", {})
             total = len(results)
         except requests.exceptions.RequestException as e:
-            results = [{"content": f"⚠️ Error: {e}", "score": 0, "language": "N/A"}]
-    return render_template("index.html", results=results, query=query, use_hybrid=use_hybrid, total=total)
+            error_message = f"⚠️ Backend Request Error: {e}"
+            results = []
+            stats = {}
+            total = 0
+            print(error_message)
+    else:
+        total = 0
+
+    return render_template("index.html", results=results, query=query, use_hybrid=use_hybrid, total=total, stats=stats)
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="127.0.0.1", port=5000, debug=True,reload=True)
+
