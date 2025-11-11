@@ -10,6 +10,7 @@ from utils.ColorScheme import ColorScheme
 from utils.helper_functions import check_if_empty_input, measure_time
 from utils.text_properties import normalize_content
 
+from core.utils.console_stats import display_search_stats
 from core.utils.rich_console import display_in_paragraph, display_in_table
 
 from .search_queries import execute_vector_query
@@ -162,7 +163,7 @@ def search(
     display_in_table(results[:top_k], query=query)
 
     # Clean output
-    _search_stats(semantic_results, bm25_results, get_elapsed)
+    display_search_stats(semantic_results, bm25_results, get_elapsed)
 
     return results[:top_k],hybrid_stats
 
@@ -202,15 +203,9 @@ def paragraph_search(
     display_in_paragraph(results[:top_k], query=query)
 
     # Clean output
-    _search_stats(semantic_results, bm25_results, get_elapsed)
+    display_search_stats(semantic_results, bm25_results, get_elapsed)
 
     return results[:top_k], hybrid_stats
 
-def _search_stats(semantic_results, bm25_results, get_elapsed):
-    print(f"{cs.GREEN}Semantic results: {len(semantic_results)} documents{cs.RESET}")
-
-    if bm25_results:
-        print(f"{cs.GREEN}BM25 results: {len(bm25_results)} documents with score > 0{cs.RESET}")
-    print(f"{cs.OKBLUE}Search complete. Time: {get_elapsed()} {cs.RESET}")
 
 
