@@ -5,12 +5,18 @@ import time
 
 # Ensure the parent directory is in sys.path for relative imports
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from db.count_document import get_document_count
-from db.database_operations import insert_document, paragraph_search, search
 from db.db_connection import db_connection, get_db_cursor, get_model
+
+# from db.operations.document_management import insert_document
 from ingestion.insert_pdf_chunks import insert_pdf
 from utils.helper_functions import go_back
 
+from core.db.operations.count_document import get_document_count
+from core.db.operations.database_operations import (
+    paragraph_search,
+    search,
+)
+from core.db.operations.document_management import insert_document
 from core.utils.ColorScheme import ColorScheme
 
 cs = ColorScheme()
@@ -132,8 +138,7 @@ def main_menu():
 
             elif action in count_options:
                 try:
-                    count = get_document_count(conn, cursor)
-                    print(f"{cs.GREEN}Number of documents: {count}{cs.RESET}")
+                    get_document_count(cursor)
                 except (EOFError, KeyboardInterrupt):
                     print(f"\n{cs.YELLOW}Cancelled search operation.{cs.RESET}")
                     continue

@@ -8,10 +8,11 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 import utils.bm25_utils as bm25_utils
 from utils.ColorScheme import ColorScheme
 from utils.helper_functions import check_if_empty_input, measure_time
-from utils.languages import detect_language
 from utils.text_properties import normalize_content
 
 from core.utils.rich_console import display_in_paragraph, display_in_table
+
+from .search_queries import execute_vector_query
 
 cs = ColorScheme()
 
@@ -22,77 +23,25 @@ DEFAULT_THRESHOLD = 0.4
 BM25_WEIGHT = 0.5
 
 
-def insert_document(content, conn, cursor, model, commit=True, silent=False):
-    if check_if_empty_input(content):
-        if not silent:
-            print(f"{cs.RED}❌ Input cannot be empty.{cs.RESET}")
-        return False
-    get_elapsed = measure_time()
-    nor_content = normalize_content(content)
-    language = detect_language(nor_content)
-
-    try:
-        emb = model.encode(nor_content).tolist()
-        # cursor.execute(
-        #     "INSERT INTO document (content, languages) VALUES (%s, %s) RETURNING id;",
-        #     (nor_content, language),
-        # )
-        cursor.execute(
-    "INSERT INTO document (content, languages, content_tsvector) VALUES (%s, %s, to_tsvector('simple', %s)) RETURNING id;",
-    (nor_content, language, nor_content),
-)
-        result = cursor.fetchone()
-        if result is None:
-            if not silent:
-                print(f"{cs.RED}❌ INSERT failed - no ID returned{cs.RESET}")
-            return False
-
-        doc_id = result[0]
-        cursor.execute(
-            "INSERT INTO document_embedding (doc_id, embedding) VALUES (%s, %s)",
-            (doc_id, emb),
-        )
-
-        # CONDITIONAL COMMIT
-
-        if commit:
-            conn.commit()
-            bm25_utils.needs_update = True
-            # bm25_utils.update_bm25_index(cursor, normalize_content)  # All update BM25 index
-            if not silent:
-                print(
-                    f"{cs.GREEN}✅ Inserted document (language: {language}). Time: {get_elapsed()} {cs.RESET}"
-                )
-        else:
-            if not silent:
-                # SILENT MODE: Don't print anything for batch operationss
-                print(
-                    f"{cs.YELLOW}📝 Queued for batch (language: {language}). Time: {get_elapsed()} {cs.RESET}"
-                )
-        return True
-    except Exception as e:
-        print(f"{cs.RED}❌ Error after {get_elapsed()} Error: {e}{cs.RESET}")
-        print(f"{cs.YELLOW}   Content: '{nor_content[:80]}...'{cs.RESET}")
-        conn.rollback()
-        return False
-
-
 def _hybrid_search_query(query, conn, cursor, model, top_k, threshold, bm25_weight):
     """
     Performs the core hybrid search logic (Semantic + BM25 combination).
     Returns (combined_results, semantic_results, bm25_results)
     """
     nor_query = normalize_content(query)
-    get_elapsed = measure_time()
 
     stats = {} # New stats dictionary
 
     sem_search = time.time()
 
-    # 1. Semantic Search (PostgreSQL)
-    semantic_results = _query(query, conn, cursor, model, top_k, threshold)
 
-    stats['semantic_time_ms'] =(time.time() - sem_search) * 1000
+    # 1. Semantic Search (PostgreSQL)
+
+    semantic_results = execute_vector_query(query, conn, cursor, model, top_k, threshold)
+
+
+
+    stats['semantic_time_ms'] = (time.time() - sem_search) * 1000
     stats['semantic_count'] = len(semantic_results)
 
     # Update mb25 the show steps
@@ -263,26 +212,5 @@ def _search_stats(semantic_results, bm25_results, get_elapsed):
     if bm25_results:
         print(f"{cs.GREEN}BM25 results: {len(bm25_results)} documents with score > 0{cs.RESET}")
     print(f"{cs.OKBLUE}Search complete. Time: {get_elapsed()} {cs.RESET}")
-
-def _query(query, conn, cursor, model, top_k, threshold):
-    """Execute the search query and return results."""
-    query_vec = model.encode(query).tolist()
-    vec_str = f"[{','.join(map(str, query_vec))}]"
-
-    cursor.execute(
-        """
-        SELECT d.id, d.content, (1 - (e.embedding <=> %s::vector)) AS similarity,
-               d.languages, d.created_at
-        FROM document d
-        JOIN document_embedding e ON d.id = e.doc_id
-        WHERE (1 - (e.embedding <=> %s::vector)) >= %s
-        ORDER BY e.embedding <=> %s::vector DESC
-        LIMIT %s
-    """,
-        (vec_str, vec_str, threshold, vec_str, top_k * 2),
-    )
-
-    rows = cursor.fetchall()
-    return [(row[0], row[1], float(row[2]), row[3], row[4]) for row in rows]
 
 

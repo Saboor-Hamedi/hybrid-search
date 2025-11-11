@@ -14,9 +14,9 @@ from pydantic import BaseModel
 
 # Setup path and load model
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from db.database_operations import search
+from core.db.operations.database_operations import search
 from db.db_connection import db_connection, get_model
-from db.db_controller import update_record
+from core.db.operations.db_controller import update_record
 
 # Performance optimizations load model at startup
 model = None

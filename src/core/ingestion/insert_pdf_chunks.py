@@ -1,22 +1,20 @@
 import os
 import re
 
-from db.database_operations import insert_document
+# 1. Unstructured_pdf_elements
+from ingestion.unstructured_pdf_elements import parse_pdf
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from utils.helper_functions import measure_time
+
+from core.db.operations.document_management import insert_document
+from core.models.ai_model import get_embedder
+
+# Import the ColorScheme for colored console output
+from core.utils.ColorScheme import ColorScheme
 from core.utils.languages import detect_language
 from core.utils.text_properties import (
     normalize_content,
 )
-
-# 1. Unstructured_pdf_elements
-from ingestion.unstructured_pdf_elements import parse_pdf
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-
-# Import the ColorScheme for colored console output
-from core.utils.ColorScheme import ColorScheme
-
-from core.models.ai_model import get_embedder
-
-from utils.helper_functions import measure_time
 
 cs = ColorScheme()
 model = get_embedder("paraphrase-multilingual-MiniLM-L12-v2")
@@ -36,7 +34,6 @@ CHUNK_OVERLAP = 50
 
 
 get_elapsed = measure_time()
-# C:\Users\saboor\Desktop\Master class\Semester 2\Static and Data Analysis\Assignment\Translate into Bahasa Indonesia.pdf
 
 
 def remove_header_footer(text: str, header_patterns=None, footer_patterns=None) -> str:
