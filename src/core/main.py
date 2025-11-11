@@ -1,173 +1,173 @@
-# main.py
+"""
+Document Manager CLI front-end
+All menu actions are implemented as separate functions and called cleanly.
+"""
+
 import os
 import sys
 import time
 
-# Ensure the parent directory is in sys.path for relative imports
+# Add parent folder to path for relative imports
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from db.db_connection import db_connection, get_db_cursor, get_model
 
-# from db.operations.document_management import insert_document
+from db.db_connection import db_connection, get_db_cursor, get_model
 from ingestion.insert_pdf_chunks import insert_pdf
-from utils.helper_functions import go_back
+from utils.menu import MENU, is_back, safe_input, safe_int_input
 
 from core.db.operations.count_document import get_document_count
-from core.db.operations.database_operations import (
-    paragraph_search,
-    search,
-)
-from core.db.operations.document_management import insert_document
+from core.db.operations.database_operations import paragraph_search, search
+from core.db.operations.document_management import delete_document, insert_document
 from core.utils.ColorScheme import ColorScheme
 
 cs = ColorScheme()
-# print("Hello wordl, from main.py!")
-count_options = ["count", "c"]
 
 
-def display_menu():
+# --------------------------------------------------------------------------- #
+# MENU DISPLAY
+# --------------------------------------------------------------------------- #
+def display_menu() -> None:
     print("\n" + "=" * 50)
     print(f"{cs.BOLD}DOCUMENT MANAGER MENU{cs.RESET}")
     print(f"{cs.GREEN}Options:{cs.RESET}")
-    print("  [I]nsert: Add new document text manually.")
-    print("  [S]earch: Query and retrieve documents.")
-    print("  [C]ount:  Query and count documents.")
-    print("  [P]df:    Extract and insert from a PDF file.")
-    print("  [B]ack:   Go back to previous menu.")
-    print("  [Q]uit:   Exit the program.")
+    for key, (title, desc) in MENU.items():
+        print(f"  {cs.BOLD}{key.upper()}{cs.RESET}: {title} — {desc}")
     print("=" * 50)
 
 
-def main_menu():
-    """Main interactive loop."""
+# --------------------------------------------------------------------------- #
+# ACTION FUNCTIONS (all called from the menu)
+# --------------------------------------------------------------------------- #
+def _action_insert(conn, cursor, model) -> None:
+    text = safe_input("Enter document text (or 'b' to go back): ")
+    if is_back(text):
+        return
+    if not text:
+        print(f"{cs.RED}Input cannot be empty.{cs.RESET}")
+        return
+    insert_document(text, conn, cursor, model)
 
-    # --- Initial Timer Start ---
+
+def _action_search(conn, cursor, model) -> None:
+    query = safe_input("Enter search query (prefix 'p ' for paragraph mode, or 'b' to go back): ")
+    if is_back(query):
+        return
+
+    if query.lower().startswith("p ") and len(query) > 2:
+        paragraph_search(query[2:].strip(), conn, cursor, model)
+    elif query.lower() == "p":
+        q = safe_input("Enter paragraph-mode query: ")
+        if not is_back(q):
+            paragraph_search(q, conn, cursor, model)
+    else:
+        search(query, conn, cursor, model)
+
+
+def _action_pdf(conn, cursor) -> None:
+    path = safe_input("Enter PDF file path (or 'b' to go back): ")
+    if is_back(path):
+        return
+    if not os.path.isfile(path):
+        print(f"{cs.RED}File not found: {path}{cs.RESET}")
+        return
+    insert_pdf(path, conn, cursor)
+
+
+def _action_delete(conn, cursor) -> None:
+    doc_id = safe_int_input("Enter document ID to delete (or 'b' to go back): ")
+    if doc_id is None:
+        return
+    delete_document(doc_id, conn, cursor)
+
+
+def _action_count(cursor) -> None:
+    get_document_count(cursor)
+
+
+def _action_quit() -> None:
+    print(f"{cs.GREEN}Exiting program. Goodbye!{cs.RESET}")
+    sys.exit(0)
+
+
+# --------------------------------------------------------------------------- #
+# MAIN LOOP – Calls the functions above
+# --------------------------------------------------------------------------- #
+def main_menu() -> None:
     start_time = time.time()
-    print(f"{cs.GREEN}⏳ Program started at {time.ctime(start_time)}{cs.RESET}")
+    print(f"{cs.GREEN}Program started at {time.ctime(start_time)}{cs.RESET}")
 
-    # --- 1. Database Connection ---
-    db_start_time = time.time() # Start timer for DB
+    # --- Database Connection ---
+    db_start = time.time()
     conn = db_connection()
     if not conn:
-        print(f"{cs.RED}❌ Failed to connect to database. Exiting.{cs.RESET}")
+        print(f"{cs.RED}Failed to connect to database. Exiting.{cs.RESET}")
         return
-
     cursor = get_db_cursor(conn)
-    db_elapsed = time.time() - db_start_time
-    print(f"{cs.GREEN}✅ Database connected in {db_elapsed:.4f} seconds.{cs.RESET}") # Report individual time
+    print(f"{cs.GREEN}Database connected in {time.time() - db_start:.4f}s{cs.RESET}")
 
-    # --- 2. Model Loading ---
-    model_start_time = time.time() # Start timer for Model
+    # --- Model Loading ---
+    model_start = time.time()
     model = get_model()
-
-    model_elapsed = time.time() - model_start_time
-    # NOTE: The output from get_model() already reports its time,
-    # but this confirms the total time taken for the call.
-    print(f"{cs.GREEN}✅ Model loading call returned in {model_elapsed:.4f} seconds.{cs.RESET}")
-
+    print(f"{cs.GREEN}Model loading call returned in {time.time() - model_start:.4f}s{cs.RESET}")
     if not model:
-        print(f"{cs.RED}❌ Failed to load model. Exiting.{cs.RESET}")
-        if cursor: cursor.close()
-        if conn: conn.close()
+        print(f"{cs.RED}Failed to load model. Exiting.{cs.RESET}")
+        if cursor is not None:
+            cursor.close()
+        conn.close()
         return
 
-    # --- 3. Total Startup Time ---
-    total_start_uptime = time.time() - start_time
-    print(f"{cs.GREEN}✅ Setup completed in {total_start_uptime:.4f} seconds.{cs.RESET}")
+    # --- Startup Summary ---
+    print(f"{cs.GREEN}Setup completed in {time.time() - start_time:.4f}s{cs.RESET}")
+
+    # --- Interactive Loop ---
     try:
         while True:
             display_menu()
-            try:
-                action = (
-                    input(
-                        f"{cs.GREEN}Your choice -> {cs.BOLD}[I - S - Count(c) - PDF - Q]{cs.UNDERLINE}: {cs.RESET}"
-                    )
-                    .strip()
-                    .lower()
-                )
-            except (EOFError, KeyboardInterrupt):
-                print(f"\n{cs.YELLOW}Exiting program.{cs.RESET}")
-                break
+            choice = safe_input(
+                f"{cs.GREEN}Your choice -> {cs.BOLD}[{' / '.join(k.upper() for k in MENU)}]{cs.UNDERLINE}: {cs.RESET}"
+            ).lower()
 
-            if action == "i":
-                try:
-                    text = input("Enter document text: ").strip()
-                    if go_back(text):
-                        continue
-                    insert_document(text, conn, cursor, model)
-                except (EOFError, KeyboardInterrupt):
-                    print(f"\n{cs.YELLOW}Cancelled insert operation.{cs.RESET}")
-                    continue
+            if not choice:
+                continue
 
-            elif action == "s":
-                try:
-                    query = input(
-                        "Enter search query (or 'p [query]' for paragraph mode): "
-                    ).strip()
-                    if go_back(query):
-                        continue
+            # === I: Insert ===
+            if choice in ("i", "insert"):
+                _action_insert(conn, cursor, model)
 
-                    # Check for paragraph mode using 'p ' prefix
-                    if query.startswith("p ") and len(query) > 2:
-                        actual_query = query[2:].strip()
-                        paragraph_search(actual_query, conn, cursor, model)
-                    elif query == "p":
-                        # If only 'p' was entered, ask for the query
-                        actual_query = input(
-                            "Enter search query for paragraph mode: "
-                        ).strip()
-                        if go_back(actual_query):
-                            continue
-                        paragraph_search(actual_query, conn, cursor, model)
-                    else:
-                        # Regular search
-                        search(query, conn, cursor, model)
-                except (EOFError, KeyboardInterrupt):
-                    print(f"\n{cs.YELLOW}Cancelled search operation.{cs.RESET}")
-                    continue
-            elif action == "paragraphs":
-                try:
-                    query = input("Enter search query: ").strip()
-                    if go_back(query):
-                        continue
+            # === S: Search ===
+            elif choice in ("s", "search"):
+                _action_search(conn, cursor, model)
 
-                    paragraph_search(query, conn, cursor, model)
-                except (EOFError, KeyboardInterrupt):
-                    print(f"\n{cs.YELLOW}Cancelled search operation.{cs.RESET}")
-                    continue
-                # Added option to count documents
+            # === D: Delete ===
+            elif choice in ("d", "delete"):
+                _action_delete(conn, cursor)
 
-            elif action in count_options:
-                try:
-                    get_document_count(cursor)
-                except (EOFError, KeyboardInterrupt):
-                    print(f"\n{cs.YELLOW}Cancelled search operation.{cs.RESET}")
-                    continue
+            # === C: Count ===
+            elif choice in ("c", "count"):
+                _action_count(cursor)
 
-            elif action == "pdf":
-                try:
-                    file_path = input("Enter PDF file path: ").strip()
-                    if go_back(file_path):
-                        continue
-                    insert_pdf(file_path, conn, cursor)
-                except (EOFError, KeyboardInterrupt):
-                    print(f"\n{cs.YELLOW}Cancelled PDF operation.{cs.RESET}")
-                    continue
+            # === P: PDF ===
+            elif choice in ("p", "pdf"):
+                _action_pdf(conn, cursor)
 
-            elif action == "q":
-                break
+            # === Q: Quit ===
+            elif choice in ("q", "quit"):
+                _action_quit()
+
+            # === Invalid ===
             else:
-                print(
-                    f"{cs.RED}Invalid option. Please choose I, S, PDF, or Q.{cs.RESET}"
-                )
+                print(f"{cs.RED}Invalid option. Please try again.{cs.RESET}")
 
+    except KeyboardInterrupt:
+        print(f"\n{cs.YELLOW}Interrupted. Goodbye!{cs.RESET}")
     finally:
-        # Clean up resources
+        # --- Cleanup ---
         if cursor:
             cursor.close()
         if conn:
             conn.close()
-            print(f"{cs.GREEN}✅ Database connection closed.{cs.RESET}")
+            print(f"{cs.GREEN}Database connection closed.{cs.RESET}")
 
 
+# --------------------------------------------------------------------------- #
 if __name__ == "__main__":
     main_menu()

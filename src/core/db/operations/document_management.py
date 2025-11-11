@@ -8,6 +8,7 @@ import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 
+import psycopg2
 import utils.bm25_utils as bm25_utils
 from utils.helper_functions import check_if_empty_input, measure_time
 from utils.languages import detect_language
@@ -18,7 +19,7 @@ from core.utils.ColorScheme import ColorScheme
 cs = ColorScheme()
 
 
-def insert_document(content, conn, cursor, model, commit= True, silent=False):
+def insert_document(content, conn, cursor, model, commit=True, silent=False):
     # Check for empty input
     if check_if_empty_input(content):
         if not silent:
@@ -71,3 +72,37 @@ def insert_document(content, conn, cursor, model, commit= True, silent=False):
         return False
 
 
+# Document Deleteion function
+def delete_document(doc_id, conn, cursor):
+    if not isinstance(doc_id, int):
+        print(f"{cs.RED}❌ Document ID must be an integer.{cs.RESET}")
+        return False
+    try:
+
+        # Start a transaction delete both entries
+        cursor.execute("BEGIN;")
+        # Delete from document_embedding first due to foreign key constraint
+        cursor.execute("DELETE FROM document_embedding WHERE doc_id = %s;", (doc_id,))
+        cursor.execute("DELETE FROM document WHERE id = %s;", (doc_id,))
+        cursor.execute("COMMIT;")
+
+        # Check if any rows were deleted
+        if cursor.rowcount == 0:
+            cursor.execute("ROLLBACK;")
+            print(f"{cs.RED}❌ No document found with ID {doc_id}.{cs.RESET}")
+            return True
+        conn.commit()
+
+        # Notify BM25 utility to update its index
+        bm25_utils.needs_update = True
+        print(f"{cs.GREEN}✅ Document with ID {doc_id} deleted successfully.{cs.RESET}")
+
+    except psycopg2.Error as e:
+        # Rollback on any database error
+        cursor.execute("ROLLBACK")
+        print(f"{cs.RED}❌ Database error during deletion: {e}{cs.RESET}")
+        return False
+    except Exception as e:
+        cursor.execute("ROLLBACK")
+        print(f"{cs.RED}❌ Unexpected error during deletion: {e}{cs.RESET}")
+        return False

@@ -33,7 +33,7 @@ CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
 
 
-get_elapsed = measure_time()
+
 
 
 def remove_header_footer(text: str, header_patterns=None, footer_patterns=None) -> str:
@@ -55,6 +55,7 @@ def remove_header_footer(text: str, header_patterns=None, footer_patterns=None) 
 
 
 def insert_pdf(file_path: str, conn, cursor):
+    get_elapsed = measure_time()
     if not os.path.exists(file_path):
         print(f"{cs.RED}File does not exist: {file_path}{cs.RESET}")
         return False
