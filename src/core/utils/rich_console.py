@@ -1,14 +1,14 @@
-from rich.console import Console
-from rich.table import Table
+import re
+from datetime import datetime
+
 import arabic_reshaper
 from bidi.algorithm import get_display
-from datetime import datetime
-import re
+from pygments import highlight
+from rich.console import Console
+from rich.table import Table, box
 from rich.text import Text
 from utils.ColorScheme import ColorScheme
 from utils.text_properties import repair_fragments
-from rich.panel import Panel
-from rich.columns import Columns
 
 cs = ColorScheme()
 console = Console()
@@ -50,8 +50,8 @@ def highlight_query(content, query: str) -> Text:
 def truncate_text(text: str, max_length: int =300)-> str:
     if len(text) <= max_length:
         return text
-    
-    # try to find space before max_length 
+
+    # try to find space before max_length
     truncated  = text[:max_length]
     last_space = truncated.rfind(" ")
     if last_space > max_length * 0.7: # Only if we have reasonable space
@@ -59,34 +59,53 @@ def truncate_text(text: str, max_length: int =300)-> str:
     else:
         return truncated[:-3] + "..." # Hard truncate
 
-def display_in_table(results, query=""):
+def display_in_table(results, query="", mode: str = "semantic"):
     """
     Prints the search results in a well-formatted rich table.
     """
-    table = Table(title="Search Results", show_header=True, header_style="bold magenta")
-    table.add_column("Doc ID", style="cyan", width=8)
-    table.add_column("Score", style="magenta", width=13)
-    table.add_column("Content", style="white", width=100, overflow="fold")
-    table.add_column("Language", style="green", width=12)
-    table.add_column("Created At", style="blue", width=18)
+    if not results:
+        print(f"{cs.RED}No relevant results found.{cs.RESET}")
+        return
+    # Change per mode
+
+
+    current_time = datetime.now()
+
+
+    # table = Table(
+    #     title=f"{mode_label} Results for: [bold]'{query}'[/]",
+    #     show_header=True,
+    #     header_style="bold magenta",
+    #     box=box.ROUNDED,
+    # )
+    table = Table(show_header=True, header_style="bold magenta", box=box.ROUNDED)
+    table.add_column("Doc ID",     style="cyan",       width=8)
+    table.add_column("Score",      style="magenta",     width=13)
+    table.add_column("Content",    style="white",       width=100, overflow="fold")
+    table.add_column("Language",   style="green",       width=12)
+    table.add_column("Created At", style="blue",        width=18)
 
     lang_map = {"en": "English", "fa": "Persian", "id": "Indonesian", None: "Unknown"}
 
     for doc_id, content, score, language, created_at in results:
         # cleaned_content  = clean_text(content)
-        cleaned_content = repair_fragments(content) # Optional, see below
-        truncated_content = truncate_text(cleaned_content, 300)
-        content_display = highlight_query(truncated_content, query)
-        # content_display.truncate(300, overflow="ellipsis")
+        cleaned      = repair_fragments(content) # Optional, see below
+        truncated    = truncate_text(cleaned, 300)
+        highlighted  = highlight_query(truncated, query)
+
 
         # Step 3: Handle Arabic/Persian shaping after truncation
+
         if language == "fa":
-            content_display = Text(
-                fix_arabic_text(content_display.plain), style="white"
-            )
+            highlighted = Text(fix_arabic_text(str(highlighted.plain)), style="white")
+
 
         # Score color
-        score_style = "green" if score > 0.7 else "yellow" if score > 0.4 else "red"
+        score_style = (
+            "green"  if score > 0.7 else
+            "yellow" if score > 0.4 else
+            "red"
+        )
         language_display = lang_map.get(language, language or "Unknown").capitalize()
         created_at_str = (
             created_at.strftime("%Y-%m-%d")
@@ -94,16 +113,22 @@ def display_in_table(results, query=""):
             else str(created_at)
         )
 
-        # Add row
         table.add_row(
             str(doc_id),
             f"[{score_style}]{score:.3f}[/{score_style}]",
-            content_display,  # Pass Text directly
+            highlighted,
             language_display,
             created_at_str,
         )
+    mode_label = {
+        'semantic': 'Semantic (Vector)',
+        'keyword': 'Keyword (BM25)',
+        'hybrid': 'Hybrid (Vector + BM25)'
 
+    }.get(mode, 'Search')
     console.print(table)
+    print(f"{cs.CYAN}Found {len(results)} documents{cs.RESET}")
+    console.print(f"\n[bold cyan]{mode_label} Results for: '{query}'[/]")
 
 
 
@@ -114,20 +139,20 @@ def display_in_paragraph(results, query=""):
     if not results:
         print(f"{cs.RED}No relevant results found.{cs.RESET}")
         return
-    
+
     print(f"\n{cs.BOLD}📄 Search Results for: '{query}'{cs.RESET}")
     print(f"{cs.CYAN}Found {len(results)} documents{cs.RESET}\n")
-    
+
     lang_map = {"en": "English", "fa": "Persian", "id": "Indonesian", None: "Unknown"}
-    
+
     for i, (doc_id, content, score, language, created_at) in enumerate(results, 1):
         # Clean the content for display
         cleaned_content = repair_fragments(content)
-        
+
         # Score with color
         score_color = cs.GREEN if score > 0.7 else cs.YELLOW if score > 0.4 else cs.RED
         score_display = f"{score_color}{score:.3f}{cs.RESET}"
-        
+
         # Format metadata
         language_display = lang_map.get(language, language or "Unknown")
         created_at_str = (
@@ -135,7 +160,7 @@ def display_in_paragraph(results, query=""):
             if isinstance(created_at, datetime)
             else "Unknown date"
         )
-        
+
         # Print result header
         print(f"{cs.BOLD}┌─ Result {i} {'─' * 60}{cs.RESET}")
         print(f"{cs.BOLD}│{cs.RESET}")
@@ -144,7 +169,7 @@ def display_in_paragraph(results, query=""):
         print(f"{cs.BOLD}│{cs.RESET} {cs.CYAN}Language:{cs.RESET} {language_display}")
         print(f"{cs.BOLD}│{cs.RESET} {cs.CYAN}Added:{cs.RESET} {created_at_str}")
         print(f"{cs.BOLD}│{cs.RESET}")
-        
+
         # Print content
         print(f"{cs.BOLD}│{cs.RESET} {cs.CYAN}Content:{cs.RESET}")
         print(f"{cs.BOLD}│{cs.RESET} {cleaned_content}")

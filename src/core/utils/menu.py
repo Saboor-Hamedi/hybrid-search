@@ -3,13 +3,14 @@ from utils.ColorScheme import ColorScheme
 cs = ColorScheme()
 MENU = {
     "i": ("Insert", "Add new document text manually."),
-    "s": ("Search", "Query and retrieve documents."),
+    "h": ("Hybrid Search", "Search using both semantic + keyword (BM25)."),
+    "s": ("Semantic Search", "Search using AI embeddings (vector similarity)."),
+    "k": ("Keyword Search", "Traditional full-text search (Postgres FTS)."),
+    "p": ("Paragraph Search", "Show results in readable paragraphs."),
     "d": ("Delete", "Delete a document by ID."),
-    "c": ("Count",  "Query and count documents."),
-    "p": ("PDF",    "Extract and insert from a PDF file."),
-    "q": ("Quit",   "Exit the program."),
+    "c": ("Count", "Show total number of documents."),
+    "q": ("Quit", "Exit the program."),
 }
-
 
 def safe_input(promt)-> str:
     try:

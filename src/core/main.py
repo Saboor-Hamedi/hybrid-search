@@ -17,6 +17,11 @@ from utils.menu import MENU, is_back, safe_input, safe_int_input
 from core.db.operations.count_document import get_document_count
 from core.db.operations.database_operations import paragraph_search, search
 from core.db.operations.document_management import delete_document, insert_document
+from core.db.operations.hybrid_search import search_hybrid
+from core.db.operations.keyword_search import search_keyword
+from core.db.operations.semantic_search import search_semantic
+
+# from core.db.operations.hybrid_search import paragraph_search, search
 from core.utils.ColorScheme import ColorScheme
 
 cs = ColorScheme()
@@ -47,19 +52,20 @@ def _action_insert(conn, cursor, model) -> None:
     insert_document(text, conn, cursor, model)
 
 
-def _action_search(conn, cursor, model) -> None:
-    query = safe_input("Enter search query (prefix 'p ' for paragraph mode, or 'b' to go back): ")
-    if is_back(query):
-        return
+# def _action_search(conn, cursor, model) -> None:
+#     query = safe_input("Enter search query (prefix 'p ' for paragraph mode, or 'b' to go back): ")
+#     if is_back(query):
+#         return
 
-    if query.lower().startswith("p ") and len(query) > 2:
-        paragraph_search(query[2:].strip(), conn, cursor, model)
-    elif query.lower() == "p":
-        q = safe_input("Enter paragraph-mode query: ")
-        if not is_back(q):
-            paragraph_search(q, conn, cursor, model)
-    else:
-        search(query, conn, cursor, model)
+#     if query.lower().startswith("p ") and len(query) > 2:
+
+#         paragraph_search(query[2:].strip(), conn, cursor, model)
+#     elif query.lower() == "p":
+#         q = safe_input("Enter paragraph-mode query: ")
+#         if not is_back(q):
+#             paragraph_search(q, conn, cursor, model)
+#     else:
+#         search(query, conn, cursor, model)
 
 
 def _action_pdf(conn, cursor) -> None:
@@ -134,8 +140,28 @@ def main_menu() -> None:
                 _action_insert(conn, cursor, model)
 
             # === S: Search ===
-            elif choice in ("s", "search"):
-                _action_search(conn, cursor, model)
+            elif choice == "h":
+                query = safe_input("Enter hybrid search query (or 'b' to go back): ")
+                if is_back(query): continue
+                search_hybrid(query, conn, cursor, model)
+
+            elif choice == "s":
+                query = safe_input("Enter semantic search query (or 'b' to go back): ")
+                if is_back(query): continue
+                search_semantic(query, conn, cursor, model)
+
+            elif choice == "k":
+                query = safe_input("Enter keyword search query (or 'b' to go back): ")
+                if is_back(query): continue
+                search_keyword(query, cursor)
+
+            elif choice == "p":
+                query = safe_input("Enter paragraph search query (or 'b' to go back): ")
+                if is_back(query): continue
+                # Reuse hybrid but show in paragraph
+                from core.utils.rich_console import display_in_paragraph
+                results, _ = search_hybrid(query, conn, cursor, model)
+                display_in_paragraph(results, query=query)
 
             # === D: Delete ===
             elif choice in ("d", "delete"):
