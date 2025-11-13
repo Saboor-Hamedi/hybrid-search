@@ -1,6 +1,6 @@
 create table document (
-id serial primary key, 
-content text, 
+id serial primary key,
+content text,
 languages vorchar(50),
 created_at timestamp default current_timestamp
 );

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Document {{ doc.doc_id }} - Hybrid Search</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #f8f9fa;
+        padding: 2rem;
+      }
+      .content {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+      }
+      .sidebar {
+        background: #e9ecef;
+        padding: 1rem;
+        border-radius: 8px;
+      }
+      .back-link {
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <!-- Main Content -->
+        <div class="col-md-8">
+          <a
+            href="{{ url_for('home') }}?q={{ back_query }}&mode={{ back_mode }}"
+            class="btn btn-outline-secondary back-link"
+          >
+            ← Back to Search
+          </a>
+          <h1>Document {{ doc.doc_id }}</h1>
+          <p class="text-muted">
+            <strong>Language:</strong> {{ doc.language }} |
+            <strong>Created:</strong> {{ doc.created_at }} |
+
+          </p>
+          <div class="content">{{ doc.content | safe }}</div>
+        </div>
+
+        <!-- Sidebar (Related Docs) -->
+        <div class="col-md-4">
+          <div class="sidebar">
+            <h5>Related Documents</h5>
+            {% for rel in related %}
+            <div class="mb-2">
+              <a
+                href="{{ url_for('document_page', doc_id=rel.doc_id, q=back_query, mode=back_mode) }}"
+                class="small text-decoration-none"
+              >
+                {{ rel.title }}
+              </a>
+              <br /><small class="text-muted"
+                >{{ rel.language }} • {{ rel.created_at }}</small
+              >
+            </div>
+            {% endfor %} {% if not related %}
+            <p class="text-muted">No related documents.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

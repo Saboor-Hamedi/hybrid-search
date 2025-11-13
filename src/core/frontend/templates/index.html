@@ -1,99 +1,139 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
- <head>
+<head>
   <meta charset="UTF-8" />
-  <title>Hybrid Search Dashboard.</title>
-  <link
-   rel="stylesheet"
-   href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-  />
+  <title>Hybrid Search Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <style>
-   body {
-    background-color: #f9fafb;
-    padding: 30px;
-   }
-   .card {
-    margin-top: 15px;
-    border-radius: 10px;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-   }
-   .highlight {
-    background: #f4f4f4;
-    padding: 8px;
-    border-radius: 5px;
-   }
+    body { background-color: #f8f9fa; padding: 2rem; }
+    .card { margin-bottom: 1rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .highlight { background: #f1f3f5; padding: 12px; border-radius: 8px; font-family: monospace; }
+    .stats { font-size: 0.9rem; color: #495057; }
+    .mode-radio { margin-right: 1.5rem; }
+    mark { background: #fff3cd; padding: 0.1em 0.2em; border-radius: 3px; }
   </style>
- </head>
- <body>
+</head>
+<body>
   <div class="container">
-   <h2 class="mb-4 text-center">Hybrid Search Dashboard</h2>
+    <h2 class="text-center mb-4">Hybrid Search Dashboard</h2>
 
-        <!-- New Metric: Query Embedding Time -->
-   <p>
-    <strong>Query Embedding Time:</strong> {{ stats.embedding_time_ms|default(0.0)|round(2) }} ms
-   </p>
+    <!-- Search Form -->
+    <form method="POST" class="card p-4 mb-4">
+      <input type="hidden" name="page" value="1" />
+      <div class="row g-3 align-items-center">
+        <div class="col-md-7">
+          <input type="text" name="query" class="form-control"
+                 placeholder="Enter your search query..." value="{{ query }}" required autofocus />
+        </div>
+        <div class="col-md-2">
+          <select name="page_size" class="form-select">
+            <option value="10" {% if page_size == 10 %}selected{% endif %}>10</option>
+            <option value="25" {% if page_size == 25 %}selected{% endif %}>25</option>
+            <option value="50" {% if page_size == 50 %}selected{% endif %}>50</option>
+            <option value="100" {% if page_size == 100 %}selected{% endif %}>100</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <button type="submit" class="btn btn-primary w-100">Search</button>
+        </div>
+      </div>
 
-   <p>
-    <strong>Vector Search Time (DB):</strong> {{ stats.semantic_time_ms|default(0.0)|round(2) }} ms
-   </p>
+      <!-- Mode Selection -->
+      <!-- prettier-ignore -->
+      <div class="mt-3">
+        <small class="text-muted">Search Mode:</small><br />
+        <div class="form-check form-check-inline mode-radio">
+          <input class="form-check-input" type="radio" name="mode" value="hybrid" id="hybrid"
+                 {{ 'checked' if mode == "hybrid" else '' }} />
+          <label class="form-check-label" for="hybrid">Hybrid (Vector + BM25)</label>
+        </div>
+        <div class="form-check form-check-inline mode-radio">
+          <input class="form-check-input" type="radio" name="mode" value="semantic" id="semantic"
+                 {{ 'checked' if mode == "semantic" else '' }} />
+          <label class="form-check-label" for="semantic">Semantic (Vector)</label>
+        </div>
+        <div class="form-check form-check-inline mode-radio">
+          <input class="form-check-input" type="radio" name="mode" value="keyword" id="keyword"
+                 {{ 'checked' if mode == "keyword" else '' }} />
+          <label class="form-check-label" for="keyword">Keyword (BM25)</label>
+        </div>
+      </div>
+    </form>
 
-   <p>
-    <strong>BM25 Index & Search Time:</strong> {{ stats.bm25_time_ms|default(0.0)|round(2) }} ms
-   </p>
-
-   <p>
-    <strong>Total API Time:</strong> {{ stats.query_time_ms|default(0.0)|round(2) }} ms
-   </p>
-
-        <form id="search-form" method="POST" class="mb-4">
-    <div class="input-group">
-     <input
-      type="text"
-      name="query"
-      value="{{ query }}"
-      class="form-control"
-      placeholder="Enter your search query..."
-      required
-     />
-     <button class="btn btn-primary" type="submit">Search</button>
+    <!-- Loading Spinner -->
+    <div id="loading" class="text-center my-4" style="display: none;">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Searching...</span>
+      </div>
     </div>
-    <div class="form-check mt-2">
-     <label>
-      <input
-       type="checkbox"
-       name="use_hybrid"
-       value="true"
-       {%
-       if
-       use_hybrid
-       %}checked{%
-       endif
-       %}
-      />
-      Use Hybrid (BM25 + Embedding)
-     </label>
+
+    <!-- Stats -->
+    {% if stats and 'error' not in stats %}
+    <div class="card p-3 mb-4 stats">
+      <div class="row text-center">
+        <div class="col"><strong>Time:</strong> {{ stats.query_time_ms }} ms</div>
+        <div class="col"><strong>Semantic:</strong> {{ stats.semantic_count }}</div>
+        <div class="col"><strong>BM25:</strong> {{ stats.bm25_count }}</div>
+        <div class="col"><strong>Returned:</strong> {{ stats.returned }}</div>
+      </div>
     </div>
-   </form>
+    {% endif %}
 
-   <div id="loading-spinner" class="text-center" style="display: none">
-    <div class="spinner-border" role="status">
-     <span class="visually-hidden">Loading...</span>
-    </div>
-   </div>
+    <!-- Results -->
+    {% if results %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5>{{ total_results }} result{{ 's' if total_results != 1 else '' }} (Page {{ page }} of {{ total_pages }})</h5>
+  <nav>
+    <ul class="pagination pagination-sm">
+      {% if prev_page %}
+      <li class="page-item">
+        <form method="POST" class="d-inline">
+          <input type="hidden" name="query" value="{{ query }}" />
+          <input type="hidden" name="mode" value="{{ mode }}" />
+          <input type="hidden" name="page_size" value="{{ page_size }}" />
+          <input type="hidden" name="page" value="{{ prev_page }}" />
+          <button class="page-link">Previous</button>
+        </form>
+      </li>
+      {% endif %}
+      {% if next_page %}
+      <li class="page-item">
+        <form method="POST" class="d-inline">
+          <input type="hidden" name="query" value="{{ query }}" />
+          <input type="hidden" name="mode" value="{{ mode }}" />
+          <input type="hidden" name="page_size" value="{{ page_size }}" />
+          <input type="hidden" name="page" value="{{ next_page }}" />
+          <button class="page-link">Next</button>
+        </form>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+</div>
 
-   {% if results %}
+{% for r in results %}
+<div class="card p-3 mb-3">
+  <h6 class="card-title">
+    <a href="{{ url_for('document_page', doc_id=r.doc_id, q=query, mode=mode) }}" class="text-decoration-none">
+      Document {{ r.doc_id }}
+    </a>
+  </h6>
+  <div class="highlight">{{ r.content_highlighted | safe }}</div>
+  <small class="text-muted mt-2 d-block">
 
-   <h5 class="mt-4">{{ total }} results found</h5>
-   {% for r in results %}
-   <div class="card p-3">
-    <p class="highlight">{{ r.content }}</p>
-    <small class="text-muted">
-     <strong>Doc ID:</strong> {{ r.doc_id }} | <strong>Score:</strong> {{
-     "%.4f"|format(r.score) }} | <strong>Lang:</strong> {{ r.language }} |
-     <strong>Created:</strong> {{ r.created_at }}
-    </small>
-   </div>
-   {% endfor %} {% endif %}
-  </div>
- </body>
+    <strong>Lang:</strong> {{ r.language }} |
+    <strong>Date:</strong> {{ r.created_at }}
+  </small>
+</div>
+{% endfor %}
+{% endif %}
+
+  <script>
+    const form = document.querySelector('form');
+    const spinner = document.getElementById('loading');
+    form.addEventListener('submit', () => {
+      spinner.style.display = 'block';
+    });
+  </script>
+</body>
 </html>
