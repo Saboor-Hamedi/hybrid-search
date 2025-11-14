@@ -1,13 +1,14 @@
 create table document (
 id serial primary key,
 content text,
-languages vorchar(50),
+languages VARCHAR(10),
 created_at timestamp default current_timestamp
 );
 drop table document_embedding
 ALTER TABLE document_comments RENAME TO document_embedding;
 alter table document_embedding add column embedding VECTOR(384); -- For MiniLM-L12-v2
-
+ALTER TABLE document rename languages to language;
+SELECT * FROM document limit 5;
 create table document_embedding(
 id SERIAL PRIMARY KEY,
 doc_id INTEGER REFERENCES document(id),
@@ -22,7 +23,8 @@ CREATE TABLE IF NOT EXISTS search_logs (
     latency_ms DOUBLE PRECISION DEFAULT 0,
     created_at TIMESTAMP DEFAULT NOW()
 );
-select * from document;
+select * from search_logs;
+DELETE FRO
 
 
 ALTER TABLE document ADD COLUMN content_tsvector tsvector;

@@ -1,23 +1,26 @@
 '''
  ! This is my Flask app.
 '''
+import logging
 import os
 import sys
 
 import requests
-from flask import Flask, render_template, request, url_for
 
-#  Add project root so we can import db_connection
+#  Add project root so we can import db_connection
+from db.db_connection import db_connection
+from flask import Flask, render_template, request, url_for
+from frontend.graphs.analyze import generate_query_graph
+
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TEMPLATE_DIR = os.path.join(BASE_DIR,  "frontend", "templates")
-from db.db_connection import db_connection
-
+TEMPLATE_DIR = os.path.join(BASE_DIR, "frontend", "templates")
+logging.basicConfig(level=logging.DEBUG)
 app = Flask(__name__, template_folder=TEMPLATE_DIR)
-API_URL = "http://127.0.0.1:8000"          # FastAPI backend
+API_URL = "http://127.0.0.1:8000"  # FastAPI backend
 
 
-#  Helper: highlight query words
+#  Helper: highlight query words
 def highlight_text(text: str, query: str) -> str:
     if not query or not text:
         return text
@@ -27,9 +30,7 @@ def highlight_text(text: str, query: str) -> str:
     return re.sub(f"({pattern})", r"<mark>\1</mark>", text, flags=re.IGNORECASE)
 
 
-# ------------------------------------------------------------------ #
-#  / – search page
-# ------------------------------------------------------------------ #
+#  / – search page
 @app.route("/", methods=["GET", "POST"])
 def home():
     results = []
@@ -40,13 +41,22 @@ def home():
     page_size = 50
     total_pages = 0
     total_results = 0
+    # Show graph for searchs
+    graph_img = None
 
     if request.method == "POST":
         query = request.form.get("query", "").strip()
         mode = request.form.get("mode", "hybrid")
         page = int(request.form.get("page", 1))
         page_size = int(request.form.get("page_size", 50))
+    else:
+        query = request.args.get("query", "").strip()
+        mode = request.args.get("mode", "hybrid")
+        page = int(request.args.get("page", 1))
+        page_size = int(request.args.get("page_size", 50))
 
+
+    if query:
         payload = {
             "query": query,
             "page": page,
@@ -69,6 +79,20 @@ def home():
             total_pages = pagination.get("total_pages", 0)
             total_results = pagination.get("total_results", 0)
 
+            # --- DEBUG FIX: FORCE PAGINATION TO RENDER ---
+            # If we found results, but FastAPI returned total_pages <= 1,
+            # we calculate a test value to ensure the buttons render.
+            if total_results > 0 and total_pages <= 1 and page_size > 0:
+                # Calculate the correct total pages based on the results count
+                test_total_pages = (total_results // page_size) + (1 if total_results % page_size != 0 else 0)
+
+                # Use the calculated value if it's greater than 1
+                if test_total_pages > 1:
+                    total_pages = test_total_pages
+                    print(f"DEBUG: Forcing total_pages to {total_pages} for front-end rendering test.")
+            # ---------------------------------------------
+
+
             # ----- stats -----
             raw = data.get("stats", {})
             stats = {
@@ -77,6 +101,14 @@ def home():
                 "bm25_count": raw.get("bm25_count", 0),
                 "returned": raw.get("returned", 0),
             }
+            graph_img = generate_query_graph(
+                mode=mode,
+                latency_ms=stats['query_time_ms'],
+                results_count=total_results,
+                semantic_count=stats.get('semantic_count', 0),
+                bm25_count=stats.get('bm25_count', 0)
+            )
+
 
         except requests.RequestException as e:
             results = []
@@ -99,14 +131,16 @@ def home():
         total_results=total_results,
         prev_page=prev_page,
         next_page=next_page,
+        graph_img=graph_img
+
     )
 
 
 # ------------------------------------------------------------------ #
-#  /document/<id> – Wikipedia-style page
+#  /document/<id> – Wikipedia-style page
 # ------------------------------------------------------------------ #
 def _db():
-    """Return (conn, cursor) – same function you use in FastAPI."""
+    """Return (conn, cursor)  same function you use in FastAPI."""
     conn = db_connection()
     if not conn:
         raise RuntimeError("DB connection failed")
@@ -116,11 +150,16 @@ def _db():
 @app.route("/document/<int:doc_id>")
 def document_page(doc_id: int):
     conn, cursor = _db()
+
+    # Retrieve back-link parameters from URL arguments
+    back_query = request.args.get("q", "")
+    back_mode = request.args.get("mode", "hybrid")
+
     try:
         # 1. Fetch document (include score if you have it)
         cursor.execute(
             """
-            SELECT id, content, languages, created_at
+            SELECT id, content, language, created_at
             FROM document
             WHERE id = %s
             """,
@@ -138,19 +177,24 @@ def document_page(doc_id: int):
         doc = {
             "doc_id": row[0],
             "content": row[1] or "",
-            "language": row[2] or "unknown",
-            "created_at": (
-                row[3].strftime("%Y-%m-%d %H:%M") if row[3] else "unknown"
-            ),
-            # "score": float(row[4]) if row[4] is not None else 0.0,
+            "language": row[2] or "en",
+            "created_at": row[3].strftime("%Y-%m-%d %H:%M") if row[3] else "unknown",
+            "score": 0.0,
         }
+
+        try:
+            score = float(request.args.get("score", 0))
+            doc["score"] = round(score, 4)
+        except Exception as e:
+            print("DB error:", e)
+
 
         # 3. Related docs (same language)
         cursor.execute(
             """
-            SELECT id, content, languages, created_at
+            SELECT id, content, language, created_at
             FROM document
-            WHERE languages = %s AND id != %s
+            WHERE language = %s AND id != %s
             ORDER BY created_at DESC
             LIMIT 5
             """,
@@ -160,21 +204,22 @@ def document_page(doc_id: int):
             {
                 "doc_id": r[0],
                 "title": (r[1][:60] + "...") if len(r[1]) > 60 else r[1],
-                "language": r[2] or "unknown",
+                "language": r[2] or "en",
                 "created_at": r[3].strftime("%Y-%m-%d") if r[3] else "unknown",
+                "score": 0.0 # Placeholder score
             }
             for r in cursor.fetchall()
         ]
 
-        back_query = request.args.get("q", "")
-        back_mode = request.args.get("mode", "hybrid")
+
+        # Display graphs
 
         return render_template(
             "document.html",
             doc=doc,
             related=related,
-            back_query=back_query,
-            back_mode=back_mode,
+            back_query = back_query,
+            back_mode = back_mode
         )
 
     except Exception as e:
@@ -187,9 +232,8 @@ def document_page(doc_id: int):
     finally:
         cursor.close()
         conn.close()
-
 # ------------------------------------------------------------------ #
-#  Run
+#  Run
 # ------------------------------------------------------------------ #
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)

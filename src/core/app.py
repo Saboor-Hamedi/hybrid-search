@@ -16,8 +16,7 @@ from pydantic import BaseModel
 # --------------------------------------------------------------------- #
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-from db.db_connection import db_connection, get_model
-
+from core.db.db_connection import db_connection, get_model
 from core.db.operations.hybrid_search import search_hybrid
 from core.db.operations.keyword_search import search_keyword
 from core.db.operations.semantic_search import search_semantic
@@ -27,7 +26,7 @@ model = None
 
 
 app = FastAPI(title="Hybrid Search API")
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.on_event("startup")
@@ -78,7 +77,7 @@ class SearchRequest(BaseModel):
 class SearchResult(BaseModel):
     doc_id: int
     content: str
-    # score: str
+    score: float
     language: str
     created_at: str
 
@@ -125,21 +124,18 @@ def search_endpoint(request: SearchRequest):
             all_results, stats = search_hybrid(
                 request.query, conn, cursor, model, top_k=offset + page_size
             )
-            sem_count = len(stats.get("sem_results", []))
-            bm25_count = len(stats.get("bm25_results", []))
+            sem_count = len(stats.get("sem_results") or [])
+            bm25_count = len(stats.get("bm25_results") or [])
+
             search_type = "hybrid"
 
         else:
             raise HTTPException(400, "Invalid mode. Use: semantic, keyword, hybrid")
 
-        # -----------------------------------------------------------------
         # Paginate in Python
-        # -----------------------------------------------------------------
         paginated = all_results[offset : offset + page_size]
 
-        # -----------------------------------------------------------------
         # Format results
-        # -----------------------------------------------------------------
         formatted = []
         for r in paginated:
             created_at_str = (
@@ -151,7 +147,7 @@ def search_endpoint(request: SearchRequest):
                 SearchResult(
                     doc_id=r[0],
                     content=r[1],
-                    # score=str(r[2]),
+                    score=float(r[2]),
                     language=str(r[3] or "unknown"),
                     created_at=created_at_str,
                 )
@@ -200,11 +196,7 @@ def search_endpoint(request: SearchRequest):
         conn.close()
 
 
-# --------------------------------------------------------------------- #
-# Keep Your Other Endpoints (update, metrics, etc.)
-# --------------------------------------------------------------------- #
-# ... (your update_document_endpoint, /metrics, etc. stay exactly as-is)
-# Just make sure they use `get_db()` instead of inline connection
+
 
 
 @app.get("/")

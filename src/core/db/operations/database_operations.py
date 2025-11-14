@@ -5,11 +5,11 @@ import time
 # Ensure the parent directory is in sys.path for relative imports
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 # from utils.bm25_utils import update_bm25_index, bm25_index, bm25_corpus
-import utils.bm25_utils as bm25_utils
 from utils.ColorScheme import ColorScheme
 from utils.helper_functions import check_if_empty_input, measure_time
 from utils.text_properties import normalize_content
 
+import core.utils.bm25_utils as bm25_utils
 from core.db.operations.keyword_queries import execute_keyword_query
 from core.utils.console_stats import display_search_stats
 from core.utils.rich_console import display_in_paragraph, display_in_table

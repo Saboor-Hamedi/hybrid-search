@@ -1,5 +1,9 @@
 # Must read: This file contains the insert_document function, which is a core database operation.
+""":NOTE
 
+* Description:
+    ! This file contains the insert_document function, which is a core database operation.
+"""
 
 import os
 import sys
@@ -35,7 +39,7 @@ def insert_document(content, conn, cursor, model, commit=True, silent=False):
 
         # Insert content and FTS vector (PostgreSQL)
         cursor.execute(
-            "INSERT INTO document (content, languages, content_tsvector) VALUES (%s, %s, to_tsvector('simple', %s)) RETURNING id;",
+            "INSERT INTO document (content, language, content_tsvector) VALUES (%s, %s, to_tsvector('simple', %s)) RETURNING id;",
             (nor_content, language, nor_content),
         )
         result = cursor.fetchone()

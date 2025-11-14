@@ -16,7 +16,7 @@ def update_record(conn, cursor, doc_id: int, content: str, language: str = "en",
         cursor.execute("""
             UPDATE document
             SET content = %s,
-                languages = %s
+                language = %s
             WHERE id = %s
         """, (content, language, doc_id))
 

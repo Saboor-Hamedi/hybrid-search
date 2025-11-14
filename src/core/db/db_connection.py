@@ -1,8 +1,11 @@
 import os
 
+import numpy as np
 import psycopg2
 from dotenv import load_dotenv
+from optimum.onnxruntime import ORTModelForFeatureExtraction
 from sentence_transformers import SentenceTransformer
+from transformers import AutoTokenizer
 
 load_dotenv()
 # Cache the model to avoid reloading it every time
@@ -59,3 +62,4 @@ def get_model():
         print(f"❌ Error loading model '{MODEL_NAME}': {e}")
         # This often happens if the model name is incorrect or network access is an issue
         return None
+

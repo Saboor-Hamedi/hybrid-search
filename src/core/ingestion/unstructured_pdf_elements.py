@@ -1,7 +1,9 @@
-from unstructured.partition.pdf import partition_pdf
 import os
-import tempfile
 import shutil
+import tempfile
+
+from unstructured.partition.pdf import partition_pdf
+
 from core.utils.ColorScheme import ColorScheme
 
 cs = ColorScheme()
@@ -23,7 +25,7 @@ def parse_pdf(pdf_path: str):
         # Use simpler settings to avoid OCR issues
         elements = partition_pdf(
             filename=pdf_path,
-            languages=["eng"],  # Start with just English to avoid warnings
+            language=["eng"],  # Start with just English to avoid warnings
             strategy="fast",  # Use 'fast' instead of 'hi_res' to avoid OCR
             extract_images=False,  # Disable image extraction
             infer_table_structure=False,  # Disable table extraction (can cause issues)
