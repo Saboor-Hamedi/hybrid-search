@@ -79,8 +79,8 @@ def display_in_table(results, query="", mode: str = "semantic"):
     #     box=box.ROUNDED,
     # )
     table = Table(show_header=True, header_style="bold magenta", box=box.ROUNDED)
-    table.add_column("Doc ID",     style="cyan",       width=8)
-    table.add_column("Score",      style="magenta",     width=13)
+    table.add_column("Doc ID",     style="cyan",       width=12)
+    table.add_column("Score",      style="magenta",     width=10)
     table.add_column("Content",    style="white",       width=100, overflow="fold")
     table.add_column("Language",   style="green",       width=12)
     table.add_column("Created At", style="blue",        width=18)
@@ -98,8 +98,6 @@ def display_in_table(results, query="", mode: str = "semantic"):
 
         if language == "fa":
             highlighted = Text(fix_arabic_text(str(highlighted.plain)), style="white")
-
-
         # Score color
         score_style = (
             "green"  if score > 0.7 else

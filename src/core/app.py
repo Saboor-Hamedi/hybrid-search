@@ -11,20 +11,17 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-# --------------------------------------------------------------------- #
 # Setup path + load model + DB
-# --------------------------------------------------------------------- #
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from core.db.db_connection import db_connection, get_model
-from core.db.operations.hybrid_search import search_hybrid
-from core.db.operations.keyword_search import search_keyword
-from core.db.operations.semantic_search import search_semantic
+from core.db.operations.search_flask.hybrid_search import search_hybrid
+from core.db.operations.search_flask.keyword_search import search_keyword
+from core.db.operations.search_flask.semantic_search import search_semantic
 
 # Load model once at startup
 model = None
-
-
+MAX_CANDIDATES = 1000
 app = FastAPI(title="Hybrid Search API")
 # app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -65,7 +62,7 @@ def get_db():
 
 
 # --------------------------------------------------------------------- #
-# Pydantic Models
+# Pymantic Models
 # --------------------------------------------------------------------- #
 class SearchRequest(BaseModel):
     query: str
@@ -98,41 +95,39 @@ def search_endpoint(request: SearchRequest):
 
     try:
         page = max(1, request.page)
-        page_size = min(50, max(1, request.page_size))
+        page_size = min(200, max(10, request.page_size))
         offset = (page - 1) * page_size
-
-        # -----------------------------------------------------------------
+        # Always retrieve up to max candidates, regardless of page
+        top_k = MAX_CANDIDATES
         # Run the correct search
-        # -----------------------------------------------------------------
         if request.mode == "semantic":
             all_results, _ = search_semantic(
-                request.query, conn, cursor, model, top_k=offset + page_size
-            )
+                request.query, conn, cursor, model, top_k=top_k)
             sem_count = len(all_results)
             bm25_count = 0
             search_type = "semantic"
 
         elif request.mode == "keyword":
             all_results, _ = search_keyword(
-                request.query, cursor, top_k=offset + page_size
-            )
+                request.query, cursor, top_k=top_k *2)
             sem_count = 0
             bm25_count = len(all_results)
             search_type = "keyword"
 
         elif request.mode == "hybrid":
             all_results, stats = search_hybrid(
-                request.query, conn, cursor, model, top_k=offset + page_size
-            )
+                request.query, conn, cursor, model, top_k=top_k             )
             sem_count = len(stats.get("sem_results") or [])
             bm25_count = len(stats.get("bm25_results") or [])
-
             search_type = "hybrid"
 
         else:
             raise HTTPException(400, "Invalid mode. Use: semantic, keyword, hybrid")
 
         # Paginate in Python
+        paginated = all_results[offset : offset + page_size]
+        total_results = len(all_results)  # e.g., 842
+        total_pages = (total_results + page_size - 1) // page_size  # ceiling division
         paginated = all_results[offset : offset + page_size]
 
         # Format results
@@ -167,9 +162,7 @@ def search_endpoint(request: SearchRequest):
         )
         conn.commit()
 
-        # -----------------------------------------------------------------
         # Response
-        # -----------------------------------------------------------------
         return SearchResponse(
             results=formatted,
             stats={
@@ -183,8 +176,8 @@ def search_endpoint(request: SearchRequest):
             pagination={
                 "page": page,
                 "page_size": page_size,
-                "total_pages": (len(all_results) + page_size - 1) // page_size,
-                "total_results": len(all_results),
+                "total_pages": total_pages,
+                "total_results": total_results
             },
         )
 

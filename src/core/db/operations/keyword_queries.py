@@ -11,7 +11,7 @@ from utils.ColorScheme import ColorScheme
 
 cs = ColorScheme()
 
-def execute_keyword_query(query, cursor, limit, offset):
+def execute_keyword_query(query, cursor, limit):
     """
     Worker function: Executes the traditional PostgreSQL Full-Text Search (FTS) query.
 
@@ -26,8 +26,8 @@ def execute_keyword_query(query, cursor, limit, offset):
         FROM document
         WHERE content_tsvector @@ plainto_tsquery('simple', %s)
         ORDER BY score DESC
-        LIMIT %s OFFSET %s
-    """, (query, query, limit, offset))
+        LIMIT %s
+    """, (query, query, limit))
 
     rows = cursor.fetchall()
 
@@ -41,9 +41,10 @@ def execute_keyword_query(query, cursor, limit, offset):
     keyword_time_ms = (time.time() - start_time) * 1000
 
     # Return results and stats (only time and count)
-    stats = {
-        "keyword_time_ms": round(keyword_time_ms, 2),
-        "keyword_count": len(results),
-    }
+    return results, {"keyword_count": len(results)}
+    # stats = {
+    #     "keyword_time_ms": round(keyword_time_ms, 2),
+    #     "keyword_count": len(results),
+    #}
 
-    return results, stats
+    # return results, stats

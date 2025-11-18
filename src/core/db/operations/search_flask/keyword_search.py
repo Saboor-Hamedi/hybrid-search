@@ -6,13 +6,13 @@ from core.utils.console_stats import display_search_stats
 from core.utils.rich_console import display_in_table
 
 cs = ColorScheme()
-def search_keyword(query: str, cursor, top_k=100):
+def search_keyword(query: str, cursor, top_k: int=1000):
     if not query.strip():
         print(f"{cs.RED}Query cannot be empty.{cs.RESET}")
         return [], {}
 
     get_elapsed = measure_time()
-    results, stats = execute_keyword_query(query, cursor, top_k, 0)
+    results, stats = execute_keyword_query(query, cursor, top_k)
 
     display_in_table(results, query=query, mode="keyword")
     display_search_stats([], results, get_elapsed, mode="keyword")

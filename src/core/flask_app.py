@@ -9,13 +9,14 @@ import requests
 
 #  Add project root so we can import db_connection
 from db.db_connection import db_connection
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request
 from frontend.graphs.analyze import generate_query_graph
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = os.path.join(BASE_DIR, "frontend", "templates")
 logging.basicConfig(level=logging.DEBUG)
+
 app = Flask(__name__, template_folder=TEMPLATE_DIR)
 API_URL = "http://127.0.0.1:8000"  # FastAPI backend
 
@@ -44,16 +45,14 @@ def home():
     # Show graph for searchs
     graph_img = None
 
-    if request.method == "POST":
-        query = request.form.get("query", "").strip()
-        mode = request.form.get("mode", "hybrid")
-        page = int(request.form.get("page", 1))
-        page_size = int(request.form.get("page_size", 50))
-    else:
-        query = request.args.get("query", "").strip()
-        mode = request.args.get("mode", "hybrid")
-        page = int(request.args.get("page", 1))
-        page_size = int(request.args.get("page_size", 50))
+    input_source = request.form if request.method == "POST" else request.args
+
+
+    # 1. Initialize/Retrieve Search Parameters
+    query = input_source.get("query", "").strip()
+    mode = input_source.get("mode", "hybrid")
+    page = int(input_source.get("page", 1))
+    page_size = int(input_source.get("page_size", 50))
 
 
     if query:
@@ -68,7 +67,6 @@ def home():
             r = requests.post(f"{API_URL}/search", json=payload, timeout=15)
             r.raise_for_status()
             data = r.json()
-
             # ----- results -----
             results = data.get("results", [])
             for r in results:
@@ -79,11 +77,10 @@ def home():
             total_pages = pagination.get("total_pages", 0)
             total_results = pagination.get("total_results", 0)
 
-            # --- DEBUG FIX: FORCE PAGINATION TO RENDER ---
-            # If we found results, but FastAPI returned total_pages <= 1,
             # we calculate a test value to ensure the buttons render.
             if total_results > 0 and total_pages <= 1 and page_size > 0:
                 # Calculate the correct total pages based on the results count
+
                 test_total_pages = (total_results // page_size) + (1 if total_results % page_size != 0 else 0)
 
                 # Use the calculated value if it's greater than 1
@@ -140,7 +137,7 @@ def home():
 #  /document/<id> – Wikipedia-style page
 # ------------------------------------------------------------------ #
 def _db():
-    """Return (conn, cursor)  same function you use in FastAPI."""
+
     conn = db_connection()
     if not conn:
         raise RuntimeError("DB connection failed")
@@ -205,8 +202,8 @@ def document_page(doc_id: int):
                 "doc_id": r[0],
                 "title": (r[1][:60] + "...") if len(r[1]) > 60 else r[1],
                 "language": r[2] or "en",
-                "created_at": r[3].strftime("%Y-%m-%d") if r[3] else "unknown",
-                "score": 0.0 # Placeholder score
+                "created_at": r[3].strftime("%y-%m-%d") if r[3] else "unknown",
+                "score": 0.0 # placeholder score
             }
             for r in cursor.fetchall()
         ]

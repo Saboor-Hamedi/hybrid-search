@@ -5,8 +5,9 @@ import sys
 # We ensure the path is set correctly for imports if this is a separate file.
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
-from core.utils.ColorScheme import ColorScheme
 import psycopg2
+
+from core.utils.ColorScheme import ColorScheme
 
 cs = ColorScheme()
 
@@ -37,10 +38,8 @@ def get_document_count(cursor):
     """
     try:
         count = _execute_count(cursor)
-        print("--- Document Count ---")
         print(f"{cs.GREEN}Total Documents Indexed: {cs.BOLD}{count}{cs.RESET}")
-        print("----------------------")
-        return count
+
     except Exception as e:
         print(f"{cs.RED}❌ Error getting document count: {e}{cs.RESET}")
         return 0

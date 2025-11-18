@@ -1,0 +1,12 @@
+<!-- Header Section (Flat Blue Band) -->
+<header class="header">
+    <div class="container">
+        <div class="result-count-info">
+            {% if total_results is defined and query %}
+            {{ total_results }} Result{{ 's' if total_results != 1 else '' }} Found
+            {% else %}
+            Hybrid Search Dashboard
+            {% endif %}
+        </div>
+    </div>
+</header>

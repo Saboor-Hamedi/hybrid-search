@@ -14,14 +14,13 @@ from db.db_connection import db_connection, get_db_cursor, get_model
 from ingestion.insert_pdf_chunks import insert_pdf
 from utils.menu import MENU, is_back, safe_input, safe_int_input
 
-from core.db.operations.count_document import get_document_count
-from core.db.operations.database_operations import paragraph_search, search
 from core.db.operations.document_management import delete_document, insert_document
-from core.db.operations.hybrid_search import search_hybrid
-from core.db.operations.keyword_search import search_keyword
-from core.db.operations.semantic_search import search_semantic
+from core.db.operations.search_cli.count_document import get_document_count
 
-# from core.db.operations.hybrid_search import paragraph_search, search
+# Flask search imports
+from core.db.operations.search_flask.hybrid_search import search_hybrid
+from core.db.operations.search_flask.keyword_search import search_keyword
+from core.db.operations.search_flask.semantic_search import search_semantic
 from core.utils.ColorScheme import ColorScheme
 
 cs = ColorScheme()
@@ -51,21 +50,6 @@ def _action_insert(conn, cursor, model) -> None:
         return
     insert_document(text, conn, cursor, model)
 
-
-# def _action_search(conn, cursor, model) -> None:
-#     query = safe_input("Enter search query (prefix 'p ' for paragraph mode, or 'b' to go back): ")
-#     if is_back(query):
-#         return
-
-#     if query.lower().startswith("p ") and len(query) > 2:
-
-#         paragraph_search(query[2:].strip(), conn, cursor, model)
-#     elif query.lower() == "p":
-#         q = safe_input("Enter paragraph-mode query: ")
-#         if not is_back(q):
-#             paragraph_search(q, conn, cursor, model)
-#     else:
-#         search(query, conn, cursor, model)
 
 
 def _action_pdf(conn, cursor) -> None:
