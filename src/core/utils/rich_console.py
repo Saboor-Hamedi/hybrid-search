@@ -70,20 +70,13 @@ def display_in_table(results, query="", mode: str = "semantic"):
 
 
     current_time = datetime.now()
-
-
-    # table = Table(
-    #     title=f"{mode_label} Results for: [bold]'{query}'[/]",
-    #     show_header=True,
-    #     header_style="bold magenta",
-    #     box=box.ROUNDED,
-    # )
+   
     table = Table(show_header=True, header_style="bold magenta", box=box.ROUNDED)
-    table.add_column("Doc ID",     style="cyan",       width=12)
-    table.add_column("Score",      style="magenta",     width=10)
-    table.add_column("Content",    style="white",       width=100, overflow="fold")
-    table.add_column("Language",   style="green",       width=12)
-    table.add_column("Created At", style="blue",        width=18)
+    table.add_column("Doc ID",     style="cyan")
+    table.add_column("Score",      style="magenta")
+    table.add_column("Content",    style="white", overflow="fold")
+    table.add_column("Language",   style="green")
+    table.add_column("Created At", style="blue")
 
     lang_map = {"en": "English", "fa": "Persian", "id": "Indonesian", None: "Unknown"}
 

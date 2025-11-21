@@ -26,9 +26,7 @@ from core.utils.ColorScheme import ColorScheme
 cs = ColorScheme()
 
 
-# --------------------------------------------------------------------------- #
 # MENU DISPLAY
-# --------------------------------------------------------------------------- #
 def display_menu() -> None:
     print("\n" + "=" * 50)
     print(f"{cs.BOLD}DOCUMENT MANAGER MENU{cs.RESET}")
@@ -38,9 +36,8 @@ def display_menu() -> None:
     print("=" * 50)
 
 
-# --------------------------------------------------------------------------- #
+
 # ACTION FUNCTIONS (all called from the menu)
-# --------------------------------------------------------------------------- #
 def _action_insert(conn, cursor, model) -> None:
     text = safe_input("Enter document text (or 'b' to go back): ")
     if is_back(text):
@@ -78,9 +75,7 @@ def _action_quit() -> None:
     sys.exit(0)
 
 
-# --------------------------------------------------------------------------- #
 # MAIN LOOP – Calls the functions above
-# --------------------------------------------------------------------------- #
 def main_menu() -> None:
     start_time = time.time()
     print(f"{cs.GREEN}Program started at {time.ctime(start_time)}{cs.RESET}")

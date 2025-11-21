@@ -46,7 +46,7 @@ def home():
     graph_img = None
 
     input_source = request.form if request.method == "POST" else request.args
-
+    
 
     # 1. Initialize/Retrieve Search Parameters
     query = input_source.get("query", "").strip()
@@ -233,4 +233,4 @@ def document_page(doc_id: int):
 #  Run
 # ------------------------------------------------------------------ #
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="127.0.0.1", port=5000, debug=False)
