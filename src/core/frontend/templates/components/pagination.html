@@ -20,7 +20,7 @@
             <li class="page-item active" aria-current="page">
                 <span class="page-link px-3 py-2 fw-bold">{{ p }}</span>
             </li>
-            {% elif p >= page - 2 and p <= page + 2 %} <li class="page-item">
+            {% elif p >= page - 5 and p <= page + 5 %} <li class="page-item">
                 <a class="page-link px-3 py-2"
                     href="{{ url_for('home', query=query, mode=mode, page_size=page_size, page=p) }}">
                     {{ p }}

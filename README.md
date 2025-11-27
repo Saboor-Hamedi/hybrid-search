@@ -1,299 +1,310 @@
-# Document Manager 🔍
+# Hybrid Search Project - Complete Documentation
 
-A powerful, multilingual document management and retrieval system that combines semantic search with traditional keyword search. Built with Python, PostgreSQL, and state-of-the-art NLP models.
+## Table of Contents
+1. [Project Overview](#project-overview)
+2. [Architecture](#architecture)
+3. [Features](#features)
+4. [Installation](#installation)
+5. [Usage](#usage)
+6. [API Reference](#api-reference)
 
-![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-blue.svg)
-![License](https://img.shields.io/badge/License-MIT-green.svg)
+## Project Overview
 
-## 🌟 Features
+**Hybrid Search** is an advanced document retrieval system that combines semantic (vector-based) search with traditional keyword (BM25) search to provide the most relevant results.
 
-### 🔤 Multi-language Support
-- **English, Persian, Arabic, Indonesian** and more
-- Automatic language detection
-- Proper RTL text rendering for Arabic/Persian
-- Multilingual sentence embeddings
+### Key Technologies
+- **Backend**: Python, Flask, FastAPI
+- **Database**: PostgreSQL with pgvector extension
+- **ML Model**: Sentence Transformers (all-MiniLM-L6-v2)
+- **Frontend**: HTML, Bootstrap 5, JavaScript
+- **Search Algorithms**: 
+  - Semantic: Cosine similarity on embeddings
+  - Keyword: BM25 (Best Matching 25)
+  - Hybrid: Weighted combination of both
 
-### 🔍 Hybrid Search
-- **Semantic Search**: Vector similarity using sentence transformers
-- **Keyword Search**: BM25 algorithm for traditional text matching
-- **Intelligent Ranking**: Combined scoring for optimal results
-- **Configurable weights** between semantic and keyword approaches
+## Architecture
 
-### 📄 Document Processing
-- **PDF ingestion** with intelligent text extraction
-- **Automatic chunking** with configurable sizes
-- **Header/footer removal** and text normalization
-- **Quality filtering** for clean content storage
+```
+hybrid_search/
+├── src/
+│   └── core/
+│       ├── db/
+│       │   ├── algorithms/          # Search algorithms
+│       │   │   └── bm25_algorithm.py
+│       │   ├── operations/          # Database operations
+│       │   │   └── search_flask/    # Search implementations
+│       │   │       ├── semantic_search.py
+│       │   │       ├── keyword_search.py
+│       │   │       └── hybrid_search.py
+│       │   ├── db_connection.py     # Database connection
+│       │   └── search_queries.py    # SQL queries
+│       ├── models/
+│       │   └── ai_model.py          # ML model loading
+│       ├── frontend/
+│       │   ├── templates/
+│       │   │   ├── components/      # Reusable components
+│       │   │   └── portion/         # Base templates
+│       │   └── static/              # CSS, JS, images
+│       ├── utils/                   # Utility functions
+│       ├── app.py                   # FastAPI backend
+│       └── flask_app.py             # Flask frontend
+└── notes/                           # Documentation
+```
 
-### 💻 User Interface
-- **Rich terminal interface** with colored output
-- **Interactive menu system**
-- **Real-time search results** with highlighting
-- **Batch processing** for large documents
+## Features
 
-## 🚀 Quick Start
+### 1. **Three Search Modes**
+
+#### Semantic Search
+- Uses vector embeddings to understand meaning
+- Finds conceptually similar documents
+- Best for: Natural language queries, conceptual searches
+- Speed: ~440ms average
+
+#### Keyword Search (BM25)
+- Traditional full-text search
+- Matches exact words and phrases
+- Best for: Technical terms, specific keywords
+- Speed: ~400ms average
+
+#### Hybrid Search
+- Combines both semantic and keyword search
+- Weighted scoring (50% semantic + 50% BM25)
+- Best for: Maximum recall and relevance
+- Speed: ~1550ms average
+
+### 2. **Advanced Features**
+- ✅ Real-time search with pagination
+- ✅ Adjustable page size (10-200 results)
+- ✅ Performance statistics and graphs
+- ✅ Score-based result ranking
+- ✅ Multi-language support
+- ✅ Responsive UI design
+
+### 3. **Performance Metrics**
+- Query latency tracking
+- Semantic vs BM25 result counts
+- Visual performance graphs
+- Result quality scoring
+
+## Installation
 
 ### Prerequisites
-
-- Python 3.8+
-- PostgreSQL 13+ with pgvector extension
-- pip package manager
-
-### Installation
-
-1. **Clone the repository**
 ```bash
-git clone https://github.com/your-username/document-manager.git
-cd document-manager
+# Python 3.8+
+python --version
+
+# PostgreSQL 14+ with pgvector
+psql --version
 ```
 
-2. **Set up virtual environment**
+### Setup Steps
+
+1. **Clone Repository**
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+git clone <repository-url>
+cd hybrid_search
 ```
 
-3. **Install dependencies**
+2. **Install Dependencies**
 ```bash
 pip install -r requirements.txt
-pip install "unstructured[pdf]"
-
 ```
 
-4. **Database Setup**
-```sql
--- Enable pgvector extension
-CREATE EXTENSION IF NOT EXISTS vector;
-
--- Create database (run in PostgreSQL)
-CREATE DATABASE document_manager;
-```
-
-5. **Configuration**
+3. **Configure Database**
 ```bash
-cp .env.example .env
-# Edit .env with your database credentials
+# Create database
+createdb hybrid_search
+
+# Enable pgvector extension
+psql hybrid_search -c "CREATE EXTENSION vector;"
 ```
 
-6. **Initialize the system**
+4. **Set Environment Variables**
 ```bash
-python -m postgres.init_db
+export DB_HOST=localhost
+export DB_PORT=5432
+export DB_NAME=hybrid_search
+export DB_USER=your_username
+export DB_PASSWORD=your_password
 ```
 
-7. **Run Anaconda**
-```
-source C:/ProgramData/miniconda3/Scripts/activate base
-```
-
-### Basic Usage
-
-1. **Start the application**
+5. **Run Migrations**
 ```bash
-python main.py
+python src/core/db/migrations/create_tables.py
 ```
 
-2. **Add documents**
-   - **Manual input**: Type or paste text directly
-   - **PDF files**: Extract text from PDF documents
-   - **Batch processing**: Add multiple documents at once
-
-3. **Search documents**
-   - **Natural language queries**: "machine learning algorithms"
-   - **Keyword searches**: "python programming"
-   - **Mixed queries**: Combine both approaches
-
-## 📖 Documentation
-
-### Core Concepts
-
-#### Hybrid Search Architecture
-The system uses a sophisticated hybrid approach:
-
-- **Vector Embeddings**: Convert text to 384-dimensional vectors using `paraphrase-multilingual-MiniLM-L12-v2`
-- **BM25 Scoring**: Traditional keyword matching with TF-IDF principles
-- **Score Fusion**: Weighted combination of both approaches
-- **Result Reranking**: Final ranking based on combined relevance
-
-#### Document Processing Pipeline
-1. **Text Extraction** → PDF parsing and text normalization
-2. **Language Detection** → Automatic language identification
-3. **Chunking** → Intelligent text splitting
-4. **Embedding Generation** → Vector creation for semantic search
-5. **Storage** → PostgreSQL with vector indices
-
-### API Reference
-
-#### Insert Document
-```python
-insert_document(
-    content: str,
-    conn: connection,
-    cursor: cursor,
-    model: embedding_model,
-    commit: bool = True,
-    silent: bool = False
-) -> bool
-```
-### Conda set off
-```
-conda config --show auto_activate
-auto_activate: True
-conda config --set auto_activate_base false
-
-```
-#### Search Documents
-```python
-search(
-    query: str,
-    top_k: int = 100,
-    threshold: float = 0.4,
-    bm25_weight: float = 0.5
-) -> List[Tuple]
-```
-
-#### PDF Processing
-```python
-insert_pdf(file_path: str, conn: connection, cursor: cursor) -> bool
-```
-
-### Configuration Options
-
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `DEFAULT_TOP_K` | 100 | Maximum results to return |
-| `DEFAULT_THRESHOLD` | 0.4 | Minimum similarity score |
-| `BM25_WEIGHT` | 0.5 | Weight for BM25 vs semantic |
-| `CHUNK_SIZE` | 500 | Text chunk size for processing |
-| `CHUNK_OVERLAP` | 50 | Overlap between chunks |
-
-## 🛠️ Development
-
-### Project Structure
-```
-document-manager/
-├── postgres/
-│   ├── db/                 # Database connections
-│   ├── models/             # AI models and embeddings
-│   ├── utils/              # Utilities and helpers
-│   └── init_db.py          # Database initialization
-├── tests/                  # Test suite
-├── requirements.txt        # Python dependencies
-└── main.py                # Main application entry
-```
-
-### Adding New Features
-
-1. **New Search Algorithms**
-```python
-def your_custom_search(query: str, **kwargs):
-    # Implement your search logic
-    pass
-```
-
-2. **Additional File Formats**
-```python
-def insert_docx(file_path: str):
-    # Add DOCX support
-    pass
-```
-
-3. **New Language Support**
-```python
-# The system automatically detects languages, but you can add:
-# - Custom tokenizers
-# - Language-specific preprocessing
-# - Specialized embedding models
-```
-
-### Running Tests
+6. **Start Services**
 ```bash
-pytest tests/ -v
+# Terminal 1: FastAPI backend
+cd src/core
+uvicorn app:app --reload --port 8000
+
+# Terminal 2: Flask frontend
+python flask_app.py
 ```
 
-## 🌍 Multi-language Examples
+7. **Access Application**
+```
+Frontend: http://localhost:5000
+API Docs: http://localhost:8000/docs
+```
 
-### Persian/Arabic Support
+## Usage
+
+### Basic Search
+
+1. Open http://localhost:5000
+2. Enter your query in the search box
+3. Select search mode (Hybrid/Semantic/Keyword)
+4. Click "Search"
+5. View results with scores and pagination
+
+### API Usage
+
+#### Search Endpoint
 ```python
-# The system automatically handles RTL languages
-document = "یادگیری ماشین شاخه‌ای از هوش مصنوعی است"
-results = search("هوش مصنوعی")  # Returns relevant Persian documents
+import requests
+
+# Search request
+response = requests.post('http://localhost:8000/search', json={
+    "query": "machine learning",
+    "mode": "hybrid",
+    "page": 1,
+    "page_size": 50
+})
+
+data = response.json()
+print(f"Found {len(data['results'])} results")
 ```
 
-### Mixed Language Queries
+#### Response Format
+```json
+{
+  "results": [
+    {
+      "doc_id": 123,
+      "content": "Document content...",
+      "score": 0.8542,
+      "language": "en",
+      "created_at": "2025-11-27"
+    }
+  ],
+  "stats": {
+    "query_time_ms": 445.67,
+    "semantic_count": 57,
+    "bm25_count": 114,
+    "returned": 50
+  },
+  "pagination": {
+    "page": 1,
+    "page_size": 50,
+    "total_pages": 4,
+    "total_results": 160
+  }
+}
+```
+
+## API Reference
+
+### Endpoints
+
+#### POST /search
+Search documents using specified mode.
+
+**Request Body:**
+```json
+{
+  "query": "string",
+  "mode": "hybrid|semantic|keyword",
+  "page": 1,
+  "page_size": 50
+}
+```
+
+**Response:** See Response Format above
+
+#### GET /document/{doc_id}
+Get full document details.
+
+**Parameters:**
+- `doc_id`: Document ID (integer)
+- `q`: Original query (optional)
+- `mode`: Search mode (optional)
+- `score`: Document score (optional)
+
+### Search Modes
+
+| Mode | Description | Use Case |
+|------|-------------|----------|
+| `semantic` | Vector-based similarity | Conceptual queries |
+| `keyword` | BM25 keyword matching | Exact term searches |
+| `hybrid` | Combined approach | Best overall results |
+
+### Configuration
+
+#### Search Parameters
 ```python
-# Search across multiple languages simultaneously
-results = search("machine learning و یادگیری ماشین")
+# In semantic_search.py
+THRESHOLD = 0.25  # Minimum similarity score (0.0-1.0)
+TOP_K = 100       # Maximum candidates to retrieve
+
+# In hybrid_search.py
+ALPHA = 0.5       # BM25 weight (0.0-1.0)
+                  # Semantic weight = 1 - ALPHA
 ```
 
-## 📊 Performance
+#### Model Configuration
+```python
+# In ai_model.py
+model = SentenceTransformer("all-MiniLM-L6-v2")
 
-### Benchmark Results
-- **Indexing Speed**: ~100 documents/second
-- **Search Latency**: < 200ms for 10k documents
-- **Accuracy**: 85%+ on multilingual test sets
-- **Scalability**: Tested with 50k+ documents
-
-### Memory Usage
-- **Embedding Model**: ~400MB RAM
-- **BM25 Index**: ~50MB per 10k documents
-- **Database**: Depends on document size and count
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-### Development Setup
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit changes: `git commit -m 'Add amazing feature'`
-4. Push to branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
-
-### Code Style
-```bash
-# Use black for code formatting
-black postgres/ tests/
-
-# Use flake8 for linting
-flake8 postgres/ tests/
+# Upgrade options:
+# model = SentenceTransformer("all-mpnet-base-v2")  # Better accuracy
+# model = SentenceTransformer("multi-qa-mpnet-base-dot-v1")  # Q&A optimized
 ```
 
-## 📝 License
+## Performance Tuning
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+### Improving Speed
+1. Add database indexes
+2. Use connection pooling
+3. Cache frequent queries
+4. Reduce TOP_K for faster results
 
-## 🙏 Acknowledgments
+### Improving Accuracy
+1. Upgrade to better model (mpnet-base-v2)
+2. Implement re-ranking
+3. Fine-tune on your domain
+4. Adjust threshold and weights
 
-- [Sentence Transformers](https://www.sbert.net/) for multilingual embeddings
-- [pgvector](https://github.com/pgvector/pgvector) for PostgreSQL vector operations
-- [Rich](https://github.com/Textualize/rich) for beautiful terminal output
-- [Unstructured](https://github.com/Unstructured-IO/unstructured) for PDF processing
+## Troubleshooting
 
-<!-- ## 📞 Support
+### Common Issues
 
-- **Documentation**: [Full documentation](docs/)
-- **Issues**: [GitHub Issues](https://github.com/your-username/document-manager/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-username/document-manager/discussions)
-- **Email**: support@document-manager.com -->
+**500 Internal Server Error**
+- Check database connection
+- Verify pgvector extension installed
+- Check model is loaded correctly
 
-## 🚀 Roadmap
+**No Results Found**
+- Lower threshold (try 0.20 instead of 0.25)
+- Try different search mode
+- Check if documents exist in database
 
-- [ ] Web interface with FastAPI
-- [ ] Real-time collaborative editing
-- [ ] Advanced filtering and faceted search
-- [ ] Machine learning-based relevance tuning
-- [ ] Docker containerization
-- [ ] Cloud deployment guides
-- [ ] API rate limiting and authentication
-- [ ] Plugin system for custom processors
+**Slow Performance**
+- Add database indexes
+- Reduce page_size
+- Use semantic mode instead of hybrid
 
----
+## Contributing
 
-<div align="center">
+See individual feature documentation in the `notes/` folder for detailed implementation guides.
 
-**⭐ Star us on GitHub if you find this project useful!**
+## License
 
-*Built with ❤️ for the open-source community*
+[Your License Here]
 
-</div>
+## Contact
+
+[Your Contact Information]

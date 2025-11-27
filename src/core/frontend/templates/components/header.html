@@ -1,0 +1,35 @@
+<nav class="navbar navbar-expand-lg fixed-top"
+    style="background: white; border-bottom: 1px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+    <div class="container">
+        <!-- Logo / Brand -->
+        <a class="navbar-brand d-flex align-items-center fw-bold text-primary" href="{{ url_for('home') }}">
+            <i class="bi bi-layers-half me-2 fs-4"></i>
+            <span>Hybrid<span class="text-dark">Search</span></span>
+        </a>
+
+        <!-- Mobile Toggle -->
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar Content -->
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <!-- Search Bar (Centered) -->
+            {% include 'components/header_search.html' %}
+
+            <!-- Right Side Actions -->
+            <div class="d-flex align-items-center mt-3 mt-lg-0 gap-2">
+                <button class="btn btn-light rounded-circle" onclick="commandPalette.open()"
+                    title="Open Command Palette (Ctrl+K)">
+                    <i class="bi bi-terminal"></i>
+                </button>
+                <a href="http://127.0.0.1:8000/docs" target="_blank" class="btn btn-outline-secondary btn-sm">
+                    API Docs
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Spacer to prevent content from hiding behind fixed navbar -->
+<div style="height: 80px;"></div>

@@ -1,0 +1,42 @@
+<form id="header-search-form" method="GET" action="{{ url_for('home') }}"
+    class="d-flex align-items-center flex-grow-1 mx-lg-4 mx-2">
+    <div class="input-group">
+        <span class="input-group-text bg-white border-end-0 text-muted">
+            <i class="bi bi-search"></i>
+        </span>
+        <input type="text" name="query" class="form-control border-start-0 ps-0"
+            placeholder="Search documents... (Ctrl+K)" value="{{ query }}" required>
+
+        <!-- Mode Selection Dropdown (Compact) -->
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            <span id="header-mode-label">{{ mode|capitalize }}</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#" onclick="setMode('hybrid')"><i
+                        class="bi bi-diagram-3 me-2"></i>Hybrid</a></li>
+            <li><a class="dropdown-item" href="#" onclick="setMode('semantic')"><i
+                        class="bi bi-brain me-2"></i>Semantic</a></li>
+            <li><a class="dropdown-item" href="#" onclick="setMode('keyword')"><i class="bi bi-key me-2"></i>Keyword</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Hidden Inputs -->
+    <input type="hidden" name="mode" id="header-mode-input" value="{{ mode }}">
+    <input type="hidden" name="page_size" value="{{ page_size }}">
+</form>
+
+<script>
+    function setMode(mode) {
+        const input = document.getElementById('header-mode-input');
+        const label = document.getElementById('header-mode-label');
+
+        if (input) input.value = mode;
+        if (label) label.innerText = mode.charAt(0).toUpperCase() + mode.slice(1);
+
+        // Also update sidebar radios if they exist
+        const radio = document.getElementById(mode);
+        if (radio) radio.checked = true;
+    }
+</script>

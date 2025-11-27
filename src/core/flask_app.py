@@ -40,7 +40,7 @@ def home():
     query = ""
     mode = "hybrid"
     page = 1
-    page_size = 50
+    page_size = 10
     total_pages = 0
     total_results = 0
     # Show graph for searchs
@@ -53,7 +53,7 @@ def home():
     query = input_source.get("query", "").strip()
     mode = input_source.get("mode", "hybrid")
     page = int(input_source.get("page", 1))
-    page_size = int(input_source.get("page_size", 50))
+    page_size = int(input_source.get("page_size", 10))
 
 
     if query:
@@ -217,7 +217,9 @@ def document_page(doc_id: int):
             doc=doc,
             related=related,
             back_query = back_query,
-            back_mode = back_mode
+            back_mode = back_mode,
+            query=back_query,  # For header search bar
+            mode=back_mode     # For header mode selector
         )
 
     except Exception as e:

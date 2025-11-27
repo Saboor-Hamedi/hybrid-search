@@ -1,11 +1,24 @@
 <!-- Sidebar Filters Component -->
 <div class="sidebar-filters">
+    <!-- Page Size Selector -->
+    <div class="mb-4 pb-3 border-bottom">
+        <h5 class="mode-title"><i class="bi bi-list-ol me-2"></i> Results per page</h5>
+        <select class="form-select form-select-sm" onchange="updatePageSize(this.value)">
+            <option value="10" {% if page_size==10 %}selected{% endif %}>10 results</option>
+            <option value="25" {% if page_size==25 %}selected{% endif %}>25 results</option>
+            <option value="50" {% if page_size==50 %}selected{% endif %}>50 results</option>
+            <option value="100" {% if page_size==100 %}selected{% endif %}>100 results</option>
+            <option value="500" {% if page_size==500 %}selected{% endif %}>500 results</option>
+            <option value="1000" {% if page_size==1000 %}selected{% endif %}>1000 results</option>
+        </select>
+    </div>
+
     <h5 class="mode-title"><i class="bi bi-sliders me-2"></i> Search Mode</h5>
 
     <!-- Mode Selection Radios -->
     <div class="form-check mode-radio px-3 py-2 mode-selector" data-mode="hybrid">
         <input class="form-check-input" type="radio" name="sidebar_mode_select" id="hybrid" {% if mode=="hybrid"
-            %}checked{% endif %} />
+            %}checked{% endif %} onclick="setMode('hybrid'); document.getElementById('header-search-form').submit();" />
         <label class="form-check-label" for="hybrid">
             <span class="mode-label">Hybrid Search</span>
             <small class="mode-description">Vector + BM25 for maximum relevance</small>
@@ -14,7 +27,8 @@
 
     <div class="form-check mode-radio px-3 py-2 mode-selector" data-mode="semantic">
         <input class="form-check-input" type="radio" name="sidebar_mode_select" id="semantic" {% if mode=="semantic"
-            %}checked{% endif %} />
+            %}checked{% endif %}
+            onclick="setMode('semantic'); document.getElementById('header-search-form').submit();" />
         <label class="form-check-label" for="semantic">
             <span class="mode-label">Semantic</span>
             <small class="mode-description">Meaning-based (vector) search</small>
@@ -23,7 +37,8 @@
 
     <div class="form-check mode-radio px-3 py-2 mode-selector" data-mode="keyword">
         <input class="form-check-input" type="radio" name="sidebar_mode_select" id="keyword" {% if mode=="keyword"
-            %}checked{% endif %} />
+            %}checked{% endif %}
+            onclick="setMode('keyword'); document.getElementById('header-search-form').submit();" />
         <label class="form-check-label" for="keyword">
             <span class="mode-label">Keyword (BM25)</span>
             <small class="mode-description">Traditional full-text matching</small>
@@ -38,3 +53,12 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+    function updatePageSize(size) {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('page_size', size);
+        urlParams.set('page', 1); // Reset to page 1
+        window.location.search = urlParams.toString();
+    }
+</script>
