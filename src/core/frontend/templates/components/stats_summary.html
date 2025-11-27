@@ -1,0 +1,23 @@
+<!-- Stats Summary Component -->
+{% if stats and 'error' not in stats %}
+<div class="stats-summary mt-4">
+    <div class="row g-3 text-center">
+        <div class="col-6 col-md-3">
+            <strong class="text-primary d-block">{{ "%.1f"|format(stats.query_time_ms) }} ms</strong>
+            <small class="text-muted">Latency</small>
+        </div>
+        <div class="col-6 col-md-3">
+            <strong class="text-info d-block">{{ stats.semantic_count }}</strong>
+            <small class="text-muted">Semantic Count</small>
+        </div>
+        <div class="col-6 col-md-3">
+            <strong class="text-warning d-block">{{ stats.bm25_count }}</strong>
+            <small class="text-muted">BM25 Count</small>
+        </div>
+        <div class="col-6 col-md-3">
+            <strong class="text-success d-block">{{ stats.returned }}</strong>
+            <small class="text-muted">Results Returned</small>
+        </div>
+    </div>
+</div>
+{% endif %}

@@ -1,0 +1,35 @@
+<!-- Results List Component -->
+{% if results %}
+<div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+    <h5 class="mb-0 fw-bold text-dark">Page {{ page }} of {{ total_pages }}</h5>
+    <small class="text-muted badge bg-white border text-dark shadow-sm">
+        Showing {{ results|length }} results
+    </small>
+</div>
+
+{% for r in results %}
+<div class="card result-card p-4">
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <h6 class="card-title mb-0">
+            <a href="{{ url_for('document_page', doc_id=r.doc_id, q=query, mode=mode, score=r.score) }}"
+                class="text-decoration-none fw-bold">
+                <i class="bi bi-file-earmark-text me-1"></i> Document {{ r.doc_id }}
+            </a>
+        </h6>
+        <span class="score-badge shadow-sm
+            {% if r.score >= 0.7 %}score-high
+            {% elif r.score >= 0.5 %}score-medium
+            {% else %}score-low{% endif %}">
+            {{ "%.4f"|format(r.score) }}
+        </span>
+    </div>
+
+    <div class="highlight mb-3">{{ r.content_highlighted | safe }}</div>
+
+    <div class="d-flex flex-wrap gap-4 text-muted small">
+        <span><i class="bi bi-globe me-1"></i> Language: **{{ r.language }}**</span>
+        <span><i class="bi bi-calendar me-1"></i> Date: **{{ r.created_at }}**</span>
+    </div>
+</div>
+{% endfor %}
+{% endif %}

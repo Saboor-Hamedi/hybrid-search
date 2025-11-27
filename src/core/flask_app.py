@@ -15,9 +15,10 @@ from frontend.graphs.analyze import generate_query_graph
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = os.path.join(BASE_DIR, "frontend", "templates")
+STATIC_DIR = os.path.join(BASE_DIR, "frontend", "static")
 logging.basicConfig(level=logging.DEBUG)
 
-app = Flask(__name__, template_folder=TEMPLATE_DIR)
+app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 API_URL = "http://127.0.0.1:8000"  # FastAPI backend
 
 
@@ -229,8 +230,6 @@ def document_page(doc_id: int):
     finally:
         cursor.close()
         conn.close()
-# ------------------------------------------------------------------ #
 #  Run
-# ------------------------------------------------------------------ #
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=False)

@@ -1,0 +1,221 @@
+<!-- Command Palette Modal -->
+<div class="modal fade" id="commandPaletteModal" tabindex="-1" aria-labelledby="commandPaletteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content command-palette">
+            <div class="modal-body p-0">
+                <!-- Search Input -->
+                <div class="command-search-wrapper">
+                    <i class="bi bi-search command-search-icon"></i>
+                    <input type="text" id="commandPaletteInput" class="command-search-input"
+                        placeholder="Type to search... (Ctrl+K)" autocomplete="off" />
+                    <button type="button" class="btn-close command-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+
+                <!-- Search Mode Selector (Footer) -->
+                <div class="command-footer">
+                    <div class="command-mode-selector">
+                        <span class="command-footer-label">
+                            <i class="bi bi-sliders me-1"></i> Search Mode:
+                        </span>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <input type="radio" class="btn-check" name="commandMode" id="cmdHybrid" value="hybrid"
+                                checked>
+                            <label class="btn btn-outline-primary" for="cmdHybrid">
+                                <i class="bi bi-diagram-3"></i> Hybrid
+                            </label>
+
+                            <input type="radio" class="btn-check" name="commandMode" id="cmdSemantic" value="semantic">
+                            <label class="btn btn-outline-info" for="cmdSemantic">
+                                <i class="bi bi-brain"></i> Semantic
+                            </label>
+
+                            <input type="radio" class="btn-check" name="commandMode" id="cmdKeyword" value="keyword">
+                            <label class="btn btn-outline-warning" for="cmdKeyword">
+                                <i class="bi bi-key"></i> Keyword
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="command-footer-hint">
+                        <kbd>Enter</kbd> to search · <kbd>Esc</kbd> to close
+                    </div>
+                </div>
+
+                <!-- Quick Results Preview (Optional) -->
+                <div id="commandResults" class="command-results d-none">
+                    <div class="command-results-header">
+                        <small class="text-muted">Quick Preview</small>
+                    </div>
+                    <div id="commandResultsList" class="command-results-list">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Command Palette Styles */
+    .command-palette {
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .command-search-wrapper {
+        display: flex;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e9ecef;
+        background: #fff;
+    }
+
+    .command-search-icon {
+        font-size: 20px;
+        color: #6c757d;
+        margin-right: 12px;
+    }
+
+    .command-search-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        font-size: 18px;
+        color: #212529;
+        background: transparent;
+    }
+
+    .command-search-input::placeholder {
+        color: #adb5bd;
+    }
+
+    .command-close {
+        margin-left: 12px;
+        opacity: 0.5;
+    }
+
+    .command-close:hover {
+        opacity: 1;
+    }
+
+    .command-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        background: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .command-mode-selector {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .command-footer-label {
+        font-size: 13px;
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .command-footer-hint {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .command-footer-hint kbd {
+        padding: 2px 6px;
+        font-size: 11px;
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .command-results {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .command-results-header {
+        padding: 12px 20px;
+        background: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .command-results-list {
+        padding: 8px;
+    }
+
+    .command-result-item {
+        padding: 12px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.15s;
+    }
+
+    .command-result-item:hover {
+        background: #f8f9fa;
+    }
+
+    .command-result-title {
+        font-weight: 500;
+        color: #212529;
+        margin-bottom: 4px;
+    }
+
+    .command-result-preview {
+        font-size: 13px;
+        color: #6c757d;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Modal Backdrop */
+    #commandPaletteModal .modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    /* Animations */
+    .command-palette {
+        animation: commandSlideIn 0.2s ease-out;
+    }
+
+    @keyframes commandSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .command-footer {
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .command-mode-selector {
+            width: 100%;
+        }
+
+        .btn-group {
+            width: 100%;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+        }
+    }
+</style>

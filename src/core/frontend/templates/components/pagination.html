@@ -1,0 +1,45 @@
+<!-- Pagination Component -->
+{% if total_pages > 1 %}
+<div class="pagination-container">
+    <nav class="pagination-nav">
+        <ul class="pagination mb-0">
+            <!-- Previous Button -->
+            {% if prev_page %}
+            <li class="page-item">
+                <a class="page-link px-3 py-2 fw-semibold"
+                    href="{{ url_for('home', query=query, mode=mode, page_size=page_size, page=prev_page) }}"
+                    aria-label="Previous">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            <!-- Page Numbers -->
+            {% for p in range(1, total_pages + 1) %}
+            {% if p == page %}
+            <li class="page-item active" aria-current="page">
+                <span class="page-link px-3 py-2 fw-bold">{{ p }}</span>
+            </li>
+            {% elif p >= page - 2 and p <= page + 2 %} <li class="page-item">
+                <a class="page-link px-3 py-2"
+                    href="{{ url_for('home', query=query, mode=mode, page_size=page_size, page=p) }}">
+                    {{ p }}
+                </a>
+                </li>
+                {% endif %}
+                {% endfor %}
+
+                <!-- Next Button -->
+                {% if next_page %}
+                <li class="page-item">
+                    <a class="page-link px-3 py-2 fw-semibold"
+                        href="{{ url_for('home', query=query, mode=mode, page_size=page_size, page=next_page) }}"
+                        aria-label="Next">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}

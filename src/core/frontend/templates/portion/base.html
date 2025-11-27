@@ -7,57 +7,18 @@
     <title>Hybrid Search Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="../static/style.css" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
 
 <body>
-    <!-- Header Section (Flat Blue Band) -->
+    <!-- Header Section -->
     {% block header %}{% endblock %}
-    <!-- Header Section Flat Blue Band End -->
+
     <div class="container">
         <!-- Floating Search Card -->
         <div class="row justify-content-center">
             <div class="col-12">
-                <div class="card search-card">
-
-                    <!-- !!! MERGED FORM STARTS HERE (All controls are now in one form) !!! -->
-                    <form method="GET" id="main-search-form">
-                        <!-- <input type="hidden" name="page" value="1" /> -->
-
-                        <div class="search-form-grid">
-                            <!-- Query Input -->
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-0"><i
-                                        class="bi bi-search text-muted"></i></span>
-                                <input type="text" name="query" class="form-control border-0"
-                                    placeholder="Enter your search query..." value="{{ query }}" required autofocus />
-                            </div>
-
-                            <!-- Page Size Select -->
-                            <select name="page_size" class="form-select">
-                                <option value="10" {% if page_size==10 %}selected{% endif %}>10 per page</option>
-                                <option value="25" {% if page_size==25 %}selected{% endif %}>25 per page</option>
-                                <option value="50" {% if page_size==50 %}selected{% endif %}>50 per page</option>
-                                <option value="100" {% if page_size==100 %}selected{% endif %}>100 per page</option>
-                                <option value="150" {% if page_size==150 %}selected{% endif %}>150 per page</option>
-                                <option value="200" {% if page_size==200 %}selected{% endif %}>200 per page</option>
-                            </select>
-
-                            <!-- Submit Button -->
-                            <button type="submit"
-                                class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
-                                <span class="d-none d-md-inline"><i class="bi bi-search me-1"></i> Search</span>
-                                <span class="d-md-none"><i class="bi bi-search"></i></span>
-                            </button>
-                        </div>
-
-                        <!-- HIDDEN MODE INPUT (REQUIRED FOR PAGINATION/MAIN FORM) -->
-                        <!-- This field ensures the currently selected mode from the sidebar is always submitted -->
-                        <input type="hidden" id="selected-mode-input" name="mode" value="{{ mode }}" />
-
-                        <!-- <input type="hidden" name="mode" id="mode-input" value="{{ mode }}" /> -->
-                    </form>
-                </div>
+                {% include 'components/search_form.html' %}
             </div>
         </div>
 
@@ -65,162 +26,32 @@
         <div class="row mt-2">
             <!-- Left Sidebar (Filters/Mode Selection) -->
             <div class="col-lg-3 order-lg-1 order-2">
-                <div class="sidebar-filters">
-                    <h5 class="mode-title"><i class="bi bi-sliders me-2"></i> Search Mode</h5>
-
-                    <!-- !!! MODE RADIOS ARE NOW OUTSIDE THE MAIN FORM, CONTROLLING A HIDDEN INPUT !!! -->
-                    <!-- This allows the mode to change on click, but the search only submits on button press. -->
-
-                    <div class="form-check mode-radio px-3 py-2 mode-selector" data-mode="hybrid">
-                        <input class="form-check-input" type="radio" name="sidebar_mode_select" id="hybrid"
-                            {% if mode == "hybrid" %}checked{% endif %} />
-                        <label class="form-check-label" for="hybrid">
-                            <span class="mode-label">Hybrid Search</span>
-                            <small class="mode-description">Vector + BM25 for maximum relevance</small>
-                        </label>
-                    </div>
-                    <div class="form-check mode-radio px-3 py-2 mode-selector" data-mode="semantic">
-                        <input class="form-check-input" type="radio" name="sidebar_mode_select" id="semantic"
-                            {% if mode == "semantic" %}checked{% endif %} />
-                        <label class="form-check-label" for="semantic">
-                            <span class="mode-label">Semantic</span>
-                            <small class="mode-description">Meaning-based (vector) search</small>
-                        </label>
-                    </div>
-                    <div class="form-check mode-radio px-3 py-2 mode-selector" data-mode="keyword">
-                        <input class="form-check-input" type="radio" name="sidebar_mode_select" id="keyword"
-                            {% if mode == "keyword" %}checked{% endif %} />
-                        <label class="form-check-label" for="keyword">
-                            <span class="mode-label">Keyword (BM25)</span>
-                            <small class="mode-description">Traditional full-text matching</small>
-                        </label>
-                    </div>
-                    <!-- Placeholder for Graph -->
-                    {% if graph_img %}
-                    <div class="mt-4 pt-3 border-top">
-                        <h5 class="mode-title mb-3"><i class="bi bi-graph-up me-2"></i> Performance</h5>
-                        <img src="data:image/png;base64,{{ graph_img }}" alt="Query Performance Graph"
-                            class="img-fluid rounded" />
-                    </div>
-                    {% endif %}
-                </div>
+                {% include 'components/sidebar_filters.html' %}
             </div>
 
-            <!-- Right Main Results Area (9/12 width) -->
+            <!-- Right Main Results Area -->
             <div class="col-lg-9 order-lg-2 order-1">
-
                 <!-- Stats Summary -->
-                {% if stats and 'error' not in stats %}
-                <div class="stats-summary mt-4">
-                    <div class="row g-3 text-center">
-                        <div class="col-6 col-md-3">
-                            <strong class="text-primary d-block">{{ "%.1f"|format(stats.query_time_ms) }} ms</strong>
-                            <small class="text-muted">Latency</small>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <strong class="text-info d-block">{{ stats.semantic_count }}</strong>
-                            <small class="text-muted">Semantic Count</small>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <strong class="text-warning d-block">{{ stats.bm25_count }}</strong>
-                            <small class="text-muted">BM25 Count</small>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <strong class="text-success d-block">{{ stats.returned }}</strong>
-                            <small class="text-muted">Results Returned</small>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
+                {% include 'components/stats_summary.html' %}
 
-
-                <!-- Results List Header -->
-                {% if results %}
-                <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
-                    <h5 class="mb-0 fw-bold text-dark">Page {{ page }} of {{ total_pages }}</h5>
-                    <small class="text-muted badge bg-white border text-dark shadow-sm">Showing {{ results|length }}
-                        results</small>
-                </div>
-
-                {% for r in results %}
-                <div class="card result-card p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h6 class="card-title mb-0">
-                            <a href="{{ url_for('document_page', doc_id=r.doc_id, q=query, mode=mode, score=r.score) }}"
-                                class="text-decoration-none fw-bold">
-                                <i class="bi bi-file-earmark-text me-1"></i> Document {{ r.doc_id }}
-                            </a>
-                        </h6>
-                        <span class="score-badge shadow-sm
-                                {% if r.score >= 0.7 %}score-high
-                                {% elif r.score >= 0.5 %}score-medium
-                                {% else %}score-low{% endif %}">
-                            {{ "%.4f"|format(r.score) }}
-                        </span>
-                    </div>
-
-                    <div class="highlight mb-3">{{ r.content_highlighted | safe }}</div>
-
-                    <div class="d-flex flex-wrap gap-4 text-muted small">
-                        <span><i class="bi bi-globe me-1"></i> Language: **{{ r.language }}**</span>
-                        <span><i class="bi bi-calendar me-1"></i> Date: **{{ r.created_at }}**</span>
-                    </div>
-                </div>
-                {% endfor %}
+                <!-- Results List -->
+                {% include 'components/results_list.html' %}
 
                 <!-- Pagination -->
-                {% if total_pages > 1 %}
-                <div class="pagination-container">
-                    <nav class="pagination-nav">
-                        <ul class="pagination mb-0">
-                           {% if prev_page %}
-                            <li class="page-item">
-                                <!-- Pagination Form for PREVIOUS -->
-                                <a class="page-link px-3 py-2 fw-semibold"
-                                   href="{{ url_for('home', query=query, mode=mode, page_size=page_size, page=prev_page) }}"
-                                   aria-label="Previous">
-                                    <i class="bi bi-chevron-left"></i>
-                                </a>
-                                </li>
-                           {% endif %}
-                        <!-- Page Number -->
-                            {% for p in range(1, total_pages + 1) %}
-                            {% if p == page %}
-                            <li class="page-item active" aria-current="page">
-                                <span class="page-link px-3 py-2 fw-bold">{{ p }}</span>
-                            </li>
-                            {% elif p >= page - 2 and p <= page + 2 %}
-                             <li class="page-item">
-                            <a class="page-link px-3 py-2"
-                               href="{{ url_for('home', query=query, mode=mode, page_size=page_size, page=p) }}">
-                                {{ p }}
-                            </a>
-                         </li>
-                         {% endif %}
-                        {% endfor %}
+                {% include 'components/pagination.html' %}
 
-                    {% if next_page %}
-                      <li class="page-item">
-                        <a class="page-link px-3 py-2 fw-semibold"
-                           href="{{ url_for('home', query=query, mode=mode, page_size=page_size, page=next_page) }}"
-                           aria-label="Next">
-                            <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
-                    {% endif %}
-                     </ul>
-                    </nav>
-                </div>
-                {% endif %}
-                {% endif %}
                 <!-- Loading Spinner -->
-             {% include 'portion/loader.html' %}
+                {% include 'portion/loader.html' %}
             </div>
-          </div>
-
+        </div>
     </div>
 
-    <script src='../static/main.js'>    </script>
+    <!-- Command Palette (Ctrl+K) -->
+    {% include 'components/command_palette.html' %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='main.js') }}"></script>
+    <script src="{{ url_for('static', filename='command_palette.js') }}"></script>
 </body>
 
 </html>

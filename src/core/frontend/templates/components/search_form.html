@@ -1,0 +1,35 @@
+<!-- Search Form Component -->
+<div class="card search-card">
+    <form method="GET" id="main-search-form">
+        <div class="search-form-grid">
+            <!-- Query Input -->
+            <div class="input-group">
+                <span class="input-group-text bg-white border-0">
+                    <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="text" name="query" class="form-control border-0"
+                    placeholder="Enter your search query..." value="{{ query }}" required autofocus />
+            </div>
+
+            <!-- Page Size Select -->
+            <select name="page_size" class="form-select">
+                <option value="10" {% if page_size==10 %}selected{% endif %}>10 per page</option>
+                <option value="25" {% if page_size==25 %}selected{% endif %}>25 per page</option>
+                <option value="50" {% if page_size==50 %}selected{% endif %}>50 per page</option>
+                <option value="100" {% if page_size==100 %}selected{% endif %}>100 per page</option>
+                <option value="150" {% if page_size==150 %}selected{% endif %}>150 per page</option>
+                <option value="200" {% if page_size==200 %}selected{% endif %}>200 per page</option>
+            </select>
+
+            <!-- Submit Button -->
+            <button type="submit"
+                class="btn btn-primary w-100 d-flex align-items-center justify-content-center">
+                <span class="d-none d-md-inline"><i class="bi bi-search me-1"></i> Search</span>
+                <span class="d-md-none"><i class="bi bi-search"></i></span>
+            </button>
+        </div>
+
+        <!-- Hidden mode input -->
+        <input type="hidden" id="selected-mode-input" name="mode" value="{{ mode }}" />
+    </form>
+</div>
