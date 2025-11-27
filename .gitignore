@@ -20,6 +20,7 @@ wheels/
 .installed.cfg
 *.egg
 notes/
+.trae/
 # Virtual Environment
 venv/
 env/

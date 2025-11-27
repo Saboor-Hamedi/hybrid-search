@@ -29,7 +29,23 @@ def clean_page_content(text: str) -> str:
             continue
         cleaned_lines.append(line)
         
-    return '\n'.join(cleaned_lines)
+    text = '\n'.join(cleaned_lines)
+
+    # 5. Normalize currency and stray symbols
+    # Remove leading currency markers before words (e.g., "$word" -> "word")
+    text = re.sub(r'\$([A-Za-z]+)', r'\1', text)
+
+    # 6. Collapse repeated parentheses
+    text = re.sub(r'\(+', '(', text)
+    text = re.sub(r'\)+', ')', text)
+
+    # 7. Replace runs of unusual symbols with a space, keep common punctuation
+    text = re.sub(r"[^A-Za-z0-9\s\.,!\?;:\-\(\)']+", ' ', text)
+
+    # 8. Collapse whitespace
+    text = re.sub(r'\s+', ' ', text).strip()
+
+    return text
 
 def ingest_pdf(pdf_path):
     # 1. LOAD

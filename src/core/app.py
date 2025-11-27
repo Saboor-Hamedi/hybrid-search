@@ -4,6 +4,7 @@ import sys
 import time
 from datetime import datetime
 from typing import List
+import re
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,6 +16,9 @@ from pydantic import BaseModel
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from core.db.db_connection import db_connection, get_model
+from core.db.operations.db_controller import update_record
+from core.utils.text_cleansing import clean_page_content
+from core.db.operations.document_management import insert_document, delete_document
 from core.db.operations.search_flask.hybrid_search import search_hybrid
 from core.db.operations.search_flask.keyword_search import search_keyword
 from core.db.operations.search_flask.semantic_search import search_semantic
@@ -196,3 +200,77 @@ def search_endpoint(request: SearchRequest):
 @app.get("/")
 def root():
     return RedirectResponse("/docs")
+class UpdateRequest(BaseModel):
+    content: str | None = None
+    language: str | None = "en"
+
+@app.post("/documents/{doc_id}/update")
+def update_document(doc_id: int, request: UpdateRequest):
+    conn, cursor = get_db()
+    try:
+        global model
+        if model is None:
+            model = get_model()
+        content = request.content
+        language = request.language or "en"
+        if not content:
+            cursor.execute("SELECT content, language FROM document WHERE id = %s", (doc_id,))
+            row = cursor.fetchone()
+            if not row:
+                raise HTTPException(status_code=404, detail="Document not found")
+            content = row[0] or ""
+            language = row[1] or language
+        if model is None:
+            raise HTTPException(status_code=500, detail="Embedding model not loaded")
+        cleaned = clean_page_content(content)
+        cleaned = re.sub(r"\s+", " ", cleaned).strip()
+        embedding = model.encode(cleaned).tolist()
+        ok = update_record(conn, cursor, doc_id, cleaned, language, embedding)
+        conn.commit()
+        return {"updated": bool(ok), "doc_id": doc_id}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Update failed: {str(e)}")
+    finally:
+        cursor.close()
+        conn.close()
+
+class InsertRequest(BaseModel):
+    content: str
+    language: str | None = "en"
+
+@app.post("/documents/insert")
+def insert_new_document(request: InsertRequest):
+    conn, cursor = get_db()
+    try:
+        global model
+        if model is None:
+            model = get_model()
+        content = request.content
+        language = request.language or "en"
+        cleaned = clean_page_content(content)
+        # insert_document will normalize and detect language; we pass cleaned
+        doc_id = insert_document(cleaned, conn, cursor, model, commit=True, silent=True)
+        if not doc_id:
+            raise HTTPException(status_code=500, detail="Insert failed")
+        return {"inserted": True, "doc_id": doc_id}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Insert failed: {str(e)}")
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.delete("/documents/{doc_id}")
+def delete_document_endpoint(doc_id: int):
+    conn, cursor = get_db()
+    try:
+        ok = delete_document(doc_id, conn, cursor)
+        conn.commit()
+        return {"deleted": bool(ok), "doc_id": doc_id}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Delete failed: {str(e)}")
+    finally:
+        cursor.close()
+        conn.close()

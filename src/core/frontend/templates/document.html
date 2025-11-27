@@ -1,264 +1,399 @@
-{% extends "portion/base.html" %}
+  {% extends "portion/base.html" %} {% block title %}Document {{ doc.doc_id }} -
+  Hybrid Search{% endblock %} {% block extra_css %}
+  <style>
+    
 
-{% block title %}Document {{ doc.doc_id }} - Hybrid Search{% endblock %}
+      /* Ensure the document row spans the full available viewport width in its container */
+      .document-container {
+          max-width: 1600px !important;
+          width: 100% !important;
+          margin-left: auto;
+          margin-right: auto;
+          padding-left: 0.75rem; 
+          padding-right: 0.75rem;
+      }
+      
+      /* Document Card Base Style */
+      .content-area {
+          background: white;
+          border: 1px solid var(--border-color, #e0e0e0);
+          border-radius: 12px;
+          margin-bottom: 2rem;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 
-{% block extra_css %}
-<style>
-  /* Document Specific Styles */
-  :root {
-    --primary-color: #007bff;
-    --secondary-color: #6c757d;
-    --light-bg: #f8f9fa;
-    --border-color: #dee2e6;
-  }
+      }
 
-  .content-area {
-    background: white;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  }
+      /* Document Header */
+      .document-header {
+          padding: 2rem;
+          border-bottom: 1px solid var(--border-color, #e0e0e0);
+          background: #fff;
+          border-radius: 12px 12px 0 0;
+      }
 
-  .document-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-    background: #fff;
-    border-radius: 8px 8px 0 0;
-  }
+      /* Primary Title (Increased Size) */
+      .document-title {
+          font-size: 1.2rem;
+          font-weight: 700;
+          color: #212529;
+          margin-bottom: 0.75rem;
+      }
 
-  .document-title {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: #212529;
-    margin-bottom: 0.5rem;
-  }
+      /* Meta Information Grid */
+      .meta-grid {
+          display: flex;
+          gap: 1rem;
+          flex-wrap: wrap;
+          font-size: 0.8rem;
+          color: #6c757d;
+      }
 
-  .meta-grid {
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-    font-size: 0.9rem;
-    color: #6c757d;
-  }
+      .meta-item {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+      }
+      .meta-item span {
+          font-size: 0.8rem;
+      }
 
-  .meta-item {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-  }
+      /* Sticky Sidebars */
+      .doc-similar-sticky, .doc-actions-sticky {
+          /* Ensure stickiness is below a potential navigation bar (e.g., 4rem tall) */
+          top: 4rem; 
+      }
+      
+      /* Search Context Bar */
+      .search-context {
+          background: #e7f3ff;
+          padding: 0.75rem 1.25rem;
+          border-left: 4px solid var(--primary-color, #007bff);
+          font-size: 0.8rem;
+          border-top: 1px solid #d1e7ff;
+          border-bottom: 1px solid #d1e7ff;
+      }
 
-  .search-context {
-    background: #e7f3ff;
-    padding: 0.75rem 1.5rem;
-    border-left: 4px solid var(--primary-color);
-    font-size: 0.9rem;
-    border-top: 1px solid #d1e7ff;
-    border-bottom: 1px solid #d1e7ff;
-  }
+      /* Main Content Area (Increased Readability) */
+      .document-content {
+          padding: 2rem;
+          font-size: 1rem;
+          line-height: 1.7;
+          color: #2e2e2e;
+      }
+      
+      /* Content Typography Hierarchy */
+      .document-content h2 {
+          font-size: 1.2rem;
+          margin-top: 1.25rem;
+          font-weight: 600;
+          color: #343a40;
+      }
 
-  .document-content {
-    padding: 2rem;
-    font-size: 1.05rem;
-    line-height: 1.7;
-    color: #2e2e2e;
-  }
+      .document-content h3 {
+          font-size: 1rem;
+          margin-top: 1rem;
+          font-weight: 600;
+          color: #343a40;
+      }
+      
+      .document-content p {
+          margin-bottom: 1.25rem;
+      }
 
-  /* Sidebar Styles */
-  .sidebar-card {
-    background: white;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-  }
+      .document-content blockquote {
+          border-left: 5px solid var(--primary-color, #007bff);
+          padding: 1rem 1.5rem;
+          color: #495057;
+          font-style: italic;
+          background: #f8f9fa;
+          border-radius: 4px;
+      }
 
-  .sidebar-header {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid var(--border-color);
-    background: #f8f9fa;
-    font-weight: 600;
-    color: #495057;
-  }
+      .document-content pre {
+          background: #212529;
+          color: #f8f9fa;
+          padding: 1rem;
+          border-radius: 6px;
+          overflow-x: auto;
+          font-size: 0.95rem;
+      }
+      
+      /* Sidebar Card Styles (Similar Documents & Actions) */
+      .sidebar-card {
+          background: white;
+          border: 1px solid var(--border-color, #e0e0e0);
+          border-radius: 12px;
+          margin-bottom: 1.5rem;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          overflow: hidden;
+      }
 
-  .related-item {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid #f1f3f4;
-    transition: background 0.2s;
-  }
+      .sidebar-header {
+          padding: 0.75rem 1rem;
+          border-bottom: 1px solid var(--border-color, #e0e0e0);
+          background: #f8f9fa;
+          font-weight: 600;
+          color: #495057;
+          font-size: 0.8rem;
+      }
 
-  .related-item:last-child {
-    border-bottom: none;
-  }
+      .related-item {
+          padding: 0.75rem 1rem;
+          border-bottom: 1px solid #f1f3f4;
+          transition: background 0.2s;
+          font-size: 0.8rem;
+      }
 
-  .related-item:hover {
-    background: #f8f9fa;
-  }
+      .related-link {
+          color: var(--primary-color, #007bff);
+          font-weight: 600;
+          display: block;
+          margin-bottom: 0.3rem;
+          font-size: 0.8rem;
+          line-height: 1.4;
+      }
 
-  .related-link {
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 600;
-    display: block;
-    margin-bottom: 0.25rem;
-  }
+      .related-meta {
+          font-size: 0.8rem;
+          color: #888;
+      }
+      
+      /* Mobile/Small Screen Overrides */
+      @media (max-width: 992px) {
+          .document-title {
+              font-size: 1.5rem;
+          }
+          .document-header {
+              padding: 1.5rem;
+          }
+          .document-content {
+              padding: 1.5rem;
+              font-size: 1rem;
+              line-height: 1.7;
+          }
+          /* Full width for the two sidebars when they collapse to the main column */
+          .sidebar-card .btn { white-space: normal; }
+          .doc-actions-sticky, .doc-similar-sticky {
+              /* Ensure sidebars are not sticky on mobile/tablet */
+              position: static !important;
+          }
+      }
 
-  .related-meta {
-    font-size: 0.8rem;
-    color: #888;
-  }
-
-  /* Content Typography */
-  .document-content h2 {
-    font-size: 1.5rem;
-    margin-top: 1.5rem;
-    font-weight: 600;
-  }
-
-  .document-content h3 {
-    font-size: 1.25rem;
-    margin-top: 1.25rem;
-    font-weight: 600;
-  }
-
-  .document-content img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 4px;
-  }
-
-  .document-content blockquote {
-    border-left: 4px solid #dee2e6;
-    padding-left: 1rem;
-    color: #6c757d;
-    font-style: italic;
-  }
-
-  .document-content pre {
-    background: #f8f9fa;
-    padding: 1rem;
-    border-radius: 4px;
-    border: 1px solid #e9ecef;
-  }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="row mt-4">
-  <!-- Main Document Column -->
-  <div class="col-lg-8">
-    <!-- Back Button (Mobile only, desktop has sidebar) -->
-    <div class="d-lg-none mb-3">
-      <a href="{{ url_for('home') }}?query={{ back_query }}&mode={{ back_mode }}"
-        class="btn btn-outline-secondary btn-sm">
-        <i class="bi bi-arrow-left"></i> Back to Search
-      </a>
-    </div>
-
-    <div class="content-area">
-      <div class="document-header">
-        <h1 class="document-title">
-          <i class="bi bi-file-text me-2 text-primary"></i>Document {{ doc.doc_id }}
-        </h1>
-        <div class="meta-grid">
-          <div class="meta-item">
-            <i class="bi bi-globe text-primary"></i>
-            <span>Language: <strong>{{ doc.language }}</strong></span>
+      /* Additional rule for large screens to better separate content from sidebars */
+      @media (min-width: 1200px) {
+          .document-container {
+              /* Use slightly more space on very wide screens */
+              padding-left: 2rem;
+              padding-right: 2rem;
+          }
+          /* Make content typography even more generous for high-resolution readability */
+          .document-content {
+              font-size: 1.2rem;
+              padding: 3rem;
+          }
+      }
+  </style>
+  {% endblock %} {% block content %}
+  <div class="row mt-4 g-3 document-container">
+    <!-- Left Similar Documents (Sticky) -->
+    <div class="col-lg-2 d-none d-lg-block">
+      <div class="doc-similar-sticky sticky-top">
+        <div class="sidebar-card">
+          <div class="sidebar-header">
+            <i class="bi bi-link-45deg me-2"></i>Similar Documents
           </div>
-          <div class="meta-item">
-            <i class="bi bi-calendar-check text-primary"></i>
-            <span>Created: <strong>{{ doc.created_at }}</strong></span>
+          {% if related %}
+          <div class="related-list">
+            {% for rel in related %}
+            <div class="related-item">
+              <a
+                href="{{ url_for('document_page', doc_id=rel.doc_id, q=back_query, mode=back_mode) }}"
+                class="related-link"
+              >
+                {{ rel.title if rel.title else "Document " + rel.doc_id|string }}
+              </a>
+              <div class="related-meta">
+                <span class="me-2"
+                  ><i class="bi bi-globe me-1"></i>{{ rel.language }}</span
+                >
+                <span
+                  ><i class="bi bi-calendar me-1"></i>{{ rel.created_at }}</span
+                >
+              </div>
+            </div>
+            {% endfor %}
           </div>
-          {% if doc.score %}
-          <div class="meta-item">
-            <i class="bi bi-star text-warning"></i>
-            <span>Score: <strong>{{ "%.4f"|format(doc.score) }}</strong></span>
+          {% else %}
+          <div class="p-4 text-center text-muted">
+            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+            No related documents found
           </div>
           {% endif %}
         </div>
       </div>
-
-      {% if back_query %}
-      <div class="search-context">
-        <div class="d-flex align-items-center">
-          <i class="bi bi-info-circle me-2 text-primary"></i>
-          <span>Found for query: <strong>"{{ back_query }}"</strong> in {{ back_mode|capitalize }} mode</span>
-        </div>
-      </div>
-      {% endif %}
-
-      <div class="document-content">
-        {{ doc.content | safe }}
-      </div>
     </div>
-  </div>
 
-  <!-- Sidebar Column -->
-  <div class="col-lg-4">
-    <!-- Actions Card -->
-    <div class="sidebar-card">
-      <div class="sidebar-header">
-        <i class="bi bi-gear me-2"></i>Actions
-      </div>
-      <div class="p-3 d-grid gap-2">
-        <a href="{{ url_for('home') }}?query={{ back_query }}&mode={{ back_mode }}" class="btn btn-primary">
-          <i class="bi bi-arrow-left me-2"></i>Back to Results
+    <!-- Main Document Column -->
+    <div class="col-lg-6 col-12">
+      <!-- Back Button (Mobile only, desktop has sidebar) -->
+      <div class="d-lg-none mb-3">
+        <a
+          href="{{ url_for('home') }}?query={{ back_query }}&mode={{ back_mode }}"
+          class="btn btn-outline-secondary btn-sm"
+        >
+          <i class="bi bi-arrow-left"></i> Back to Search
         </a>
-        <button class="btn btn-outline-secondary" onclick="window.print()">
-          <i class="bi bi-printer me-2"></i>Print Document
-        </button>
-        <button class="btn btn-outline-secondary" onclick="copyToClipboard(this)">
-          <i class="bi bi-clipboard me-2"></i>Copy Content
-        </button>
       </div>
-    </div>
 
-    <!-- Related Documents -->
-    <div class="sidebar-card">
-      <div class="sidebar-header">
-        <i class="bi bi-link-45deg me-2"></i>Similar Documents
-      </div>
-      {% if related %}
-      <div class="related-list">
-        {% for rel in related %}
-        <div class="related-item">
-          <a href="{{ url_for('document_page', doc_id=rel.doc_id, q=back_query, mode=back_mode) }}"
-            class="related-link">
-            {{ rel.title if rel.title else "Document " + rel.doc_id|string }}
-          </a>
-          <div class="related-meta">
-            <span class="me-2"><i class="bi bi-globe me-1"></i>{{ rel.language }}</span>
-            <span><i class="bi bi-calendar me-1"></i>{{ rel.created_at }}</span>
+      <div class="content-area">
+        <div class="document-header">
+          <h1 class="document-title">
+            <i class="bi bi-file-text me-2 text-primary"></i>Document {{
+            doc.doc_id }}
+          </h1>
+          <div class="meta-grid">
+            <div class="meta-item">
+              <i class="bi bi-globe text-primary"></i>
+              <span>Language: <strong>{{ doc.language }}</strong></span>
+            </div>
+            <div class="meta-item">
+              <i class="bi bi-calendar-check text-primary"></i>
+              <span>Created: <strong>{{ doc.created_at }}</strong></span>
+            </div>
+            {% if doc.score %}
+            <div class="meta-item">
+              <i class="bi bi-star text-warning"></i>
+              <span>Score: <strong>{{ "%.4f"|format(doc.score) }}</strong></span>
+            </div>
+            {% endif %}
           </div>
         </div>
-        {% endfor %}
+
+        {% if back_query %}
+        <div class="search-context">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-info-circle me-2 text-primary"></i>
+            <span
+              >Found for query: <strong>"{{ back_query }}"</strong> in {{
+              back_mode|capitalize }} mode</span
+            >
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="document-content">{{ doc.content | safe }}</div>
       </div>
-      {% else %}
-      <div class="p-4 text-center text-muted">
-        <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-        No related documents found
+    </div>
+
+    <!-- Right Actions (Sticky) -->
+    <div class="col-lg-4 col-12 mt-3 mt-lg-0">
+      <div class="doc-actions-sticky sticky-top">
+        <div class="sidebar-card">
+          <div class="sidebar-header"><i class="bi bi-gear me-2"></i>Actions</div>
+          <div class="p-3 d-grid gap-2">
+            <button class="btn btn-outline-dark" type="button" onclick="commandPalette.open()">
+              <i class="bi bi-terminal me-2"></i>Command Palette
+            </button>
+            <a
+              href="{{ url_for('home') }}?query={{ back_query }}&mode={{ back_mode }}"
+              class="btn btn-primary"
+            >
+              <i class="bi bi-arrow-left me-2"></i>Back to Results
+            </a>
+            <button class="btn btn-outline-secondary" onclick="window.print()">
+              <i class="bi bi-printer me-2"></i>Print Document
+            </button>
+            <button class="btn btn-outline-secondary" onclick="copyToClipboard(this)">
+              <i class="bi bi-clipboard me-2"></i>Copy Content
+            </button>
+            <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#editForm">
+              <i class="bi bi-pencil-square me-1"></i>Edit & Update
+            </button>
+            <button class="btn btn-outline-danger btn-sm" type="submit" form="deleteForm">
+              <i class="bi bi-trash me-1"></i>Delete
+            </button>
+            <button class="btn btn-outline-success btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#newForm">
+              <i class="bi bi-file-earmark-plus me-1"></i>New Post
+            </button>
+            <div class="collapse mt-2" id="editForm">
+              <form method="post" action="{{ url_for('update_post', doc_id=doc.doc_id) }}">
+                <input type="hidden" name="q" value="{{ back_query }}" />
+                <input type="hidden" name="mode" value="{{ back_mode }}" />
+                <div class="mb-2">
+                  <textarea name="content" class="form-control" rows="6">{{ doc.content }}</textarea>
+                </div>
+                <div class="d-flex gap-2">
+                  <select name="language" class="form-select form-select-sm" style="max-width: 120px;">
+                    <option value="en" {% if doc.language=='en' %}selected{% endif %}>en</option>
+                    <option value="fa" {% if doc.language=='fa' %}selected{% endif %}>fa</option>
+                    <option value="ar" {% if doc.language=='ar' %}selected{% endif %}>ar</option>
+                  </select>
+                  <button class="btn btn-primary btn-sm" type="submit">
+                    <i class="bi bi-arrow-repeat me-1"></i>Save & Re-embed
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <form id="deleteForm" method="post" action="{{ url_for('delete_post', doc_id=doc.doc_id) }}">
+              <input type="hidden" name="q" value="{{ back_query }}" />
+              <input type="hidden" name="mode" value="{{ back_mode }}" />
+            </form>
+
+            <div class="collapse mt-2" id="newForm">
+              <form method="post" action="{{ url_for('new_post') }}">
+                <input type="hidden" name="q" value="{{ back_query }}" />
+                <input type="hidden" name="mode" value="{{ back_mode }}" />
+                <div class="mb-2">
+                  <textarea name="content" class="form-control" rows="6" placeholder="Write new post..."></textarea>
+                </div>
+                <div class="d-flex gap-2">
+                  <select name="language" class="form-select form-select-sm" style="max-width: 120px;">
+                    <option value="en">en</option>
+                    <option value="fa">fa</option>
+                    <option value="ar">ar</option>
+                  </select>
+                  <button class="btn btn-success btn-sm" type="submit">
+                    <i class="bi bi-check2 me-1"></i>Create & Embed
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
       </div>
-      {% endif %}
     </div>
   </div>
-</div>
-{% endblock %}
+  {% endblock %} {% block extra_js %}
+  <script>
+    function copyToClipboard(button) {
+      const content = document.querySelector(".document-content").innerText;
+      navigator.clipboard.writeText(content).then(() => {
+        const originalHtml = button.innerHTML;
+        button.innerHTML = '<i class="bi bi-check-lg me-2"></i>Copied!';
+        button.classList.replace("btn-outline-secondary", "btn-success");
 
-{% block extra_js %}
-<script>
-  function copyToClipboard(button) {
-    const content = document.querySelector('.document-content').innerText;
-    navigator.clipboard.writeText(content).then(() => {
-      const originalHtml = button.innerHTML;
-      button.innerHTML = '<i class="bi bi-check-lg me-2"></i>Copied!';
-      button.classList.replace('btn-outline-secondary', 'btn-success');
+        setTimeout(() => {
+          button.innerHTML = originalHtml;
+          button.classList.replace("btn-success", "btn-outline-secondary");
+        }, 2000);
+      });
+    }
 
-      setTimeout(() => {
-        button.innerHTML = originalHtml;
-        button.classList.replace('btn-success', 'btn-outline-secondary');
-      }, 2000);
+    document.addEventListener('DOMContentLoaded', function () {
+      const editForm = document.getElementById('editForm');
+      const newForm = document.getElementById('newForm');
+      if (editForm && newForm && window.bootstrap) {
+        const editCollapse = new bootstrap.Collapse(editForm, { toggle: false });
+        const newCollapse = new bootstrap.Collapse(newForm, { toggle: false });
+
+        editForm.addEventListener('show.bs.collapse', function () {
+          newCollapse.hide();
+        });
+        newForm.addEventListener('show.bs.collapse', function () {
+          editCollapse.hide();
+        });
+      }
     });
-  }
-</script>
-{% endblock %}
+  </script>
+  {% endblock %}

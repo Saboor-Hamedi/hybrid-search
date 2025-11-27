@@ -9,7 +9,7 @@ import requests
 
 #  Add project root so we can import db_connection
 from db.db_connection import db_connection
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from frontend.graphs.analyze import generate_query_graph
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
@@ -20,6 +20,8 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 API_URL = "http://127.0.0.1:8000"  # FastAPI backend
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 
 #  Helper: highlight query words
@@ -52,8 +54,14 @@ def home():
     # 1. Initialize/Retrieve Search Parameters
     query = input_source.get("query", "").strip()
     mode = input_source.get("mode", "hybrid")
-    page = int(input_source.get("page", 1))
-    page_size = int(input_source.get("page_size", 10))
+    try:
+        page = int(input_source.get("page", 1))
+    except (TypeError, ValueError):
+        page = 1
+    try:
+        page_size = int(input_source.get("page_size", 10))
+    except (TypeError, ValueError):
+        page_size = 10
 
 
     if query:
@@ -232,6 +240,66 @@ def document_page(doc_id: int):
     finally:
         cursor.close()
         conn.close()
+
+@app.post("/document/<int:doc_id>/reembed")
+def reembed_document(doc_id: int):
+    back_query = request.form.get("q", "")
+    back_mode = request.form.get("mode", "hybrid")
+    try:
+        r = requests.post(f"{API_URL}/documents/{doc_id}/update", json={}, timeout=15)
+        r.raise_for_status()
+    except requests.RequestException as e:
+        print("Re-embed error:", e)
+    return redirect(f"/document/{doc_id}?q={back_query}&mode={back_mode}")
+
+@app.post("/document/<int:doc_id>/update_post")
+def update_post(doc_id: int):
+    back_query = request.form.get("q", "")
+    back_mode = request.form.get("mode", "hybrid")
+    content = request.form.get("content", "")
+    language = request.form.get("language", "en")
+    try:
+        r = requests.post(
+            f"{API_URL}/documents/{doc_id}/update",
+            json={"content": content, "language": language},
+            timeout=20,
+        )
+        r.raise_for_status()
+    except requests.RequestException as e:
+        print("Update post error:", e)
+    return redirect(f"/document/{doc_id}?q={back_query}&mode={back_mode}")
+
+@app.post("/document/new_post")
+def new_post():
+    back_query = request.form.get("q", "")
+    back_mode = request.form.get("mode", "hybrid")
+    content = request.form.get("content", "")
+    language = request.form.get("language", "en")
+    try:
+        r = requests.post(
+            f"{API_URL}/documents/insert",
+            json={"content": content, "language": language},
+            timeout=20,
+        )
+        r.raise_for_status()
+        data = r.json()
+        doc_id = data.get("doc_id")
+        if doc_id:
+            return redirect(f"/document/{doc_id}?q={back_query}&mode={back_mode}")
+    except requests.RequestException as e:
+        print("New post error:", e)
+    return redirect(f"/?query={back_query}&mode={back_mode}")
+
+@app.post("/document/<int:doc_id>/delete_post")
+def delete_post(doc_id: int):
+    back_query = request.form.get("q", "")
+    back_mode = request.form.get("mode", "hybrid")
+    try:
+        r = requests.delete(f"{API_URL}/documents/{doc_id}", timeout=15)
+        r.raise_for_status()
+    except requests.RequestException as e:
+        print("Delete post error:", e)
+    return redirect(f"/?query={back_query}&mode={back_mode}")
 #  Run
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=False)
+    app.run(host="127.0.0.1", port=5000, debug=True)

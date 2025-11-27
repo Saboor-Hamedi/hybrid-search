@@ -67,7 +67,7 @@ def insert_document(content, conn, cursor, model, commit=True, silent=False):
                 print(
                     f"{cs.YELLOW}📝 Queued for batch (language: {language}). Time: {get_elapsed()}s {cs.RESET}"
                 )
-        return True
+        return doc_id
 
     except Exception as e:
         print(f"{cs.RED}❌ Error after {get_elapsed()}s. Error: {e}{cs.RESET}")

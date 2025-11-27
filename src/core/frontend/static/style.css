@@ -3,14 +3,21 @@
     --soft-blue: #0084ff;
     --bg-light: #f4f7fb;
     /* Smoother, lighter background */
-    --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    --card-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    --card-bg: #ffffff;
+    --border-color: #e0e0e0;
 }
 
 body {
     background-color: var(--bg-light);
     padding-bottom: 3rem;
+    
     color: #333;
+    padding-top: var(--sticky-top-offset, 80px);
+  
 }
+
+/* drawer removed; using grid layout */
 
 /* 1. Header Band (Prominent and Clean) */
 .header {
@@ -33,7 +40,7 @@ body {
 .search-card {
     margin-top: -4rem;
     border-radius: 5px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
     border: 1px solid #f1f1f1;
     background: white;
     position: relative;
@@ -41,6 +48,35 @@ body {
     /*padding: 1.5rem 1rem !important;*/
     padding: 10px 14px !important;
 
+}
+
+/* Document page sticky sidebar */
+.doc-sidebar-sticky {
+    position: sticky;
+    top: var(--sticky-top-offset, 80px);
+    z-index: 900;
+}
+
+.sticky-top {
+    top: var(--sticky-top-offset, 80px) !important;
+}
+
+.doc-sidebar-sticky .sidebar-card {
+    max-height: calc(100vh - var(--sticky-top-offset, 80px));
+    overflow-y: auto;
+}
+
+.doc-similar-sticky,
+.doc-actions-sticky {
+    position: sticky;
+    top: var(--sticky-top-offset, 80px);
+    z-index: 900;
+}
+
+.doc-similar-sticky .sidebar-card,
+.doc-actions-sticky .sidebar-card {
+    max-height: calc(100vh - var(--sticky-top-offset, 80px));
+    overflow-y: auto;
 }
 
 .search-form-grid {
@@ -84,8 +120,14 @@ body {
     border-radius: 8px;
     padding: 1.2rem;
     border: 1px solid var(--border-color);
-    margin-top: 0;
     box-shadow: var(--card-shadow);
+}
+
+.sticky-sidebar {
+    position: sticky;
+    top: var(--sticky-top-offset, 80px);
+    z-index: 1000;
+    margin-top: 0;
 }
 
 .mode-title {
@@ -131,13 +173,13 @@ body {
 .result-card {
     margin-bottom: 1.25rem;
     border-radius: 8px;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--card-shadow);
     border: 1px solid #e0e0e0;
     background: white;
 }
 
 .result-card:hover {
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
     border-color: var(--primary-blue);
     transform: translateY(-1px);
 }
@@ -236,15 +278,18 @@ body {
     .search-card {
         margin-top: -3rem;
     }
-
-    .result-count-info {
-        font-size: 1.8rem;
-    }
-
-    .sidebar-filters {
-        margin-top: 1.5rem;
-    }
+    .result-count-info { font-size: 1.8rem; }
+    .doc-sidebar-sticky { position: static; }
+    .doc-similar-sticky { position: static; }
+    .doc-actions-sticky { position: static; }
 }
+    .doc-similar-sticky { position: static; }
+    .doc-actions-sticky { position: static; }
+
+
+/* overlay removed */
+
+/* header button controls toggling; no floating FAB required */
 
 @media (max-width: 768px) {
     .search-form-grid {
@@ -275,4 +320,16 @@ body {
         padding-left: var(--bs-gutter-x, 0.75rem);
         padding-right: var(--bs-gutter-x, 0.75rem);
     }
+}
+.doc-similar-sticky,
+.doc-actions-sticky {
+    position: sticky;
+    top: var(--sticky-top-offset, 80px);
+    z-index: 900;
+}
+
+.doc-similar-sticky .sidebar-card,
+.doc-actions-sticky .sidebar-card {
+    max-height: calc(100vh - var(--sticky-top-offset, 80px));
+    overflow-y: auto;
 }

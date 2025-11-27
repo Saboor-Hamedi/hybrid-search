@@ -74,3 +74,18 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // --- JAVASCRIPT CORRECTION END ---
+
+document.addEventListener('DOMContentLoaded', function () {
+    const header = document.querySelector('.navbar.fixed-top');
+    const sidebar = document.querySelector('.sidebar-filters');
+    function setOffset() {
+        const h = header ? header.offsetHeight : 80;
+        document.documentElement.style.setProperty('--sticky-top-offset', (h + 12) + 'px');
+    }
+    setOffset();
+    window.addEventListener('resize', setOffset);
+    // Drawer logic removed; using grid layout only
+    if (sidebar) {
+        sidebar.classList.add('sticky-sidebar');
+    }
+});
