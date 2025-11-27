@@ -1,35 +1,47 @@
 <!-- Results List Component -->
 {% if results %}
-<div class="d-flex justify-content-between align-items-center mb-3 mt-4">
-    <h5 class="mb-0 fw-bold text-dark">Page {{ page }} of {{ total_pages }}</h5>
-    <small class="text-muted badge bg-white border text-dark shadow-sm">
-        Showing {{ results|length }} results
-    </small>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0 fw-semibold" style="color: var(--text-primary);">
+        Page {{ page }} of {{ total_pages }}
+    </h5>
+    <span class="badge bg-primary" style="font-size: 0.875rem; font-weight: 600; padding: 0.5rem 1rem;">
+        {{ results|length }} results
+    </span>
 </div>
 
 {% for r in results %}
-<div class="card result-card p-4">
-    <div class="d-flex justify-content-between align-items-start mb-3">
-        <h6 class="card-title mb-0">
-            <a href="{{ url_for('document_page', doc_id=r.doc_id, q=query, mode=mode, score=r.score) }}"
-                class="text-decoration-none fw-bold">
-                <i class="bi bi-file-earmark-text me-1"></i> Document {{ r.doc_id }}
-            </a>
-        </h6>
-        <span class="score-badge shadow-sm
-            {% if r.score >= 0.7 %}score-high
-            {% elif r.score >= 0.5 %}score-medium
-            {% else %}score-low{% endif %}">
-            {{ "%.4f"|format(r.score) }}
-        </span>
-    </div>
+<div class="card result-card">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <h6 class="card-title mb-0 flex-grow-1">
+                <a href="{{ url_for('document_page', doc_id=r.doc_id, q=query, mode=mode, score=r.score) }}"
+                    class="text-decoration-none">
+                    <i class="bi bi-file-earmark-text me-2"></i>Document {{ r.doc_id }}
+                </a>
+            </h6>
+            <span class="score-badge ms-3
+                {% if r.score >= 0.7 %}score-high
+                {% elif r.score >= 0.5 %}score-medium
+                {% else %}score-low{% endif %}">
+                {{ "%.4f"|format(r.score) }}
+            </span>
+        </div>
 
-    <div class="highlight mb-3">{{ r.content_highlighted | safe }}</div>
+        <div class="card-text highlight mb-3">
+            {{ r.content_highlighted | safe }}
+        </div>
 
-    <div class="d-flex flex-wrap gap-4 text-muted small">
-        <span><i class="bi bi-globe me-1"></i> Language: **{{ r.language }}**</span>
-        <span><i class="bi bi-calendar me-1"></i> Date: **{{ r.created_at }}**</span>
+        <div class="d-flex flex-wrap gap-3 text-muted" style="font-size: 0.875rem;">
+            <span><i class="bi bi-globe me-1" style="font-size: 0.875rem;"></i>{{ r.language }}</span>
+            <span><i class="bi bi-calendar me-1" style="font-size: 0.875rem;"></i>{{ r.created_at }}</span>
+        </div>
     </div>
 </div>
 {% endfor %}
+
+{% else %}
+<div class="text-center py-5">
+    <i class="bi bi-inbox" style="font-size: 3rem; color: var(--text-secondary);"></i>
+    <p class="mt-3 text-muted">No results found. Try a different search query.</p>
+</div>
 {% endif %}

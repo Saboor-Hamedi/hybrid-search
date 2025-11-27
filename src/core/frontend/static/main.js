@@ -89,3 +89,10 @@ document.addEventListener('DOMContentLoaded', function () {
         sidebar.classList.add('sticky-sidebar');
     }
 });
+
+// --- CREATE DOCUMENT MODAL ---
+function openCreateModal() {
+    const createModal = new bootstrap.Modal(document.getElementById('createModal'));
+    createModal.show();
+}
+

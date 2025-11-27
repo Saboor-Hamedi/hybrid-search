@@ -1,399 +1,232 @@
-  {% extends "portion/base.html" %} {% block title %}Document {{ doc.doc_id }} -
-  Hybrid Search{% endblock %} {% block extra_css %}
-  <style>
-    
+{% extends "portion/base.html" %}
 
-      /* Ensure the document row spans the full available viewport width in its container */
-      .document-container {
-          max-width: 1600px !important;
-          width: 100% !important;
-          margin-left: auto;
-          margin-right: auto;
-          padding-left: 0.75rem; 
-          padding-right: 0.75rem;
-      }
-      
-      /* Document Card Base Style */
-      .content-area {
-          background: white;
-          border: 1px solid var(--border-color, #e0e0e0);
-          border-radius: 12px;
-          margin-bottom: 2rem;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+{% block title %}Document {{ doc.doc_id }} - Hybrid Search{% endblock %}
 
-      }
-
-      /* Document Header */
-      .document-header {
-          padding: 2rem;
-          border-bottom: 1px solid var(--border-color, #e0e0e0);
-          background: #fff;
-          border-radius: 12px 12px 0 0;
-      }
-
-      /* Primary Title (Increased Size) */
-      .document-title {
-          font-size: 1.2rem;
-          font-weight: 700;
-          color: #212529;
-          margin-bottom: 0.75rem;
-      }
-
-      /* Meta Information Grid */
-      .meta-grid {
-          display: flex;
-          gap: 1rem;
-          flex-wrap: wrap;
-          font-size: 0.8rem;
-          color: #6c757d;
-      }
-
-      .meta-item {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-      }
-      .meta-item span {
-          font-size: 0.8rem;
-      }
-
-      /* Sticky Sidebars */
-      .doc-similar-sticky, .doc-actions-sticky {
-          /* Ensure stickiness is below a potential navigation bar (e.g., 4rem tall) */
-          top: 4rem; 
-      }
-      
-      /* Search Context Bar */
-      .search-context {
-          background: #e7f3ff;
-          padding: 0.75rem 1.25rem;
-          border-left: 4px solid var(--primary-color, #007bff);
-          font-size: 0.8rem;
-          border-top: 1px solid #d1e7ff;
-          border-bottom: 1px solid #d1e7ff;
-      }
-
-      /* Main Content Area (Increased Readability) */
-      .document-content {
-          padding: 2rem;
-          font-size: 1rem;
-          line-height: 1.7;
-          color: #2e2e2e;
-      }
-      
-      /* Content Typography Hierarchy */
-      .document-content h2 {
-          font-size: 1.2rem;
-          margin-top: 1.25rem;
-          font-weight: 600;
-          color: #343a40;
-      }
-
-      .document-content h3 {
-          font-size: 1rem;
-          margin-top: 1rem;
-          font-weight: 600;
-          color: #343a40;
-      }
-      
-      .document-content p {
-          margin-bottom: 1.25rem;
-      }
-
-      .document-content blockquote {
-          border-left: 5px solid var(--primary-color, #007bff);
-          padding: 1rem 1.5rem;
-          color: #495057;
-          font-style: italic;
-          background: #f8f9fa;
-          border-radius: 4px;
-      }
-
-      .document-content pre {
-          background: #212529;
-          color: #f8f9fa;
-          padding: 1rem;
-          border-radius: 6px;
-          overflow-x: auto;
-          font-size: 0.95rem;
-      }
-      
-      /* Sidebar Card Styles (Similar Documents & Actions) */
-      .sidebar-card {
-          background: white;
-          border: 1px solid var(--border-color, #e0e0e0);
-          border-radius: 12px;
-          margin-bottom: 1.5rem;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-          overflow: hidden;
-      }
-
-      .sidebar-header {
-          padding: 0.75rem 1rem;
-          border-bottom: 1px solid var(--border-color, #e0e0e0);
-          background: #f8f9fa;
-          font-weight: 600;
-          color: #495057;
-          font-size: 0.8rem;
-      }
-
-      .related-item {
-          padding: 0.75rem 1rem;
-          border-bottom: 1px solid #f1f3f4;
-          transition: background 0.2s;
-          font-size: 0.8rem;
-      }
-
-      .related-link {
-          color: var(--primary-color, #007bff);
-          font-weight: 600;
-          display: block;
-          margin-bottom: 0.3rem;
-          font-size: 0.8rem;
-          line-height: 1.4;
-      }
-
-      .related-meta {
-          font-size: 0.8rem;
-          color: #888;
-      }
-      
-      /* Mobile/Small Screen Overrides */
-      @media (max-width: 992px) {
-          .document-title {
-              font-size: 1.5rem;
-          }
-          .document-header {
-              padding: 1.5rem;
-          }
-          .document-content {
-              padding: 1.5rem;
-              font-size: 1rem;
-              line-height: 1.7;
-          }
-          /* Full width for the two sidebars when they collapse to the main column */
-          .sidebar-card .btn { white-space: normal; }
-          .doc-actions-sticky, .doc-similar-sticky {
-              /* Ensure sidebars are not sticky on mobile/tablet */
-              position: static !important;
-          }
-      }
-
-      /* Additional rule for large screens to better separate content from sidebars */
-      @media (min-width: 1200px) {
-          .document-container {
-              /* Use slightly more space on very wide screens */
-              padding-left: 2rem;
-              padding-right: 2rem;
-          }
-          /* Make content typography even more generous for high-resolution readability */
-          .document-content {
-              font-size: 1.2rem;
-              padding: 3rem;
-          }
-      }
-  </style>
-  {% endblock %} {% block content %}
-  <div class="row mt-4 g-3 document-container">
-    <!-- Left Similar Documents (Sticky) -->
-    <div class="col-lg-2 d-none d-lg-block">
-      <div class="doc-similar-sticky sticky-top">
-        <div class="sidebar-card">
-          <div class="sidebar-header">
-            <i class="bi bi-link-45deg me-2"></i>Similar Documents
+{% block content %}
+<div class="container-fluid" style="max-width: 1200px;">
+  <div class="row g-4 mt-2">
+    <!-- Main Content Column (Full Width) -->
+    <div class="col-lg-9">
+      <!-- Document Card -->
+      <div class="content-area">
+        <!-- Header -->
+        <div class="document-header">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <h1 class="document-title mb-0">
+              <i class="bi bi-file-text text-primary me-2"></i>
+              Document #{{ doc.doc_id }}
+            </h1>
+            {% if doc.score %}
+            <span
+              class="score-badge {% if doc.score >= 0.7 %}score-high{% elif doc.score >= 0.5 %}score-medium{% else %}score-low{% endif %}">
+              Score: {{ "%.4f"|format(doc.score) }}
+            </span>
+            {% endif %}
           </div>
-          {% if related %}
-          <div class="related-list">
+
+          <div class="meta-grid">
+            <div class="meta-item">
+              <i class="bi bi-globe text-primary"></i>
+              <span><strong>Language:</strong> {{ doc.language }}</span>
+            </div>
+            <div class="meta-item">
+              <i class="bi bi-calendar-check text-primary"></i>
+              <span><strong>Created:</strong> {{ doc.created_at }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search Context -->
+        {% if back_query %}
+        <div class="search-context">
+          <i class="bi bi-search me-2"></i>
+          <strong>Search Query:</strong> "{{ back_query }}"
+          <span class="ms-2 text-muted">• Mode: {{ back_mode|capitalize }}</span>
+        </div>
+        {% endif %}
+
+        <!-- Content -->
+        <div class="document-content" id="documentContent">
+          {{ doc.content | safe }}
+        </div>
+
+        <!-- Similar Documents Section (Inside Document) -->
+        {% if related %}
+        <div class="border-top pt-4 mt-4 px-3 pb-3">
+          <h5 class="mb-3">
+            <i class="bi bi-collection text-primary me-2"></i>
+            Similar Documents
+            <span class="badge bg-primary ms-2">{{ related|length }}</span>
+          </h5>
+          <div class="row g-3">
             {% for rel in related %}
-            <div class="related-item">
-              <a
-                href="{{ url_for('document_page', doc_id=rel.doc_id, q=back_query, mode=back_mode) }}"
-                class="related-link"
-              >
-                {{ rel.title if rel.title else "Document " + rel.doc_id|string }}
-              </a>
-              <div class="related-meta">
-                <span class="me-2"
-                  ><i class="bi bi-globe me-1"></i>{{ rel.language }}</span
-                >
-                <span
-                  ><i class="bi bi-calendar me-1"></i>{{ rel.created_at }}</span
-                >
+            <div class="col-md-6">
+              <div class="card h-100 border" style="transition: all 0.2s ease;">
+                <div class="card-body p-3">
+                  <a href="{{ url_for('document_page', doc_id=rel.doc_id, q=back_query, mode=back_mode) }}"
+                    class="text-decoration-none">
+                    <h6 class="card-title mb-2" style="color: var(--primary-blue); font-size: 0.9375rem;">
+                      <i class="bi bi-file-earmark-text me-2"></i>
+                      {{ rel.title if rel.title else "Document #" + rel.doc_id|string }}
+                    </h6>
+                  </a>
+                  <div class="d-flex gap-3 text-muted" style="font-size: 0.8125rem;">
+                    <span><i class="bi bi-globe me-1"></i>{{ rel.language }}</span>
+                    <span><i class="bi bi-calendar me-1"></i>{{ rel.created_at }}</span>
+                  </div>
+                </div>
               </div>
             </div>
             {% endfor %}
           </div>
-          {% else %}
-          <div class="p-4 text-center text-muted">
-            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
-            No related documents found
-          </div>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-
-    <!-- Main Document Column -->
-    <div class="col-lg-6 col-12">
-      <!-- Back Button (Mobile only, desktop has sidebar) -->
-      <div class="d-lg-none mb-3">
-        <a
-          href="{{ url_for('home') }}?query={{ back_query }}&mode={{ back_mode }}"
-          class="btn btn-outline-secondary btn-sm"
-        >
-          <i class="bi bi-arrow-left"></i> Back to Search
-        </a>
-      </div>
-
-      <div class="content-area">
-        <div class="document-header">
-          <h1 class="document-title">
-            <i class="bi bi-file-text me-2 text-primary"></i>Document {{
-            doc.doc_id }}
-          </h1>
-          <div class="meta-grid">
-            <div class="meta-item">
-              <i class="bi bi-globe text-primary"></i>
-              <span>Language: <strong>{{ doc.language }}</strong></span>
-            </div>
-            <div class="meta-item">
-              <i class="bi bi-calendar-check text-primary"></i>
-              <span>Created: <strong>{{ doc.created_at }}</strong></span>
-            </div>
-            {% if doc.score %}
-            <div class="meta-item">
-              <i class="bi bi-star text-warning"></i>
-              <span>Score: <strong>{{ "%.4f"|format(doc.score) }}</strong></span>
-            </div>
-            {% endif %}
-          </div>
-        </div>
-
-        {% if back_query %}
-        <div class="search-context">
-          <div class="d-flex align-items-center">
-            <i class="bi bi-info-circle me-2 text-primary"></i>
-            <span
-              >Found for query: <strong>"{{ back_query }}"</strong> in {{
-              back_mode|capitalize }} mode</span
-            >
-          </div>
         </div>
         {% endif %}
-
-        <div class="document-content">{{ doc.content | safe }}</div>
       </div>
     </div>
 
-    <!-- Right Actions (Sticky) -->
-    <div class="col-lg-4 col-12 mt-3 mt-lg-0">
-      <div class="doc-actions-sticky sticky-top">
-        <div class="sidebar-card">
-          <div class="sidebar-header"><i class="bi bi-gear me-2"></i>Actions</div>
-          <div class="p-3 d-grid gap-2">
-            <button class="btn btn-outline-dark" type="button" onclick="commandPalette.open()">
-              <i class="bi bi-terminal me-2"></i>Command Palette
-            </button>
-            <a
-              href="{{ url_for('home') }}?query={{ back_query }}&mode={{ back_mode }}"
-              class="btn btn-primary"
-            >
-              <i class="bi bi-arrow-left me-2"></i>Back to Results
-            </a>
-            <button class="btn btn-outline-secondary" onclick="window.print()">
-              <i class="bi bi-printer me-2"></i>Print Document
-            </button>
-            <button class="btn btn-outline-secondary" onclick="copyToClipboard(this)">
-              <i class="bi bi-clipboard me-2"></i>Copy Content
-            </button>
-            <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#editForm">
-              <i class="bi bi-pencil-square me-1"></i>Edit & Update
-            </button>
-            <button class="btn btn-outline-danger btn-sm" type="submit" form="deleteForm">
-              <i class="bi bi-trash me-1"></i>Delete
-            </button>
-            <button class="btn btn-outline-success btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#newForm">
-              <i class="bi bi-file-earmark-plus me-1"></i>New Post
-            </button>
-            <div class="collapse mt-2" id="editForm">
-              <form method="post" action="{{ url_for('update_post', doc_id=doc.doc_id) }}">
-                <input type="hidden" name="q" value="{{ back_query }}" />
-                <input type="hidden" name="mode" value="{{ back_mode }}" />
-                <div class="mb-2">
-                  <textarea name="content" class="form-control" rows="6">{{ doc.content }}</textarea>
-                </div>
-                <div class="d-flex gap-2">
-                  <select name="language" class="form-select form-select-sm" style="max-width: 120px;">
-                    <option value="en" {% if doc.language=='en' %}selected{% endif %}>en</option>
-                    <option value="fa" {% if doc.language=='fa' %}selected{% endif %}>fa</option>
-                    <option value="ar" {% if doc.language=='ar' %}selected{% endif %}>ar</option>
-                  </select>
-                  <button class="btn btn-primary btn-sm" type="submit">
-                    <i class="bi bi-arrow-repeat me-1"></i>Save & Re-embed
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            <form id="deleteForm" method="post" action="{{ url_for('delete_post', doc_id=doc.doc_id) }}">
-              <input type="hidden" name="q" value="{{ back_query }}" />
-              <input type="hidden" name="mode" value="{{ back_mode }}" />
-            </form>
-
-            <div class="collapse mt-2" id="newForm">
-              <form method="post" action="{{ url_for('new_post') }}">
-                <input type="hidden" name="q" value="{{ back_query }}" />
-                <input type="hidden" name="mode" value="{{ back_mode }}" />
-                <div class="mb-2">
-                  <textarea name="content" class="form-control" rows="6" placeholder="Write new post..."></textarea>
-                </div>
-                <div class="d-flex gap-2">
-                  <select name="language" class="form-select form-select-sm" style="max-width: 120px;">
-                    <option value="en">en</option>
-                    <option value="fa">fa</option>
-                    <option value="ar">ar</option>
-                  </select>
-                  <button class="btn btn-success btn-sm" type="submit">
-                    <i class="bi bi-check2 me-1"></i>Create & Embed
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+    <!-- Sidebar Column (Compact) -->
+    <div class="col-lg-3">
+      <!-- Quick Actions Card -->
+      <div class="sidebar-card doc-actions-sticky">
+        <div class="sidebar-header">
+          <i class="bi bi-lightning-charge me-2"></i>Actions
+        </div>
+        <div class="p-3 d-grid gap-2">
+          <a href="{{ url_for('home') }}?query={{ back_query }}&mode={{ back_mode }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-arrow-left me-2"></i>Back
+          </a>
+          <button class="btn btn-outline-primary btn-sm" onclick="toggleEditMode()">
+            <i class="bi bi-pencil me-2"></i>Edit
+          </button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+            <i class="bi bi-printer me-2"></i>Print
+          </button>
+          <button class="btn btn-outline-secondary btn-sm" onclick="copyContent(this)">
+            <i class="bi bi-clipboard me-2"></i>Copy
+          </button>
+          <button class="btn btn-outline-danger btn-sm" onclick="confirmDelete()">
+            <i class="bi bi-trash me-2"></i>Delete
+          </button>
         </div>
       </div>
     </div>
   </div>
-  {% endblock %} {% block extra_js %}
-  <script>
-    function copyToClipboard(button) {
-      const content = document.querySelector(".document-content").innerText;
-      navigator.clipboard.writeText(content).then(() => {
-        const originalHtml = button.innerHTML;
-        button.innerHTML = '<i class="bi bi-check-lg me-2"></i>Copied!';
-        button.classList.replace("btn-outline-secondary", "btn-success");
+</div>
 
-        setTimeout(() => {
-          button.innerHTML = originalHtml;
-          button.classList.replace("btn-success", "btn-outline-secondary");
-        }, 2000);
-      });
-    }
+<!-- Edit Modal (Smaller) -->
+<div class="modal fade" id="editModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h6 class="modal-title"><i class="bi bi-pencil me-2"></i>Edit Document</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="POST" action="{{ url_for('update_post', doc_id=doc.doc_id) }}">
+        <div class="modal-body">
+          <input type="hidden" name="q" value="{{ back_query }}">
+          <input type="hidden" name="mode" value="{{ back_mode }}">
 
-    document.addEventListener('DOMContentLoaded', function () {
-      const editForm = document.getElementById('editForm');
-      const newForm = document.getElementById('newForm');
-      if (editForm && newForm && window.bootstrap) {
-        const editCollapse = new bootstrap.Collapse(editForm, { toggle: false });
-        const newCollapse = new bootstrap.Collapse(newForm, { toggle: false });
+          <div class="mb-3">
+            <label for="editLanguage" class="form-label">Language</label>
+            <select class="form-select form-select-sm" id="editLanguage" name="language">
+              <option value="en" {% if doc.language=='en' %}selected{% endif %}>English</option>
+              <option value="es" {% if doc.language=='es' %}selected{% endif %}>Spanish</option>
+              <option value="fr" {% if doc.language=='fr' %}selected{% endif %}>French</option>
+              <option value="de" {% if doc.language=='de' %}selected{% endif %}>German</option>
+              <option value="it" {% if doc.language=='it' %}selected{% endif %}>Italian</option>
+              <option value="pt" {% if doc.language=='pt' %}selected{% endif %}>Portuguese</option>
+              <option value="other" {% if doc.language not in ['en','es','fr','de','it','pt'] %}selected{% endif %}>
+                Other</option>
+            </select>
+          </div>
 
-        editForm.addEventListener('show.bs.collapse', function () {
-          newCollapse.hide();
-        });
-        newForm.addEventListener('show.bs.collapse', function () {
-          editCollapse.hide();
-        });
-      }
+          <div class="mb-3">
+            <label for="editContent" class="form-label">Content</label>
+            <textarea class="form-control" id="editContent" name="content" rows="10"
+              required>{{ doc.content | striptags }}</textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm">
+            <i class="bi bi-save me-2"></i>Save
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal (Smaller) -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h6 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirm Delete</h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-0" style="font-size: 0.9375rem;">Are you sure you want to delete Document #{{ doc.doc_id }}?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <form method="POST" action="{{ url_for('delete_post', doc_id=doc.doc_id) }}" style="display: inline;">
+          <input type="hidden" name="q" value="{{ back_query }}">
+          <input type="hidden" name="mode" value="{{ back_mode }}">
+          <button type="submit" class="btn btn-danger btn-sm">
+            <i class="bi bi-trash me-2"></i>Delete
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function copyContent(button) {
+    const content = document.querySelector('.document-content').innerText;
+    navigator.clipboard.writeText(content).then(() => {
+      const originalHtml = button.innerHTML;
+      button.innerHTML = '<i class="bi bi-check-lg me-2"></i>Copied!';
+      button.classList.remove('btn-outline-secondary');
+      button.classList.add('btn-success');
+
+      setTimeout(() => {
+        button.innerHTML = originalHtml;
+        button.classList.remove('btn-success');
+        button.classList.add('btn-outline-secondary');
+      }, 2000);
+    }).catch(err => {
+      console.error('Failed to copy:', err);
+      alert('Failed to copy content');
     });
-  </script>
-  {% endblock %}
+  }
+
+  function toggleEditMode() {
+    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+    editModal.show();
+  }
+
+  function confirmDelete() {
+    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+    deleteModal.show();
+  }
+
+  // Add hover effect to similar document cards
+  document.addEventListener('DOMContentLoaded', function () {
+    const cards = document.querySelectorAll('.col-md-6 .card');
+    cards.forEach(card => {
+      card.addEventListener('mouseenter', function () {
+        this.style.transform = 'translateY(-2px)';
+        this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+      });
+      card.addEventListener('mouseleave', function () {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = '';
+      });
+    });
+  });
+</script>
+{% endblock %}
