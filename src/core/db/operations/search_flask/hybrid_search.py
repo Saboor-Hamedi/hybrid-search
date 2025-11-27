@@ -8,7 +8,7 @@ from core.utils.rich_console import display_in_table
 from core.utils.text_properties import normalize_content
 
 cs = ColorScheme()
-TRASHOLD = 0.25  # Lowered from 0.4 for better recall
+TRASHOLD = 0.65  # Increased to 0.65 to filter out high-scoring noise like 'vi' (0.64)
 TOP_K = 100      # Increased from 50 for more candidates
 
 def search_hybrid(
