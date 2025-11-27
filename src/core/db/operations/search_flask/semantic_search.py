@@ -7,8 +7,8 @@ from core.utils.rich_console import display_in_table
 
 cs = ColorScheme()
 
-TRASHOLD = 0.4
-TOP_K = 50
+TRASHOLD = 0.25  # Lowered from 0.4 for better recall
+TOP_K = 100      # Increased from 50 for more candidates
 def search_semantic(query: str, conn, cursor, model, top_k=TOP_K, threshold=TRASHOLD):
     if not query.strip():
         print(f"{cs.RED}Query cannot be empty.{cs.RESET}")

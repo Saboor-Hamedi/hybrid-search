@@ -8,8 +8,8 @@ from core.utils.rich_console import display_in_table
 from core.utils.text_properties import normalize_content
 
 cs = ColorScheme()
-TRASHOLD = 0.4
-TOP_K = 50
+TRASHOLD = 0.25  # Lowered from 0.4 for better recall
+TOP_K = 100      # Increased from 50 for more candidates
 
 def search_hybrid(
     query: str, conn, cursor, model, top_k=TOP_K, threshold=TRASHOLD
@@ -95,4 +95,11 @@ def search_hybrid(
 
     display_in_table(final, query=query, mode="hybrid")
     display_search_stats(sem_results, bm25_results, get_elapsed, mode="hybrid")
-    return final, {}
+    
+    # Return stats for API
+    stats = {
+        "sem_results": sem_results,
+        "bm25_results": bm25_results,
+    }
+    
+    return final, stats

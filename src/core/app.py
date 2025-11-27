@@ -173,6 +173,7 @@ def search_endpoint(request: SearchRequest):
                 "semantic_count": sem_count,
                 "bm25_count": bm25_count,
             },
+
             pagination={
                 "page": page,
                 "page_size": page_size,
