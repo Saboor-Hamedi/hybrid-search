@@ -9,7 +9,7 @@ import requests
 
 #  Add project root so we can import db_connection
 from db.db_connection import db_connection
-from flask import Flask, render_template, request, redirect
+from flask import Flask, redirect, render_template, request
 from frontend.graphs.analyze import generate_query_graph
 
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
@@ -49,7 +49,7 @@ def home():
     graph_img = None
 
     input_source = request.form if request.method == "POST" else request.args
-    
+
 
     # 1. Initialize/Retrieve Search Parameters
     query = input_source.get("query", "").strip()
@@ -193,29 +193,86 @@ def document_page(doc_id: int):
             doc["score"] = round(score, 4)
         except Exception as e:
             print("DB error:", e)
+        # Optional component scores passed from search results
+        def _get_float_arg(name, default=None):
+            v = request.args.get(name)
+            if v is None:
+                return default
+            try:
+                return round(float(v), 4)
+            except Exception:
+                return default
+
+        doc["semantic_score"] = _get_float_arg("semantic_score", None)
+        doc["bm25_score"] = _get_float_arg("bm25_score", None)
+        doc["semantic_weight"] = _get_float_arg("semantic_weight", None)
+        doc["bm25_weight"] = _get_float_arg("bm25_weight", None)
+
+        # If both component weights are present and > 0, this visit most likely
+        # originated from a hybrid search — override the back_mode for display.
+        try:
+            sw = doc.get("semantic_weight")
+            bw = doc.get("bm25_weight")
+            if sw is not None and bw is not None:
+                # treat small floats as truthy only if greater than 0
+                if float(sw) > 0.0 and float(bw) > 0.0:
+                    back_mode = "hybrid"
+        except Exception:
+            # Leave back_mode as-is on any parse error
+            pass
 
 
-        # 3. Related docs (same language)
-        cursor.execute(
-            """
-            SELECT id, content, language, created_at
-            FROM document
-            WHERE language = %s AND id != %s
-            ORDER BY created_at DESC
-            LIMIT 5
-            """,
-            (doc["language"], doc_id),
-        )
-        related = [
-            {
-                "doc_id": r[0],
-                "title": (r[1][:60] + "...") if len(r[1]) > 60 else r[1],
-                "language": r[2] or "en",
-                "created_at": r[3].strftime("%y-%m-%d") if r[3] else "unknown",
-                "score": 0.0 # placeholder score
-            }
-            for r in cursor.fetchall()
-        ]
+        # 3. Related docs: prefer fetching similarity+component scores from backend
+        related = []
+        try:
+            # Use a trimmed excerpt of the document as the query to find similar docs
+            excerpt = (doc.get("content") or "").strip()[:512]
+            payload = {"query": excerpt, "mode": back_mode or "hybrid", "page": 1, "page_size": 6}
+            resp = requests.post(f"{API_URL}/search", json=payload, timeout=10)
+            resp.raise_for_status()
+            data = resp.json()
+            results = data.get("results", [])
+            for r in results:
+                # skip the same document if present in results
+                if int(r.get("doc_id") or 0) == int(doc_id):
+                    continue
+                related.append(
+                    {
+                        "doc_id": r.get("doc_id"),
+                        "title": (r.get("content")[:60] + "...") if r.get("content") and len(r.get("content")) > 60 else (r.get("title") or r.get("content") or f"Document #{r.get('doc_id')}") ,
+                        "language": r.get("language") or "en",
+                        "created_at": (r.get("created_at") or "")[:8],
+                        "score": r.get("score", 0.0),
+                        "semantic_score": r.get("semantic_score"),
+                        "bm25_score": r.get("bm25_score"),
+                        "semantic_weight": r.get("semantic_weight"),
+                        "bm25_weight": r.get("bm25_weight"),
+                    }
+                )
+                if len(related) >= 5:
+                    break
+        except requests.RequestException:
+            # fallback: simple DB-backed recent-same-language list (no scores)
+            cursor.execute(
+                """
+                SELECT id, content, language, created_at
+                FROM document
+                WHERE language = %s AND id != %s
+                ORDER BY created_at DESC
+                LIMIT 5
+                """,
+                (doc["language"], doc_id),
+            )
+            related = [
+                {
+                    "doc_id": r[0],
+                    "title": (r[1][:60] + "...") if len(r[1]) > 60 else r[1],
+                    "language": r[2] or "en",
+                    "created_at": r[3].strftime("%y-%m-%d") if r[3] else "unknown",
+                    "score": 0.0 # placeholder score
+                }
+                for r in cursor.fetchall()
+            ]
 
 
         # Display graphs

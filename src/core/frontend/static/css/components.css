@@ -1,0 +1,24 @@
+/* Component-specific styles extracted from main stylesheet */
+:root{
+    --component-border-radius:5px;
+}
+.sidebar-filters{
+    background: var(--card-bg);
+    border-radius: var(--component-border-radius);
+    padding:1.2rem;
+    border:1px solid var(--border-color);
+}
+.mode-radio{ padding:0.875rem 1rem; border-radius:var(--component-border-radius);}
+.result-card{ margin-bottom:1.25rem; border-radius:var(--component-border-radius); background:white; }
+.result-card .card-body{ padding:1rem; }
+.score-badge{ padding:0.2rem 0.5rem; border-radius:0.5rem; font-weight:600; font-size:0.75rem; }
+.visited-badge{ padding:0.25rem 0.5rem; font-size:0.75rem; border-radius:0.4rem; background:#f1f8ff; color:#0663c2; border:1px solid #e6f0ff; }
+/* Make components file small and focused */
+
+/* Similar documents: cleaner compact cards */
+.similar-section .section-title{ display:flex; align-items:center; gap:8px; font-weight:700; margin-bottom:0.75rem; }
+.similar-section .count-badge{ background:#eef3ff; color:#0b63d6; padding:0.15rem 0.5rem; border-radius:0.4rem; font-size:0.75rem; }
+.similar-card{ border:1px solid rgba(0,0,0,0.04); border-radius:6px; background:#fff; padding:0.6rem; box-shadow:none; transition:transform .12s ease, box-shadow .12s ease; }
+.similar-card:hover{ transform:translateY(-2px); box-shadow:0 4px 10px rgba(0,0,0,0.04); }
+.similar-card .title{ font-size:0.92rem; color:var(--primary-blue); margin:0 0 6px 0; }
+.similar-card .meta{ font-size:0.8rem; color:#666; }

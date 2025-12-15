@@ -14,8 +14,16 @@
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-start mb-3">
             <h6 class="card-title mb-0 flex-grow-1">
-                <a href="{{ url_for('document_page', doc_id=r.doc_id, q=query, mode=mode, score=r.score) }}"
-                    class="text-decoration-none">
+                {# Build URL with optional component params to avoid 'None' literals in query string #}
+                {% set base = url_for('document_page', doc_id=r.doc_id) %}
+                {# Use the origin_mode from the result (guaranteed by backend) to ensure correct mode is passed #}
+                {% set use_mode = r.origin_mode if r.origin_mode is not none else mode %}
+                {% set qs = '?q=' ~ (query|urlencode) ~ '&mode=' ~ (use_mode|urlencode) ~ '&score=' ~ (r.score|string) %}
+                {% if r.semantic_score is not none %}{% set qs = qs ~ '&semantic_score=' ~ (r.semantic_score|string) %}{% endif %}
+                {% if r.bm25_score is not none %}{% set qs = qs ~ '&bm25_score=' ~ (r.bm25_score|string) %}{% endif %}
+                {% if r.semantic_weight is not none %}{% set qs = qs ~ '&semantic_weight=' ~ (r.semantic_weight|string) %}{% endif %}
+                {% if r.bm25_weight is not none %}{% set qs = qs ~ '&bm25_weight=' ~ (r.bm25_weight|string) %}{% endif %}
+                <a href="{{ base ~ qs }}" class="text-decoration-none">
                     <i class="bi bi-file-earmark-text me-2"></i>Document {{ r.doc_id }}
                 </a>
             </h6>

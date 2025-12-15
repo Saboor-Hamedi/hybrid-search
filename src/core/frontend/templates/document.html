@@ -12,26 +12,78 @@
         <!-- Header -->
         <div class="document-header">
           <div class="d-flex justify-content-between align-items-start mb-3">
-            <h1 class="document-title mb-0">
-              <i class="bi bi-file-text text-primary me-2"></i>
-              Document #{{ doc.doc_id }}
+            <h1 class="document-title mb-0" style="font-size:1.125rem; font-weight:700; display:flex; align-items:center; gap:8px;">
+              <span>Document #{{ doc.doc_id }}</span>
+              {% if back_mode %}
+                <span class="visited-badge d-inline-block" style="font-size:0.72rem;">{{ back_mode|capitalize }}</span>
+              {% endif %}
             </h1>
-            {% if doc.score %}
-            <span
-              class="score-badge {% if doc.score >= 0.7 %}score-high{% elif doc.score >= 0.5 %}score-medium{% else %}score-low{% endif %}">
-              Score: {{ "%.4f"|format(doc.score) }}
-            </span>
-            {% endif %}
+            {# Top score removed — final score is shown in scoring breakdown table below #}
+
           </div>
 
-          <div class="meta-grid">
-            <div class="meta-item">
-              <i class="bi bi-globe text-primary"></i>
-              <span><strong>Language:</strong> {{ doc.language }}</span>
-            </div>
-            <div class="meta-item">
-              <i class="bi bi-calendar-check text-primary"></i>
-              <span><strong>Created:</strong> {{ doc.created_at }}</span>
+          {# Meta moved to footer for cleaner header — see footer below #}
+          <!-- Scoring Breakdown Table -->
+          <div class="mt-3 mb-2">
+            <div class="card p-2 score-breakdown">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong>Scoring Breakdown</strong>
+                {% if doc.get('semantic_weight') is not none and doc.get('bm25_weight') is not none %}
+                <small class="text-muted">Weights: Semantic {{ "%.2f"|format(doc.get('semantic_weight')) }} • BM25 {{ "%.2f"|format(doc.get('bm25_weight')) }}</small>
+                {% endif %}
+              </div>
+              <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                  <thead>
+                    <tr>
+                      <th style="width:40%">Type</th>
+                      <th style="width:30%">Score</th>
+                      <th style="width:30%">Weight</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Semantic (Vector)</td>
+                      <td>
+                        {% if doc.get('semantic_score') is not none %}
+                          {{ "%.4f"|format(doc.get('semantic_score')) }}
+                        {% else %}
+                          —
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if doc.get('semantic_weight') is not none %}
+                          {{ "%.2f"|format(doc.get('semantic_weight')) }}
+                        {% else %}
+                          —
+                        {% endif %}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Keyword (BM25)</td>
+                      <td>
+                        {% if doc.get('bm25_score') is not none %}
+                          {{ "%.4f"|format(doc.get('bm25_score')) }}
+                        {% else %}
+                          —
+                        {% endif %}
+                      </td>
+                      <td>
+                        {% if doc.get('bm25_weight') is not none %}
+                          {{ "%.2f"|format(doc.get('bm25_weight')) }}
+                        {% else %}
+                          —
+                        {% endif %}
+                      </td>
+                    </tr>
+                    <tr class="table-active">
+                      <td><strong>Final (combined)</strong></td>
+                      <td><strong>{% if doc.get('score') %}{{ "%.4f"|format(doc.get('score')) }}{% else %}—{% endif %}</strong></td>
+                      <td>—</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -50,32 +102,62 @@
           {{ doc.content | safe }}
         </div>
 
+        <!-- Footer: compact meta (Language / Created) -->
+        <div class="border-top mt-3 pt-2 px-3">
+          <div class="d-flex justify-content-between" style="font-size:0.9rem; color:var(--text-secondary);">
+            <div>
+              <strong>Language:</strong>
+              <span class="ms-1">{{ doc.language }}</span>
+            </div>
+            <div>
+              <strong>Created:</strong>
+              <span class="ms-1">{{ doc.created_at }}</span>
+            </div>
+          </div>
+        </div>
+
         <!-- Similar Documents Section (Inside Document) -->
         {% if related %}
-        <div class="border-top pt-4 mt-4 px-3 pb-3">
-          <h5 class="mb-3">
-            <i class="bi bi-collection text-primary me-2"></i>
-            Similar Documents
-            <span class="badge bg-primary ms-2">{{ related|length }}</span>
-          </h5>
+        <div class="border-top pt-4 mt-4 px-3 pb-3 similar-section">
+          <div class="section-title">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <strong>Similar Documents</strong>
+              <span class="count-badge">{{ related|length }}</span>
+            </div>
+          </div>
           <div class="row g-3">
             {% for rel in related %}
-            <div class="col-md-6">
-              <div class="card h-100 border" style="transition: all 0.2s ease;">
-                <div class="card-body p-3">
-                  <a href="{{ url_for('document_page', doc_id=rel.doc_id, q=back_query, mode=back_mode) }}"
-                    class="text-decoration-none">
-                    <h6 class="card-title mb-2" style="color: var(--primary-blue); font-size: 0.9375rem;">
-                      <i class="bi bi-file-earmark-text me-2"></i>
-                      {{ rel.title if rel.title else "Document #" + rel.doc_id|string }}
-                    </h6>
-                  </a>
-                  <div class="d-flex gap-3 text-muted" style="font-size: 0.8125rem;">
-                    <span><i class="bi bi-globe me-1"></i>{{ rel.language }}</span>
-                    <span><i class="bi bi-calendar me-1"></i>{{ rel.created_at }}</span>
+            <div class="col-12 col-md-6">
+              {% set base = url_for('document_page', doc_id=rel.doc_id) %}
+              {% set use_mode = rel.get('origin_mode') if rel.get('origin_mode') is not none else back_mode %}
+              {% set qs = '?q=' ~ (back_query|urlencode) ~ '&mode=' ~ (use_mode|urlencode) ~ '&score=' ~ (rel.get('score')|default(0)|string) %}
+              {% if rel.get('semantic_score') is not none %}{% set qs = qs ~ '&semantic_score=' ~ (rel.get('semantic_score')|string) %}{% endif %}
+              {% if rel.get('bm25_score') is not none %}{% set qs = qs ~ '&bm25_score=' ~ (rel.get('bm25_score')|string) %}{% endif %}
+              {% if rel.get('semantic_weight') is not none %}{% set qs = qs ~ '&semantic_weight=' ~ (rel.get('semantic_weight')|string) %}{% endif %}
+              {% if rel.get('bm25_weight') is not none %}{% set qs = qs ~ '&bm25_weight=' ~ (rel.get('bm25_weight')|string) %}{% endif %}
+              <a href="{{ base ~ qs }}" class="text-decoration-none">
+                <div class="similar-card">
+                  <div class="title">{{ rel.title if rel.title else 'Document #' ~ rel.doc_id }}</div>
+                  <div class="meta">{{ rel.language }} · {{ rel.created_at }}</div>
+                  <div class="similar-scores text-muted" style="font-size:0.85rem; margin-top:6px;">
+                    {% if rel.get('semantic_score') is not none or rel.get('bm25_score') is not none %}
+                      {% if rel.get('semantic_score') is not none %}
+                        Vec: {{ "%.3f"|format(rel.get('semantic_score')) }}
+                      {% endif %}
+                      {% if rel.get('bm25_score') is not none %}
+                        {% if rel.get('semantic_score') is not none %} • {% endif %}
+                        BM25: {{ "%.3f"|format(rel.get('bm25_score')) }}
+                      {% endif %}
+                    {% else %}
+                      {% if rel.get('semantic_weight') is not none and rel.get('bm25_weight') is not none %}
+                        Weights: S {{ "%.2f"|format(rel.get('semantic_weight')) }} • B {{ "%.2f"|format(rel.get('bm25_weight')) }}
+                      {% else %}
+                        <!-- No score data available -->
+                      {% endif %}
+                    {% endif %}
                   </div>
                 </div>
-              </div>
+              </a>
             </div>
             {% endfor %}
           </div>
@@ -114,36 +196,20 @@
 </div>
 
 <!-- Edit Modal (Smaller) -->
-<div class="modal fade" id="editModal" tabindex="-1">
-  <div class="modal-dialog">
+  <div class="modal fade" id="editModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h6 class="modal-title"><i class="bi bi-pencil me-2"></i>Edit Document</h6>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h6 class="modal-title" style="font-size:0.9rem; font-weight:600;">Edit Document</h6>
       </div>
       <form method="POST" action="{{ url_for('update_post', doc_id=doc.doc_id) }}">
         <div class="modal-body">
           <input type="hidden" name="q" value="{{ back_query }}">
           <input type="hidden" name="mode" value="{{ back_mode }}">
+          <input type="hidden" name="language" value="{{ doc.language }}">
 
           <div class="mb-3">
-            <label for="editLanguage" class="form-label">Language</label>
-            <select class="form-select form-select-sm" id="editLanguage" name="language">
-              <option value="en" {% if doc.language=='en' %}selected{% endif %}>English</option>
-              <option value="es" {% if doc.language=='es' %}selected{% endif %}>Spanish</option>
-              <option value="fr" {% if doc.language=='fr' %}selected{% endif %}>French</option>
-              <option value="de" {% if doc.language=='de' %}selected{% endif %}>German</option>
-              <option value="it" {% if doc.language=='it' %}selected{% endif %}>Italian</option>
-              <option value="pt" {% if doc.language=='pt' %}selected{% endif %}>Portuguese</option>
-              <option value="other" {% if doc.language not in ['en','es','fr','de','it','pt'] %}selected{% endif %}>
-                Other</option>
-            </select>
-          </div>
-
-          <div class="mb-3">
-            <label for="editContent" class="form-label">Content</label>
-            <textarea class="form-control" id="editContent" name="content" rows="10"
-              required>{{ doc.content | striptags }}</textarea>
+            <textarea class="form-control modal-textarea" id="editContent" name="content" rows="12" required>{{ doc.content | striptags }}</textarea>
           </div>
         </div>
         <div class="modal-footer">
@@ -184,6 +250,10 @@
 {% endblock %}
 
 {% block extra_js %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/document.css') }}" />
+{% endblock %}
+
 <script>
   function copyContent(button) {
     const content = document.querySelector('.document-content').innerText;
@@ -219,8 +289,9 @@
     const cards = document.querySelectorAll('.col-md-6 .card');
     cards.forEach(card => {
       card.addEventListener('mouseenter', function () {
-        this.style.transform = 'translateY(-2px)';
-        this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+        // softer hover lift and shadow
+        this.style.transform = 'translateY(-1px)';
+        this.style.boxShadow = '0 2px 6px rgba(0,0,0,0.06)';
       });
       card.addEventListener('mouseleave', function () {
         this.style.transform = 'translateY(0)';
@@ -229,4 +300,5 @@
     });
   });
 </script>
+  <script src="{{ url_for('static', filename='js/document.js') }}"></script>
 {% endblock %}

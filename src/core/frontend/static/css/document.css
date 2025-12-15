@@ -1,0 +1,15 @@
+/* Document page specific styles */
+.document-header{ padding:1.25rem 1.5rem; }
+.document-content{ padding:2rem; font-size:1.0625rem; line-height:1.6; }
+.score-breakdown .table{ margin-bottom:0; }
+.score-breakdown .card{ padding:0.5rem; }
+/* Subtle adjustments for the similar docs cards */
+.card.h-100.border{ transition: all 0.18s ease; }
+
+/* Scoring breakdown table: compact 12px font */
+.score-breakdown table,
+.score-breakdown th,
+.score-breakdown td {
+	font-size: 12px;
+	font-weight: 400;
+}

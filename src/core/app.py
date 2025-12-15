@@ -1,10 +1,10 @@
 # FastAPI backend for Hybrid Search
 import os
+import re
 import sys
 import time
 from datetime import datetime
-from typing import List
-import re
+from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,11 +17,11 @@ sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from core.db.db_connection import db_connection, get_model
 from core.db.operations.db_controller import update_record
-from core.utils.text_cleansing import clean_page_content
-from core.db.operations.document_management import insert_document, delete_document
+from core.db.operations.document_management import delete_document, insert_document
 from core.db.operations.search_flask.hybrid_search import search_hybrid
 from core.db.operations.search_flask.keyword_search import search_keyword
 from core.db.operations.search_flask.semantic_search import search_semantic
+from core.utils.text_cleansing import clean_page_content
 
 # Load model once at startup
 model = None
@@ -81,6 +81,11 @@ class SearchResult(BaseModel):
     score: float
     language: str
     created_at: str
+    semantic_score: Optional[float] = None
+    bm25_score: Optional[float] = None
+    semantic_weight: Optional[float] = None
+    bm25_weight: Optional[float] = None
+    origin_mode: Optional[str] = None
 
 
 class SearchResponse(BaseModel):
@@ -136,12 +141,47 @@ def search_endpoint(request: SearchRequest):
 
         # Format results
         formatted = []
+        # If hybrid, we may have per-doc component scores in stats
+        components_map = {}
+        if request.mode == "hybrid":
+            components_map = stats.get("components", {}) if isinstance(stats, dict) else {}
+
         for r in paginated:
+            # r: (doc_id, content, score, language, created_at)
             created_at_str = (
                 r[4].strftime("%Y-%m-%d")
                 if isinstance(r[4], datetime)
                 else str(r[4] or "")
             )
+
+            # Default component values (may be filled below)
+            semantic_score = None
+            bm25_score = None
+            semantic_weight = None
+            bm25_weight = None
+
+            # 1) Hybrid mode: use components_map provided by search_hybrid
+            if request.mode == "hybrid":
+                comp = components_map.get(r[0], {})
+                semantic_score = comp.get("semantic_score")
+                bm25_score = comp.get("bm25_score")
+                semantic_weight = comp.get("semantic_weight")
+                bm25_weight = comp.get("bm25_weight")
+
+            # 2) Semantic-only mode: the returned score is the semantic score
+            elif request.mode == "semantic":
+                semantic_score = float(r[2])
+                semantic_weight = 1.0
+                bm25_score = None
+                bm25_weight = 0.0
+
+            # 3) Keyword-only mode: the returned score is BM25
+            elif request.mode == "keyword":
+                bm25_score = float(r[2])
+                bm25_weight = 1.0
+                semantic_score = None
+                semantic_weight = 0.0
+
             formatted.append(
                 SearchResult(
                     doc_id=r[0],
@@ -149,6 +189,11 @@ def search_endpoint(request: SearchRequest):
                     score=float(r[2]),
                     language=str(r[3] or "unknown"),
                     created_at=created_at_str,
+                    semantic_score=semantic_score,
+                    bm25_score=bm25_score,
+                    semantic_weight=semantic_weight,
+                    bm25_weight=bm25_weight,
+                    origin_mode=request.mode,
                 )
             )
 
@@ -166,23 +211,30 @@ def search_endpoint(request: SearchRequest):
         )
         conn.commit()
 
+        # Prepare stats to return to frontend; include hybrid-specific values if available
+        response_stats = {
+            "search_type": search_type,
+            "query_time_ms": latency_ms,
+            "total_candidates": len(all_results),
+            "returned": len(paginated),
+            "semantic_count": sem_count,
+            "bm25_count": bm25_count,
+        }
+
+        # If the underlying search provided extra stats (e.g., alpha for hybrid), merge them
+        if request.mode == "hybrid" and isinstance(stats, dict):
+            if "alpha" in stats:
+                response_stats["alpha"] = stats["alpha"]
+
         # Response
         return SearchResponse(
             results=formatted,
-            stats={
-                "search_type": search_type,
-                "query_time_ms": latency_ms,
-                "total_candidates": len(all_results),
-                "returned": len(paginated),
-                "semantic_count": sem_count,
-                "bm25_count": bm25_count,
-            },
-
+            stats=response_stats,
             pagination={
                 "page": page,
                 "page_size": page_size,
                 "total_pages": total_pages,
-                "total_results": total_results
+                "total_results": total_results,
             },
         )
 

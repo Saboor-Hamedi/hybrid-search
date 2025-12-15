@@ -1,0 +1,19 @@
+.modal-lg {
+  max-width: 880px;
+}
+
+.modal .modal-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.modal .modal-body textarea,
+.modal .modal-body .modal-textarea {
+  max-width: 100%;
+  width: 100%;
+  min-height: 320px;
+}
+
+.modal .modal-content {
+  border-radius: 8px;
+}
