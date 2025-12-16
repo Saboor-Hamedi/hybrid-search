@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Hybrid Search Dashboard{% endblock %}</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  
+  <!-- Custom Dashboard CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+  
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <!-- Dashboard Header -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <!-- Brand -->
+      <a href="{{ url_for('home') }}" class="brand">
+        <div class="brand-icon">
+          <i class="bi bi-layers-fill"></i>
+        </div>
+        <span class="brand-text">HybridSearch</span>
+      </a>
+      
+      <!-- Header Actions -->
+      <div class="header-actions">
+        <button class="btn btn-primary" onclick="openCreateModal()">
+          <i class="bi bi-plus-lg"></i>
+          <span>New</span>
+        </button>
+        <a href="http://127.0.0.1:8000/docs" target="_blank" class="btn btn-secondary btn-icon" title="API Documentation">
+          <i class="bi bi-code-slash"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Dashboard Content -->
+  <div class="dashboard-container">
+    {% block content %}
+    <div class="dashboard-grid">
+      <!-- Main Content -->
+      <main>
+        <!-- Central Search Bar -->
+        <div style="max-width: 800px; margin: 0 auto var(--spacing-xl); text-align: center;">
+          <h1 style="font-size: 2rem; font-weight: 600; margin-bottom: var(--spacing-md); background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+            Hybrid Search
+          </h1>
+          
+          <form method="POST" action="{{ url_for('home') }}" style="position: relative; margin-bottom: var(--spacing-md);">
+            <input type="hidden" name="mode" value="{{ mode }}">
+            <input type="hidden" name="page" value="1">
+            <input type="hidden" name="page_size" value="{{ page_size }}">
+            
+            <input 
+              type="text" 
+              name="query" 
+              value="{{ query }}"
+              placeholder="Search documents, articles, and more..."
+              style="width: 100%; padding: 1rem 3.5rem 1rem 1.25rem; background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: var(--border-radius); color: var(--text-primary); font-size: 1rem; transition: all 0.2s ease;"
+              onfocus="this.style.borderColor='var(--accent-purple)'"
+              onblur="this.style.borderColor='var(--glass-border)'"
+              autocomplete="off"
+            >
+            <button 
+              type="submit" 
+              style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: var(--primary-gradient); border: none; border-radius: var(--border-radius-sm); padding: 0.5rem 1rem; color: white; cursor: pointer; font-size: 0.875rem; font-weight: 500;"
+            >
+              <i class="bi bi-search"></i> Search
+            </button>
+          </form>
+          
+          <div style="display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap; font-size: 0.875rem; color: var(--text-muted);">
+            <span>Mode:</span>
+            <form method="POST" action="{{ url_for('home') }}" style="display: inline-flex; gap: 0.5rem;">
+              <input type="hidden" name="query" value="{{ query }}">
+              <input type="hidden" name="page" value="1">
+              <input type="hidden" name="page_size" value="{{ page_size }}">
+              
+              <button type="submit" name="mode" value="hybrid" class="btn btn-secondary" style="padding: 0.375rem 0.75rem; font-size: 0.8rem; {% if mode == 'hybrid' %}background: var(--primary-gradient); border-color: transparent;{% endif %}">
+                Hybrid
+              </button>
+              <button type="submit" name="mode" value="semantic" class="btn btn-secondary" style="padding: 0.375rem 0.75rem; font-size: 0.8rem; {% if mode == 'semantic' %}background: var(--primary-gradient); border-color: transparent;{% endif %}">
+                Semantic
+              </button>
+              <button type="submit" name="mode" value="keyword" class="btn btn-secondary" style="padding: 0.375rem 0.75rem; font-size: 0.8rem; {% if mode == 'keyword' %}background: var(--primary-gradient); border-color: transparent;{% endif %}">
+                Keyword
+              </button>
+            </form>
+            
+            <span style="margin-left: 1rem;">|</span>
+            
+            <form method="POST" action="{{ url_for('home') }}" style="display: inline-flex; gap: 0.5rem; align-items: center;">
+              <input type="hidden" name="query" value="{{ query }}">
+              <input type="hidden" name="mode" value="{{ mode }}">
+              <input type="hidden" name="page" value="1">
+              
+              <span>Results:</span>
+              <select name="page_size" class="search-input" onchange="this.form.submit()" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                <option value="10" {% if page_size == 10 %}selected{% endif %}>10</option>
+                <option value="25" {% if page_size == 25 %}selected{% endif %}>25</option>
+                <option value="50" {% if page_size == 50 %}selected{% endif %}>50</option>
+                <option value="100" {% if page_size == 100 %}selected{% endif %}>100</option>
+              </select>
+            </form>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        {% if stats %}
+        <div class="stats-grid fade-in-up">
+          <div class="stat-card purple stagger-1">
+            <div class="stat-header">
+              <span class="stat-label">Total Results</span>
+              <div class="stat-icon">
+                <i class="bi bi-file-text"></i>
+              </div>
+            </div>
+            <div class="stat-value">{{ total_results if total_results else 0 }}</div>
+            <div class="stat-subtitle">documents found</div>
+          </div>
+          
+          <div class="stat-card pink stagger-2">
+            <div class="stat-header">
+              <span class="stat-label">Query Time</span>
+              <div class="stat-icon">
+                <i class="bi bi-lightning-charge"></i>
+              </div>
+            </div>
+            <div class="stat-value">{{ stats.query_time_ms|default(0)|round(2) }}</div>
+            <div class="stat-subtitle">milliseconds</div>
+          </div>
+          
+          {% if mode == 'hybrid' %}
+          <div class="stat-card blue stagger-3">
+            <div class="stat-header">
+              <span class="stat-label">Semantic</span>
+              <div class="stat-icon">
+                <i class="bi bi-brain"></i>
+              </div>
+            </div>
+            <div class="stat-value">{{ stats.semantic_count|default(0) }}</div>
+            <div class="stat-subtitle">AI matches</div>
+          </div>
+          
+          <div class="stat-card orange stagger-4">
+            <div class="stat-header">
+              <span class="stat-label">BM25</span>
+              <div class="stat-icon">
+                <i class="bi bi-search"></i>
+              </div>
+            </div>
+            <div class="stat-value">{{ stats.bm25_count|default(0) }}</div>
+            <div class="stat-subtitle">keyword matches</div>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Results Section -->
+        <div class="results-section fade-in-up">
+          <div class="section-header">
+            <h2 class="section-title">
+              {% if query %}
+                Search Results
+              {% else %}
+                Ready to Search
+              {% endif %}
+            </h2>
+            {% if results %}
+            <div class="results-count">
+              Page {{ page }} of {{ total_pages }}
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Results List -->
+          {% if results %}
+            {% for r in results %}
+            <div class="result-card">
+              <div class="result-header">
+                {% set base = url_for('document_page', doc_id=r.doc_id) %}
+                {% set use_mode = r.origin_mode if r.origin_mode is not none else mode %}
+                {% set qs = '?q=' ~ (query|urlencode) ~ '&mode=' ~ (use_mode|urlencode) ~ '&score=' ~ (r.score|string) %}
+                {% if r.semantic_score is not none %}{% set qs = qs ~ '&semantic_score=' ~ (r.semantic_score|string) %}{% endif %}
+                {% if r.bm25_score is not none %}{% set qs = qs ~ '&bm25_score=' ~ (r.bm25_score|string) %}{% endif %}
+                {% if r.semantic_weight is not none %}{% set qs = qs ~ '&semantic_weight=' ~ (r.semantic_weight|string) %}{% endif %}
+                {% if r.bm25_weight is not none %}{% set qs = qs ~ '&bm25_weight=' ~ (r.bm25_weight|string) %}{% endif %}
+                
+                <a href="{{ base ~ qs }}" class="result-title">
+                  <i class="bi bi-file-earmark-text"></i> Document #{{ r.doc_id }}
+                </a>
+                <span class="score-badge {% if r.score >= 0.7 %}score-high{% elif r.score >= 0.5 %}score-medium{% else %}score-low{% endif %}">
+                  {{ "%.4f"|format(r.score) }}
+                </span>
+              </div>
+              
+              <div class="result-content">
+                {{ r.content_highlighted | safe }}
+              </div>
+              
+              <div class="result-meta">
+                <span class="meta-item">
+                  <i class="bi bi-translate"></i>
+                  {{ r.language|upper }}
+                </span>
+                <span class="meta-item">
+                  <i class="bi bi-calendar"></i>
+                  {{ r.created_at }}
+                </span>
+              </div>
+            </div>
+            {% endfor %}
+
+            <!-- Pagination -->
+            <div class="pagination-wrapper">
+              <form method="POST" action="{{ url_for('home') }}" style="display: inline;">
+                <input type="hidden" name="query" value="{{ query }}">
+                <input type="hidden" name="mode" value="{{ mode }}">
+                <input type="hidden" name="page_size" value="{{ page_size }}">
+                <input type="hidden" name="page" value="{{ prev_page }}">
+                <button type="submit" class="page-btn" {% if not prev_page %}disabled{% endif %}>
+                  <i class="bi bi-chevron-left"></i> Previous
+                </button>
+              </form>
+              
+              <span class="page-info">Page {{ page }} of {{ total_pages }}</span>
+              
+              <form method="POST" action="{{ url_for('home') }}" style="display: inline;">
+                <input type="hidden" name="query" value="{{ query }}">
+                <input type="hidden" name="mode" value="{{ mode }}">
+                <input type="hidden" name="page_size" value="{{ page_size }}">
+                <input type="hidden" name="page" value="{{ next_page }}">
+                <button type="submit" class="page-btn" {% if not next_page %}disabled{% endif %}>
+                  Next <i class="bi bi-chevron-right"></i>
+                </button>
+              </form>
+            </div>
+          {% else %}
+            <!-- Empty State -->
+            <div class="empty-state">
+              <div class="empty-icon">
+                <i class="bi bi-search"></i>
+              </div>
+              <h3 class="empty-title">
+                {% if query %}
+                  No results found
+                {% else %}
+                  Start Your Search
+                {% endif %}
+              </h3>
+              <p class="empty-text">
+                {% if query %}
+                  Try adjusting your search terms or changing the search mode
+                {% else %}
+                  Enter your search query above to find documents
+                {% endif %}
+              </p>
+            </div>
+          {% endif %}
+        </div>
+      </main>
+    </div>
+    {% endblock %}
+  </div>
+
+  <!-- Create Document Modal -->
+  <div id="createModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: var(--border-radius); padding: var(--spacing-lg); max-width: 600px; width: 90%;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+        <h3 style="margin: 0;">Create New Document</h3>
+        <button onclick="closeCreateModal()" style="background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer;">&times;</button>
+      </div>
+      <form method="POST" action="{{ url_for('new_post') }}">
+        <input type="hidden" name="q" value="{{ query }}">
+        <input type="hidden" name="mode" value="{{ mode }}">
+        <input type="hidden" name="language" value="en">
+        <textarea 
+          class="search-input" 
+          name="content" 
+          rows="12" 
+          placeholder="Enter document content..."
+          style="width: 100%; margin-bottom: var(--spacing-md); min-height: 200px; resize: vertical;"
+          required
+        ></textarea>
+        <div style="display: flex; gap: var(--spacing-sm); justify-content: flex-end;">
+          <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Document</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Command Palette (if exists) -->
+  {% include 'components/command_palette.html' ignore missing %}
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // Modal Functions
+    function openCreateModal() {
+      document.getElementById('createModal').style.display = 'flex';
+    }
+    
+    function closeCreateModal() {
+      document.getElementById('createModal').style.display = 'none';
+    }
+    
+    // Close modal on outside click
+    document.getElementById('createModal')?.addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeCreateModal();
+      }
+    });
+
+    // Loading overlay for form submissions
+    document.querySelectorAll('form').forEach(form => {
+      form.addEventListener('submit', function() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+          overlay.classList.add('active');
+        }
+      });
+    });
+
+    // Auto-submit search on Enter
+    document.querySelector('.search-input')?.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        this.closest('form').submit();
+      }
+    });
+  </script>
+  
+  <!-- Bootstrap JS for Modal -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script src="{{ url_for('static',filename='main.js') }}" onerror="console.log('main.js not found')"></script>
+  <script src="{{ url_for('static', filename='command_palette.js') }}" onerror="console.log('command_palette.js not found')"></script>
+  
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

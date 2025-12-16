@@ -1,7 +1,15 @@
-<!-- Command Palette Modal -->
-<div class="modal fade" id="commandPaletteModal" tabindex="-1" aria-labelledby="commandPaletteLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content command-palette">
+<!-- Command Palette Modal - Hidden by Default -->
+<style>
+  #commandPaletteModal .modal-dialog {
+    transform: none !important;
+  }
+  #commandPaletteModal.show .modal-dialog {
+    transform: none !important;
+  }
+</style>
+<div class="modal fade" id="commandPaletteModal" tabindex="-1" aria-labelledby="commandPaletteLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="margin-top: 3rem !important; max-width: 600px; margin-left: auto; margin-right: auto;">
+        <div class="modal-content command-palette" style="background: var(--bg-secondary); border: 1px solid var(--glass-border);">
             <div class="modal-body p-0">
                 <!-- Search Input -->
                 <div class="command-search-wrapper">
@@ -15,9 +23,7 @@
                 <!-- Search Mode Selector (Footer) -->
                 <div class="command-footer">
                     <div class="command-mode-selector">
-                        <span class="command-footer-label">
-                            <i class="bi bi-sliders me-1"></i> Search Mode:
-                        </span>
+
                         <div class="btn-group btn-group-sm" role="group">
                             <input type="radio" class="btn-check" name="commandMode" id="cmdHybrid" value="hybrid"
                                 checked>
@@ -37,19 +43,6 @@
                         </div>
                     </div>
 
-                    <div class="command-footer-hint">
-                        <kbd>Enter</kbd> to search · <kbd>Esc</kbd> to close
-                    </div>
-                </div>
-
-                <!-- Quick Results Preview (Optional) -->
-                <div id="commandResults" class="command-results d-none">
-                    <div class="command-results-header">
-                        <small class="text-muted">Quick Preview</small>
-                    </div>
-                    <div id="commandResultsList" class="command-results-list">
-                        <!-- Results will be populated here -->
-                    </div>
                 </div>
             </div>
         </div>
@@ -59,7 +52,7 @@
 <style>
     /* Command Palette Styles */
     .command-palette {
-        border-radius: 12px;
+        border-radius: 8px;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         border: 1px solid rgba(0, 0, 0, 0.1);
         overflow: hidden;

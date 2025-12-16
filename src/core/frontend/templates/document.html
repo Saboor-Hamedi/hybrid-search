@@ -1,304 +1,100 @@
-{% extends "portion/base.html" %}
-
-{% block title %}Document {{ doc.doc_id }} - Hybrid Search{% endblock %}
+{% extends "portion/chat_base.html" %}
 
 {% block content %}
-<div class="container-fluid" style="max-width: 1200px;">
-  <div class="row g-4 mt-2">
-    <!-- Main Content Column (Full Width) -->
-    <div class="col-lg-9">
-      <!-- Document Card -->
-      <div class="content-area">
-        <!-- Header -->
-        <div class="document-header">
-          <div class="d-flex justify-content-between align-items-start mb-3">
-            <h1 class="document-title mb-0" style="font-size:1.125rem; font-weight:700; display:flex; align-items:center; gap:8px;">
-              <span>Document #{{ doc.doc_id }}</span>
-              {% if back_mode %}
-                <span class="visited-badge d-inline-block" style="font-size:0.72rem;">{{ back_mode|capitalize }}</span>
-              {% endif %}
-            </h1>
-            {# Top score removed — final score is shown in scoring breakdown table below #}
+<!-- Back to Search -->
+<div class="message">
+  <div class="message-response">
+    <a href="javascript:history.back()" style="color: #2563eb; text-decoration: none; font-size: 0.875rem;">
+      <i class="bi bi-arrow-left"></i> Back to results
+    </a>
+  </div>
+</div>
 
-          </div>
-
-          {# Meta moved to footer for cleaner header — see footer below #}
-          <!-- Scoring Breakdown Table -->
-          <div class="mt-3 mb-2">
-            <div class="card p-2 score-breakdown">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <strong>Scoring Breakdown</strong>
-                {% if doc.get('semantic_weight') is not none and doc.get('bm25_weight') is not none %}
-                <small class="text-muted">Weights: Semantic {{ "%.2f"|format(doc.get('semantic_weight')) }} • BM25 {{ "%.2f"|format(doc.get('bm25_weight')) }}</small>
-                {% endif %}
-              </div>
-              <div class="table-responsive">
-                <table class="table table-sm mb-0">
-                  <thead>
-                    <tr>
-                      <th style="width:40%">Type</th>
-                      <th style="width:30%">Score</th>
-                      <th style="width:30%">Weight</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Semantic (Vector)</td>
-                      <td>
-                        {% if doc.get('semantic_score') is not none %}
-                          {{ "%.4f"|format(doc.get('semantic_score')) }}
-                        {% else %}
-                          —
-                        {% endif %}
-                      </td>
-                      <td>
-                        {% if doc.get('semantic_weight') is not none %}
-                          {{ "%.2f"|format(doc.get('semantic_weight')) }}
-                        {% else %}
-                          —
-                        {% endif %}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Keyword (BM25)</td>
-                      <td>
-                        {% if doc.get('bm25_score') is not none %}
-                          {{ "%.4f"|format(doc.get('bm25_score')) }}
-                        {% else %}
-                          —
-                        {% endif %}
-                      </td>
-                      <td>
-                        {% if doc.get('bm25_weight') is not none %}
-                          {{ "%.2f"|format(doc.get('bm25_weight')) }}
-                        {% else %}
-                          —
-                        {% endif %}
-                      </td>
-                    </tr>
-                    <tr class="table-active">
-                      <td><strong>Final (combined)</strong></td>
-                      <td><strong>{% if doc.get('score') %}{{ "%.4f"|format(doc.get('score')) }}{% else %}—{% endif %}</strong></td>
-                      <td>—</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Search Context -->
-        {% if back_query %}
-        <div class="search-context">
-          <i class="bi bi-search me-2"></i>
-          <strong>Search Query:</strong> "{{ back_query }}"
-          <span class="ms-2 text-muted">• Mode: {{ back_mode|capitalize }}</span>
-        </div>
-        {% endif %}
-
-        <!-- Content -->
-        <div class="document-content" id="documentContent">
-          {{ doc.content | safe }}
-        </div>
-
-        <!-- Footer: compact meta (Language / Created) -->
-        <div class="border-top mt-3 pt-2 px-3">
-          <div class="d-flex justify-content-between" style="font-size:0.9rem; color:var(--text-secondary);">
-            <div>
-              <strong>Language:</strong>
-              <span class="ms-1">{{ doc.language }}</span>
-            </div>
-            <div>
-              <strong>Created:</strong>
-              <span class="ms-1">{{ doc.created_at }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Similar Documents Section (Inside Document) -->
-        {% if related %}
-        <div class="border-top pt-4 mt-4 px-3 pb-3 similar-section">
-          <div class="section-title">
-            <div style="display:flex;align-items:center;gap:8px;">
-              <strong>Similar Documents</strong>
-              <span class="count-badge">{{ related|length }}</span>
-            </div>
-          </div>
-          <div class="row g-3">
-            {% for rel in related %}
-            <div class="col-12 col-md-6">
-              {% set base = url_for('document_page', doc_id=rel.doc_id) %}
-              {% set use_mode = rel.get('origin_mode') if rel.get('origin_mode') is not none else back_mode %}
-              {% set qs = '?q=' ~ (back_query|urlencode) ~ '&mode=' ~ (use_mode|urlencode) ~ '&score=' ~ (rel.get('score')|default(0)|string) %}
-              {% if rel.get('semantic_score') is not none %}{% set qs = qs ~ '&semantic_score=' ~ (rel.get('semantic_score')|string) %}{% endif %}
-              {% if rel.get('bm25_score') is not none %}{% set qs = qs ~ '&bm25_score=' ~ (rel.get('bm25_score')|string) %}{% endif %}
-              {% if rel.get('semantic_weight') is not none %}{% set qs = qs ~ '&semantic_weight=' ~ (rel.get('semantic_weight')|string) %}{% endif %}
-              {% if rel.get('bm25_weight') is not none %}{% set qs = qs ~ '&bm25_weight=' ~ (rel.get('bm25_weight')|string) %}{% endif %}
-              <a href="{{ base ~ qs }}" class="text-decoration-none">
-                <div class="similar-card">
-                  <div class="title">{{ rel.title if rel.title else 'Document #' ~ rel.doc_id }}</div>
-                  <div class="meta">{{ rel.language }} · {{ rel.created_at }}</div>
-                  <div class="similar-scores text-muted" style="font-size:0.85rem; margin-top:6px;">
-                    {% if rel.get('semantic_score') is not none or rel.get('bm25_score') is not none %}
-                      {% if rel.get('semantic_score') is not none %}
-                        Vec: {{ "%.3f"|format(rel.get('semantic_score')) }}
-                      {% endif %}
-                      {% if rel.get('bm25_score') is not none %}
-                        {% if rel.get('semantic_score') is not none %} • {% endif %}
-                        BM25: {{ "%.3f"|format(rel.get('bm25_score')) }}
-                      {% endif %}
-                    {% else %}
-                      {% if rel.get('semantic_weight') is not none and rel.get('bm25_weight') is not none %}
-                        Weights: S {{ "%.2f"|format(rel.get('semantic_weight')) }} • B {{ "%.2f"|format(rel.get('bm25_weight')) }}
-                      {% else %}
-                        <!-- No score data available -->
-                      {% endif %}
-                    {% endif %}
-                  </div>
-                </div>
-              </a>
-            </div>
-            {% endfor %}
-          </div>
-        </div>
+<!-- Document Content -->
+<div class="message">
+  <div class="message-response">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+      <h4 style="margin: 0;">Document #{{ doc.doc_id }}</h4>
+      <div style="display: flex; gap: 0.5rem;">
+        <button onclick="window.print()" class="btn btn-sm btn-outline-secondary" title="Print">
+          <i class="bi bi-printer"></i>
+        </button>
+        <button onclick="copyDocumentContent()" class="btn btn-sm btn-outline-secondary" title="Copy">
+          <i class="bi bi-clipboard"></i>
+        </button>
+        <button onclick="document.getElementById('editModal').style.display='flex'" class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-pencil"></i> Edit
+        </button>
+        <button onclick="document.getElementById('deleteModal').style.display='flex'" class="btn btn-sm btn-outline-danger">
+          <i class="bi bi-trash"></i> Delete
+        </button>
+      </div>
+    </div>
+    
+    <!-- Metadata -->
+    <div style="padding: 0.75rem; background: #f9fafb; border-radius: 6px; margin-bottom: 1rem; font-size: 0.875rem; color: #6b7280;">
+      <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+        <span><i class="bi bi-translate"></i> {{ doc.language|upper }}</span>
+        <span><i class="bi bi-calendar"></i> {{ doc.created_at }}</span>
+        {% if doc.score %}
+        <span><i class="bi bi-search"></i> Score: {{ "%.4f"|format(doc.score) }}</span>
         {% endif %}
       </div>
     </div>
-
-    <!-- Sidebar Column (Compact) -->
-    <div class="col-lg-3">
-      <!-- Quick Actions Card -->
-      <div class="sidebar-card doc-actions-sticky">
-        <div class="sidebar-header">
-          <i class="bi bi-lightning-charge me-2"></i>Actions
-        </div>
-        <div class="p-3 d-grid gap-2">
-          <a href="{{ url_for('home') }}?query={{ back_query }}&mode={{ back_mode }}" class="btn btn-primary btn-sm">
-            <i class="bi bi-arrow-left me-2"></i>Back
-          </a>
-          <button class="btn btn-outline-primary btn-sm" onclick="toggleEditMode()">
-            <i class="bi bi-pencil me-2"></i>Edit
-          </button>
-          <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
-            <i class="bi bi-printer me-2"></i>Print
-          </button>
-          <button class="btn btn-outline-secondary btn-sm" onclick="copyContent(this)">
-            <i class="bi bi-clipboard me-2"></i>Copy
-          </button>
-          <button class="btn btn-outline-danger btn-sm" onclick="confirmDelete()">
-            <i class="bi bi-trash me-2"></i>Delete
-          </button>
-        </div>
-      </div>
-    </div>
+    
+    <!-- Content -->
+    <div style="padding: 1rem; line-height: 1.8; white-space: pre-wrap; background: #f9fafb; border-radius: 6px;">{{ doc.content }}</div>
   </div>
 </div>
 
-<!-- Edit Modal (Smaller) -->
-  <div class="modal fade" id="editModal" tabindex="-1">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h6 class="modal-title" style="font-size:0.9rem; font-weight:600;">Edit Document</h6>
+<!-- Edit Modal -->
+<div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+  <div style="background: white; border-radius: 12px; padding: 1.5rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+    <h5 class="mb-3">Edit Document #{{ doc.doc_id }}</h5>
+    <form method="POST" action="{{ url_for('update_post', doc_id=doc.doc_id) }}">
+      <input type="hidden" name="q" value="{{ back_query or '' }}">
+      <input type="hidden" name="mode" value="{{ back_mode or 'hybrid' }}">
+      <textarea class="form-control mb-3" name="content" rows="12" required>{{ doc.content }}</textarea>
+      <div class="d-flex gap-2 justify-content-end">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('editModal').style.display='none'">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
       </div>
-      <form method="POST" action="{{ url_for('update_post', doc_id=doc.doc_id) }}">
-        <div class="modal-body">
-          <input type="hidden" name="q" value="{{ back_query }}">
-          <input type="hidden" name="mode" value="{{ back_mode }}">
-          <input type="hidden" name="language" value="{{ doc.language }}">
-
-          <div class="mb-3">
-            <textarea class="form-control modal-textarea" id="editContent" name="content" rows="12" required>{{ doc.content | striptags }}</textarea>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary btn-sm">
-            <i class="bi bi-save me-2"></i>Save
-          </button>
-        </div>
-      </form>
-    </div>
+    </form>
   </div>
 </div>
 
-<!-- Delete Confirmation Modal (Smaller) -->
-<div class="modal fade" id="deleteModal" tabindex="-1">
-  <div class="modal-dialog modal-sm">
-    <div class="modal-content">
-      <div class="modal-header bg-danger text-white">
-        <h6 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirm Delete</h6>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<!-- Delete Modal -->
+<div id="deleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+  <div style="background: white; border-radius: 12px; padding: 1.5rem; max-width: 400px; width: 90%;">
+    <h5 class="mb-3">Delete Document?</h5>
+    <p class="text-muted mb-3">Are you sure you want to delete document #{{ doc.doc_id }}? This action cannot be undone.</p>
+    <form method="POST" action="{{ url_for('delete_post', doc_id=doc.doc_id) }}">
+      <input type="hidden" name="q" value="{{ back_query or '' }}">
+      <input type="hidden" name="mode" value="{{ back_mode or 'hybrid' }}">
+      <div class="d-flex gap-2 justify-content-end">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('deleteModal').style.display='none'">Cancel</button>
+        <button type="submit" class="btn btn-danger">Delete</button>
       </div>
-      <div class="modal-body">
-        <p class="mb-0" style="font-size: 0.9375rem;">Are you sure you want to delete Document #{{ doc.doc_id }}?</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-        <form method="POST" action="{{ url_for('delete_post', doc_id=doc.doc_id) }}" style="display: inline;">
-          <input type="hidden" name="q" value="{{ back_query }}">
-          <input type="hidden" name="mode" value="{{ back_mode }}">
-          <button type="submit" class="btn btn-danger btn-sm">
-            <i class="bi bi-trash me-2"></i>Delete
-          </button>
-        </form>
-      </div>
-    </div>
+    </form>
   </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-{% block extra_css %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/document.css') }}" />
-{% endblock %}
 
 <script>
-  function copyContent(button) {
-    const content = document.querySelector('.document-content').innerText;
+  function copyDocumentContent() {
+    const content = `{{ doc.content|replace("'", "\\'")|replace('"', '\\"')|replace('\n', '\\n') }}`;
     navigator.clipboard.writeText(content).then(() => {
-      const originalHtml = button.innerHTML;
-      button.innerHTML = '<i class="bi bi-check-lg me-2"></i>Copied!';
-      button.classList.remove('btn-outline-secondary');
-      button.classList.add('btn-success');
-
-      setTimeout(() => {
-        button.innerHTML = originalHtml;
-        button.classList.remove('btn-success');
-        button.classList.add('btn-outline-secondary');
-      }, 2000);
-    }).catch(err => {
-      console.error('Failed to copy:', err);
-      alert('Failed to copy content');
+      alert('Content copied to clipboard!');
     });
   }
-
-  function toggleEditMode() {
-    const editModal = new bootstrap.Modal(document.getElementById('editModal'));
-    editModal.show();
-  }
-
-  function confirmDelete() {
-    const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-    deleteModal.show();
-  }
-
-  // Add hover effect to similar document cards
-  document.addEventListener('DOMContentLoaded', function () {
-    const cards = document.querySelectorAll('.col-md-6 .card');
-    cards.forEach(card => {
-      card.addEventListener('mouseenter', function () {
-        // softer hover lift and shadow
-        this.style.transform = 'translateY(-1px)';
-        this.style.boxShadow = '0 2px 6px rgba(0,0,0,0.06)';
-      });
-      card.addEventListener('mouseleave', function () {
-        this.style.transform = 'translateY(0)';
-        this.style.boxShadow = '';
-      });
+  
+  // Close modals on outside click
+  ['editModal', 'deleteModal'].forEach(id => {
+    document.getElementById(id)?.addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.style.display = 'none';
+      }
     });
   });
 </script>
-  <script src="{{ url_for('static', filename='js/document.js') }}"></script>
 {% endblock %}
+

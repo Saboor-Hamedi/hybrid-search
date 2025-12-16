@@ -10,13 +10,28 @@
     --border-radius: 5px;
 }
 
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 body {
     background-color: var(--bg-light);
-    padding-bottom: 3rem;
-
     color: #333;
-    padding-top: var(--sticky-top-offset, 80px);
+}
 
+/* Ensure the body and main content are scrollable */
+html, body {
+    height: 100%;
+    overflow: hidden; /* Prevent double scrollbars */
+}
+
+main {
+    flex: 1;
+    padding: 1rem;
+    min-height: 100vh;
+    overflow-y: auto; /* Enable scrolling for the main content */
 }
 
 /* drawer removed; using grid layout */
@@ -120,11 +135,16 @@ body {
 
 /* 3. Sidebar (Filters/Mode Selection) */
 .sidebar-filters {
-    background: var(--card-bg);
-    border-radius: var(--border-radius);
-    padding: 1.2rem;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--card-shadow);
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh; /* Full height of the viewport */
+    width: 250px;
+    background-color: #f8f9fa;
+    border-right: 1px solid #e0e0e0;
+    padding: 1rem;
+    overflow-y: auto; /* Ensure the sidebar is scrollable if content overflows */
+    z-index: 1030;
 }
 
 .sticky-sidebar {
@@ -182,7 +202,10 @@ body {
     box-shadow: var(--card-shadow);
     border: 1px solid #e0e0e0;
     background: white;
+    transition: all 0.2s ease;
+
 }
+
 
 .result-card:hover {
     /* subtle lift on hover */
@@ -446,4 +469,53 @@ body {
     font-weight: 600;
     font-size: 0.9375rem;
     color: var(--text-primary);
+}
+
+/* Results Header Styling */
+.results-header {
+    margin-left: 260px; /* Account for sidebar width */
+    margin-right: 1rem;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+/* Results Card Styling */
+.result-card {
+    margin-left: 260px; /* Align with the sidebar */
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: var(--border-radius-sm);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.result-card .card-body {
+    padding: 1rem;
+}
+
+.result-card .card-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.result-card .score-badge {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.result-card .highlight {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.result-card .text-muted {
+    font-size: 0.75rem;
+}
+
+/* No Results Styling */
+.no-results {
+    margin-left: 260px; /* Align with the sidebar */
+    margin-right: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
 }
