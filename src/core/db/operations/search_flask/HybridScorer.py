@@ -1,3 +1,5 @@
+import math
+import os
 from typing import Any, Dict, List, Tuple
 
 
@@ -25,10 +27,30 @@ class HybridScorer:
     def normalize_bm25(self, bm25_results: List[Tuple[int, str, float]]) -> Dict[int, float]:
         if not bm25_results:
             return {}
+        # Select normalization method via env var: 'max' (default), 'log', or 'minmax'
+        method = os.getenv("HYBRID_BM25_NORM", "max").strip().lower()
         scores = [s for _, _, s in bm25_results]
         min_s, max_s = min(scores), max(scores)
+        out: Dict[int, float] = {}
+
+        if method == "log":
+            # log1p-scaling: log1p(raw) / log1p(max)
+            denom = math.log1p(max_s) if max_s > 0 else 1.0
+            for doc_id, _, raw in bm25_results:
+                norm = (math.log1p(raw) / denom) if max_s > 0 else 0.0
+                out[doc_id] = float(norm)
+            return out
+
+        if method == "max":
+            # simple max-scaling: raw / max
+            denom = max_s if max_s > 0 else 1.0
+            for doc_id, _, raw in bm25_results:
+                norm = (raw / denom) if denom > 0 else 0.0
+                out[doc_id] = float(norm)
+            return out
+
+        # fallback: original min-max normalization
         denom = max_s - min_s if max_s != min_s else 1.0
-        out = {}
         for doc_id, _, raw in bm25_results:
             norm = (raw - min_s) / denom if max_s != min_s else (1.0 if raw > 0 else 0.0)
             out[doc_id] = float(norm)

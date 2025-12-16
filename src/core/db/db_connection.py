@@ -7,7 +7,19 @@ from optimum.onnxruntime import ORTModelForFeatureExtraction
 from sentence_transformers import SentenceTransformer
 from transformers import AutoTokenizer
 
-load_dotenv()
+# Load environment variables explicitly from the repository `src/.env` file
+try:
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    dotenv_path = os.path.join(base_dir, ".env")
+    if os.path.exists(dotenv_path):
+        load_dotenv(dotenv_path=dotenv_path)
+        print(f"Loaded environment from {dotenv_path}")
+    else:
+        # Fallback to default behavior (load first .env found)
+        load_dotenv()
+        print("No src/.env found; loaded default .env if present")
+except Exception as e:
+    print("Error loading .env:", e)
 # Cache the model to avoid reloading it every time
 _cached_model=None
 # source C:/ProgramData/miniconda3/Scripts/activate base

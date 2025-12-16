@@ -1,6 +1,8 @@
+import os
+import re
+
 from utils.ColorScheme import ColorScheme
 from utils.helper_functions import measure_time
-import re
 
 from core.db.operations.search_queries import execute_vector_query
 from core.utils.console_stats import display_search_stats
@@ -8,8 +10,15 @@ from core.utils.rich_console import display_in_table
 
 cs = ColorScheme()
 
-BASE_THRESHOLD = 0.35
-TOP_K = 200
+try:
+    BASE_THRESHOLD = float(os.environ.get("BASE_THRESHOLD", "0.35"))
+except Exception:
+    BASE_THRESHOLD = 0.35
+
+try:
+    TOP_K = int(os.environ.get("TOP_K", "1000"))
+except Exception:
+    TOP_K = 1000
 
 def _dynamic_threshold(q: str) -> float:
     tokens = [t for t in q.strip().split() if t]

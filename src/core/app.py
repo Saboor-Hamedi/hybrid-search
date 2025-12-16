@@ -25,7 +25,10 @@ from core.utils.text_cleansing import clean_page_content
 
 # Load model once at startup
 model = None
-MAX_CANDIDATES = 1000
+try:
+    MAX_CANDIDATES = int(os.environ.get("MAX_CANDIDATES", "1000"))
+except Exception:
+    MAX_CANDIDATES = 1000
 app = FastAPI(title="Hybrid Search API")
 # app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -104,7 +107,12 @@ def search_endpoint(request: SearchRequest):
 
     try:
         page = max(1, request.page)
-        page_size = min(200, max(10, request.page_size))
+        try:
+            PAGE_SIZE_MAX = int(os.environ.get("PAGE_SIZE_MAX", "200"))
+        except Exception:
+            PAGE_SIZE_MAX = 200
+        # allow page_size up to PAGE_SIZE_MAX (default 200)
+        page_size = min(PAGE_SIZE_MAX, max(1, request.page_size))
         offset = (page - 1) * page_size
         # Always retrieve up to max candidates, regardless of page
         top_k = MAX_CANDIDATES
