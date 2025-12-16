@@ -193,8 +193,7 @@
     }
     
     .search-input-container:focus-within {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      border-color: #d1d5db;
     }
     
     .search-input {
@@ -205,7 +204,8 @@
       resize: none;
       min-height: 48px;
       max-height: 120px;
-      outline: none;
+      outline: none !important;
+      box-shadow: none !important;
     }
     
     .input-footer {
@@ -333,6 +333,209 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
+    
+    /* === UX ENHANCEMENTS === */
+    
+    /* Loading State */
+    .search-btn.loading {
+      position: relative;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+    
+    .search-btn.loading::after {
+      content: "";
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      top: 50%;
+      left: 50%;
+      margin-left: -7px;
+      margin-top: -7px;
+      border: 2px solid white;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 0.6s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Result Hover Enhancement */
+    .result-item {
+      position: relative;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+    
+    .result-item:hover {
+      transform: translateX(4px);
+      background: #f9fafb;
+    }
+    
+    .result-item::before {
+      content: "→";
+      position: absolute;
+      left: -20px;
+      opacity: 0;
+      transition: opacity 0.2s ease, left 0.2s ease;
+      color: #2563eb;
+      font-weight: bold;
+    }
+    
+    .result-item:hover::before {
+      opacity: 1;
+      left: -16px;
+    }
+    
+    /* Smooth Fade-in Animation */
+    .message {
+      animation: fadeInUp 0.4s ease;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Result Count Badge */
+    .result-count-badge {
+      display: inline-block;
+      background: #2563eb;
+      color: white;
+      padding: 0.25rem 0.625rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+    
+    /* Empty State Enhancement */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #9ca3af;
+    }
+    
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+    
+    .empty-state-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+    }
+    
+    .empty-state-text {
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .example-searches {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+    
+    .example-search {
+      padding: 0.375rem 0.75rem;
+      background: #f3f4f6;
+      border-radius: 6px;
+      font-size: 0.8125rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    
+    .example-search:hover {
+      background: #e5e7eb;
+      border-color: #2563eb;
+      color: #2563eb;
+    }
+    
+    /* Keyboard Shortcut Hint */
+    .keyboard-hint {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 50;
+    }
+    
+    .keyboard-hint.show {
+      opacity: 1;
+    }
+    
+    kbd {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.125rem 0.375rem;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 0.875em;
+    }
+    
+    /* Mobile Optimizations */
+    @media (max-width: 768px) {
+      .messages-area {
+        padding: 1rem 0.5rem;
+        padding-bottom: 180px;
+      }
+      
+      .input-area {
+        padding: 0.75rem 1rem 0.75rem;
+      }
+      
+      .search-input {
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+      
+      .mode-pill {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+      }
+      
+      .search-btn {
+        padding: 0.625rem 1rem;
+      }
+      
+      .result-title {
+        font-size: 1rem;
+      }
+      
+      .result-content {
+        font-size: 1rem;
+      }
+    }
+    
+    /* Focus Visible Enhancement */
+    *:focus-visible {
+      outline: 2px solid #2563eb;
+      outline-offset: 2px;
+    }
+    
+    /* Smooth Scroll */
+    html {
+      scroll-behavior: smooth;
+    }
   </style>
   
   {% block extra_css %}{% endblock %}
@@ -422,6 +625,25 @@
               {% endif %}
             </div>
           </div>
+        {% else %}
+          <!-- Welcome State (no search yet) -->
+          <div class="empty-state">
+            <div class="empty-state-icon">🔍</div>
+            <div class="empty-state-title">Welcome to Hybrid Search</div>
+            <div class="empty-state-text">
+              Search across your documents using semantic, keyword, or hybrid search modes.<br>
+              Try one of these examples to get started:
+            </div>
+            <div class="example-searches">
+              <span class="example-search">machine learning algorithms</span>
+              <span class="example-search">database optimization</span>
+              <span class="example-search">api documentation</span>
+              <span class="example-search">python best practices</span>
+            </div>
+            <div style="margin-top: 2rem; font-size: 0.8125rem; color: #9ca3af;">
+              Press <kbd>/</kbd> to focus search • <kbd>Ctrl+K</kbd> to open command palette
+            </div>
+          </div>
         {% endif %}
         {% endblock %}
       </div>
@@ -500,6 +722,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{{ url_for('static', filename='command_palette.js') }}"></script>
   <script>
+    // === UX ENHANCEMENTS ===
+    
     // Auto-resize textarea
     const textarea = document.querySelector('.search-input');
     textarea?.addEventListener('input', function() {
@@ -516,6 +740,91 @@
       });
     });
     
+    // Loading state on form submit
+    const searchForm = document.querySelector('.search-form');
+    const searchBtn = document.querySelector('.search-btn');
+    
+    if (searchForm && searchBtn) {
+      searchForm.addEventListener('submit', function(e) {
+        if (textarea && textarea.value.trim()) {
+          searchBtn.classList.add('loading');
+          searchBtn.disabled = true;
+        }
+      });
+    }
+    
+    // Keyboard Shortcuts
+    let keyboardHint = null;
+    
+    // Create keyboard hint element
+    function createKeyboardHint() {
+      if (!keyboardHint) {
+        keyboardHint = document.createElement('div');
+        keyboardHint.className = 'keyboard-hint';
+        keyboardHint.innerHTML = 'Press <kbd>/</kbd> to search • <kbd>Ctrl+K</kbd> for modal • <kbd>Esc</kbd> to clear';
+        document.body.appendChild(keyboardHint);
+      }
+    }
+    
+    // Show keyboard hint temporarily
+    function showKeyboardHint() {
+      createKeyboardHint();
+      keyboardHint.classList.add('show');
+      setTimeout(() => {
+        keyboardHint.classList.remove('show');
+      }, 2000);
+    }
+    
+    // Global keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      // "/" to focus search (like Discord/Slack)
+      if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+        e.preventDefault();
+        textarea?.focus();
+        showKeyboardHint();
+      }
+      
+      // Escape to clear search when focused on input
+      if (e.key === 'Escape' && e.target === textarea) {
+        textarea.value = '';
+        textarea.blur();
+      }
+    });
+    
+    // Show hint on first visit
+    setTimeout(() => {
+      if (!sessionStorage.getItem('keyboardHintShown')) {
+        showKeyboardHint();
+        sessionStorage.setItem('keyboardHintShown', 'true');
+      }
+    }, 1000);
+    
+    // Example searches functionality
+    const exampleSearches = document.querySelectorAll('.example-search');
+    exampleSearches.forEach(example => {
+      example.addEventListener('click', function() {
+        const searchText = this.textContent.trim();
+        if (textarea) {
+          textarea.value = searchText;
+          textarea.focus();
+          // Trigger resize
+          textarea.dispatchEvent(new Event('input'));
+        }
+      });
+    });
+    
+    // Auto-focus management after search
+    window.addEventListener('load', () => {
+      // If there's a query but textarea is empty, keep it ready for next search
+      const hasResults = document.querySelectorAll('.result-item').length > 0;
+      if (hasResults && textarea) {
+        // Don't auto-focus on mobile
+        if (window.innerWidth > 768) {
+          setTimeout(() => textarea.focus(), 100);
+        }
+      }
+    });
+    
     // Scroll to bottom on page load if there are results
     function scrollToBottom() {
       setTimeout(() => {
@@ -528,12 +837,56 @@
     scrollToBottom();
     {% endif %}
     
+    // Result quick actions (copy on double-click)
+    document.querySelectorAll('.result-content').forEach(result => {
+      let clickCount = 0;
+      let clickTimer = null;
+      
+      result.addEventListener('click', function(e) {
+        // Don't interfere with link clicks
+        if (e.target.tagName === 'A') return;
+        
+        clickCount++;
+        
+        if (clickCount === 1) {
+          clickTimer = setTimeout(() => {
+            clickCount = 0;
+          }, 300);
+        } else if (clickCount === 2) {
+          clearTimeout(clickTimer);
+          // Copy content on double-click
+          const text = this.textContent.trim();
+          navigator.clipboard.writeText(text).then(() => {
+            // Show brief feedback
+            const original = this.style.background;
+            this.style.background = '#dbeafe';
+            setTimeout(() => {
+              this.style.background = original;
+            }, 200);
+          });
+          clickCount = 0;
+        }
+      });
+    });
+    
+    // Smooth scroll enhancement for pagination
+    document.querySelectorAll('.pagination-btns form').forEach(form => {
+      form.addEventListener('submit', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+    
     // Close modal on outside click
     document.getElementById('createModal')?.addEventListener('click', function(e) {
       if (e.target === this) {
         this.style.display = 'none';
       }
     });
+    
+    // Prevent form resubmission on refresh
+    if (window.history.replaceState) {
+      window.history.replaceState(null, null, window.location.href);
+    }
   </script>
   {% block extra_js %}{% endblock %}
 </body>
