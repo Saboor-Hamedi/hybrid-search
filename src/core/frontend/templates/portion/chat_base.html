@@ -151,7 +151,7 @@
     .score-medium { background: #fef3c7; color: #92400e; }
     .score-low { background: #fee2e2; color: #991b1b; }
     
-    /* Input Area */
+    /* Input Area - Seamless Container */
     .input-area {
       position: fixed;
       bottom: 0;
@@ -159,10 +159,9 @@
       transform: translateX(-50%);
       max-width: 850px;
       width: 100%;
-      background-color:  white;
+      background: transparent;
       border-top: none;
-      padding: 1rem 1.5rem 1rem;
-      border-radius: 1rem;
+      padding: 1rem 1.5rem;
       z-index: 100;
     }
     
@@ -176,12 +175,13 @@
     }
     
     .search-input-container {
-      position: relative; /* For absolute positioning of PDF button */
+      position: relative;
       background: white;
       border: 1px solid #d1d5db;
-      border-radius: 8px;
+      border-radius: 1rem 1rem 0 0;
       overflow: hidden;
       transition: border-color 0.2s;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08), 0 -1px 3px rgba(0, 0, 0, 0.05);
     }
     
     .search-input-container:focus-within {
@@ -295,9 +295,11 @@
     }
     
     .mode-pill.active {
-      background: #2563eb;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
       color: white;
       border-color: #2563eb;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+      transform: translateY(-1px);
     }
     
     .page-size-select {
