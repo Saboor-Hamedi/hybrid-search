@@ -631,37 +631,98 @@ async function triggerAIAnswer() {
             let answerText = data.answer;
             let bestSourceId = null;
 
-            // 1. Extract BEST_SOURCE_ID
-            const sourceMatch = answerText.match(/BEST_SOURCE_ID:\s*(\d+)/i);
+            // 1. Extract BEST_SOURCE_ID (Relaxed Regex)
+            // Catches: "BEST_SOURCE_ID", "Best-Source_ID", "Source: 123", etc.
+            const sourceMatch = answerText.match(/(?:\*\*|)?(?:BEST[-_ ]?SOURCE[-_ ]?ID|Best[-_ ]?Source[-_ ]?ID|Source[-_ ]?ID|Source|Best[-_ ]?Source)(?:\*\*|)?:\s*(\d+)/i);
             if (sourceMatch) {
                 bestSourceId = sourceMatch[1];
-                // Remove the tag from the visible text
-                answerText = answerText.replace(/BEST_SOURCE_ID:\s*\d+/i, '').trim();
+                // Remove the tag from the visible text (replace the whole match)
+                answerText = answerText.replace(sourceMatch[0], '').trim();
             }
 
-            // 2. Format Formatting (Bold Citations)
-            let formatted = answerText.replace(/\[Doc\s*(\d+)\]/g, '<strong><a href="/document/$1" target="_blank">[Doc $1]</a></strong>');
-            formatted = formatted.replace(/\n/g, '<br>');
+            // 2. Polish Text (Capitalization & Acronyms)
+            // Helper to capitalize sentences
+            answerText = answerText.replace(/(^\s*\w|[.!?]\s*\w)/g, c => c.toUpperCase());
+            // Helper to uppercase common tech acronyms
+            answerText = answerText.replace(/\b(ai|ml|rrf|api|llm|nlp|db|sql|ui|ux|pdf)\b/gi, match => match.toUpperCase());
+
+            // 3. Robust Markdown Parsing
+            function parseMarkdown(text) {
+                // Headers (### )
+                text = text.replace(/^### (.*$)/gim, '<h5 class="fw-bold mt-2">$1</h5>');
+                text = text.replace(/^## (.*$)/gim, '<h4 class="fw-bold mt-2">$1</h4>');
+                
+                // Bold (**text**)
+                text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                
+                // Italic (*text*)
+                text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                
+                // Monospace (`text`)
+                text = text.replace(/`(.*?)`/g, '<code class="bg-light px-1 rounded">$1</code>');
+                
+                // Custom List Handling (Flexbox for alignment)
+                // Capture bullet lines
+                text = text.replace(/^\s*-\s+(.*)$/gm, '<div class="d-flex align-items-start mb-1"><span class="me-2 text-muted">•</span><span>$1</span></div>');
+                // Capture numbered lines (1. )
+                text = text.replace(/^\s*(\d+)\.\s+(.*)$/gm, '<div class="d-flex align-items-start mb-1"><span class="me-2 fw-bold text-muted">$1.</span><span>$2</span></div>');
+                
+                // Newlines: Only double newlines become BR if not in list? 
+                // Simple approach: Replace remaining newlines with BR
+                text = text.replace(/\n/g, '<br>');
+                
+                return text;
+            }
+
+            // Remove trailing source lists like "Sources: 1, 2" or ", 123, 456."
+            answerText = answerText.replace(/,\s*\d{3,}(,\s*\d{3,})*[.]?\s*$/i, ''); // Tail comma list
+            answerText = answerText.replace(/(?:Sources?|References?):\s*[\d,\s]{3,}[.]?\s*$/i, ''); // "Sources: 123, 456"
+
+            let formatted = parseMarkdown(answerText);
             
-            // 3. Render Answer
+            // 4. Highlight Docs (Styled Links)
+            formatted = formatted.replace(/\[Doc\s*(\d+)\]/g, '<a href="/document/$1" target="_blank" class="fw-semibold text-primary text-decoration-none small mx-1">[Doc $1]</a>');
+            
+            // 5. Render Answer
             textBox.innerHTML = formatted;
 
-            // 4. Render Best Match (Seamless Design)
-            if (bestSourceId) {
-                const bestMatchHtml = `
-                    <div class="mt-3 pt-3 border-top d-flex align-items-center justify-content-between text-muted" style="font-size: 0.9rem;">
-                        <span class="d-flex align-items-center">
-                            <i class="bi bi-award text-primary me-2"></i>
-                            <span>Best Source</span>
+            // 5. Render Footer (Best Match + Copy Button)
+            const copyBtnId = `copy-btn-${Date.now()}`;
+            const footerEl = document.getElementById('aiFooter');
+            
+            if (footerEl) {
+                footerEl.classList.remove('d-none');
+                footerEl.innerHTML = `
+                <div class="d-flex align-items-center justify-content-between" style="font-size: 0.8rem;">
+                    <div>
+                        ${bestSourceId ? `
+                        <span class="d-flex align-items-center text-muted">
+                            <i class="bi bi-star-fill text-warning me-1"></i>
+                            <span class="fw-semibold text-secondary">Source:</span>
+                            <a href="/document/${bestSourceId}" target="_blank" class="ms-1 text-primary text-decoration-none fw-bold">#${bestSourceId}</a>
                         </span>
-                        <a href="/document/${bestSourceId}" target="_blank" class="text-decoration-none d-flex align-items-center text-primary hover-underline">
-                            <span class="me-1">View Document #${bestSourceId}</span>
-                            <i class="bi bi-arrow-right"></i>
-                        </a>
+                        ` : '<span class="text-muted fst-italic small">Generated from context</span>'}
                     </div>
+
+                    <button id="${copyBtnId}" class="btn btn-sm text-secondary border-0 d-flex align-items-center bg-transparent p-0" style="min-width: 65px; justify-content: end;" title="Copy to clipboard">
+                        <i class="bi bi-copy me-1"></i> Copy
+                    </button>
+                </div>
                 `;
-                textBox.innerHTML += bestMatchHtml;
             }
+
+            // Attach Copy Listener
+            setTimeout(() => {
+                const btn = document.getElementById(copyBtnId);
+                if(btn) {
+                    btn.onclick = () => {
+                        navigator.clipboard.writeText(answerText).then(() => {
+                            btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Copied';
+                            setTimeout(() => btn.innerHTML = '<i class="bi bi-copy me-1"></i> Copy', 2000);
+                        });
+                    };
+                }
+            }, 0);
 
         } else {
             textBox.textContent = "No answer generated.";

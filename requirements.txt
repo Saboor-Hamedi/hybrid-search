@@ -15,3 +15,5 @@ unicodedata2==17.0.0
 console==0.9911
 rich==14.2.0
 optimum==2.0.0
+pip install sentence-transformers
+pip install feedparser

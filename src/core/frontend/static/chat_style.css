@@ -96,8 +96,8 @@
 }
 
 .result-item {
-  padding: 0 0 1.25rem 0;
-  margin-bottom: 0;
+  padding: 5px; /* Added requested padding */
+  margin-bottom: 12px; /* Added gap between cards */
   background: transparent;
   border: none;
   border-bottom: 1px solid #f3f4f6;
@@ -136,9 +136,9 @@
 }
 
 .score-badge {
-  padding: 0.25rem 0.625rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
+  padding: 0.15rem 0.5rem; /* Reduced padding */
+  border-radius: 12px; /* User reverted radius */
+  font-size: 0.7rem; /* Reduced from 0.75rem */
   font-weight: 600;
 }
 
@@ -155,22 +155,24 @@
   color: #991b1b;
 }
 
-/* Input Area - Seamless Container */
+/* Input Area - Seamless Full Width Container */
 .input-area {
   position: fixed;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  max-width: 850px;
-  width: 100%;
-  background: transparent;
-  border-top: none;
-  padding: 1rem 1.5rem;
+  left: 0;
+  right: 0;
+  width: 100%; /* Full width */
+  background: white; /* Opaque */
+  border-top: 1px solid #e5e7eb;
+  padding: 0.75rem 1rem;
   z-index: 100;
+  display: flex;
+  justify-content: center;
 }
 
 .input-wrapper {
   width: 100%;
+  max-width: 900px;
 }
 
 .search-form {
@@ -178,154 +180,227 @@
   flex-direction: column;
 }
 
+/* Modern Input Container (Unified Block) */
 .search-input-container {
   position: relative;
   background: white;
-  border: 1px solid #d1d5db;
-  border-radius: 1rem 1rem 0 0;
+  border: 1px solid #e5e7eb;
+  border-radius: 5px;
   overflow: hidden;
-  transition: border-color 0.2s;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08), 0 -1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.search-input-container:hover {
+  border-color: #d1d5db; /* Slight hover effect */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .search-input-container:focus-within {
-  border-color: #d1d5db;
+  border-color: #d1d5db; /* Stay neutral or very subtle */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Slight lift, no blue ring */
+  transform: none;
 }
 
 .search-input {
   width: 100%;
-  padding: 0.875rem 1rem 0.875rem 3rem; /* Extra left padding for button */
+  padding: 0.75rem 1rem 0.5rem 3rem;
   border: none;
-  font-size: 0.9375rem;
+  font-size: 1rem;
   resize: none;
-  min-height: 48px;
-  max-height: 120px;
+  min-height: 52px;
+  max-height: 150px;
   outline: none !important;
   box-shadow: none !important;
+  line-height: 1.6; /* Improved spacing */
+  color: #111827;
+  caret-color: #111827; /* Dark cursor */
+  background: transparent;
 }
 
-/* PDF Upload Button */
+.search-input::placeholder {
+  color: #9ca3af;
+  opacity: 1;
+}
+
+/* Custom Slim Scrollbar for Textarea */
+.search-input::-webkit-scrollbar {
+  width: 6px;
+}
+.search-input::-webkit-scrollbar-track {
+  background: transparent;
+}
+.search-input::-webkit-scrollbar-thumb {
+  background-color: #e5e7eb;
+  border-radius: 20px;
+}
+.search-input::-webkit-scrollbar-thumb:hover {
+  background-color: #d1d5db;
+}
+
+/* PDF Upload Button - Clean Minimal Icon */
 .pdf-upload-btn {
   position: absolute;
-  left: 0.75rem;
-  top: 0.875rem; /* Align with textarea padding */
-  background: transparent;
+  left: 12px; /* Standardize with padding */
+  top: 11px; /* Precise visual alignment with text top */
+  background: transparent; /* No background */
   border: none;
-  color: #6b7280;
-  font-size: 1.125rem;
+  color: #9ca3af; /* Subtle grey */
+  font-size: 1.1rem;
   cursor: pointer;
-  padding: 0.25rem;
+  padding: 4px;
+  border-radius: 4px; /* Subtle radius */
+  transition: all 0.2s;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
-  z-index: 10;
-  border-radius: 4px;
-  line-height: 1;
+  width: auto;
+  height: auto;
 }
 
 .pdf-upload-btn:hover {
-  color: #2563eb;
-  background: #eff6ff;
+  background: rgba(0, 0, 0, 0.05); /* Slight hover only */
+  color: #111827; /* Darker on hover */
 }
 
-.pdf-upload-btn:active {
-  transform: scale(0.95);
-}
-
+/* Footer layout */
 .input-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0.75rem 1rem;
-  background: #f9fafb;
-  border-top: 1px solid #e5e7eb;
+  gap: 0.5rem;
+  padding: 6px 12px;
+  background: white;
+  border-top: none;
   flex-wrap: wrap;
 }
 
+/* Premium Search Button (Rounded Square - ChatGPT style) */
 .search-btn {
-  padding: 0.5rem 1.25rem;
-  background: #2563eb;
+  padding: 5px 12px; /* Flexible padding */
+  width: auto;
+  height: 32px;
+  background: #111827;
   color: white;
   border: none;
   border-radius: 6px;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.875rem;
-  gap: 0.375rem;
+  font-size: 0.85rem;
+  gap: 6px;
   white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .search-btn:hover {
-  background: #1d4ed8;
+  background: #374151; /* Lighter grey hover */
+  transform: translateY(-1px);
+}
+
+.search-btn:active {
+  transform: translateY(0);
 }
 
 .search-options {
   display: flex;
-  gap: 1rem;
+  gap: 0.5rem;
   align-items: center;
   flex-wrap: wrap;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   flex: 1;
 }
 
 .mode-pills {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.3rem;
 }
 
 .mode-pill {
-  padding: 0.375rem 0.875rem;
-  border-radius: 6px;
-  border: 1px solid #d1d5db;
+  padding: 4px 10px; /* Adjusted height ~28px */
+  border-radius: 5px;
+  border: 1px solid #e5e7eb;
   background: white;
   color: #6b7280;
   cursor: pointer;
   transition: all 0.2s;
-  font-size: 0.8125rem;
-  line-height: 1.3;
+  font-size: 0.75rem;
+  line-height: 1.4;
   font-weight: 500;
 }
 
 .mode-pill:hover {
-  border-color: #2563eb;
-  color: #2563eb;
-  background: #eff6ff;
+  border-color: #111827;
+  color: #111827;
+  background: #f9fafb;
 }
 
 .mode-pill.active {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: #111827; /* Black active like GPT */
   color: white;
-  border-color: #2563eb;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-  transform: translateY(-1px);
+  border-color: #111827;
+  box-shadow: none;
+  transform: none;
 }
 
+/* Match CSS for Select Box - Minimal Pill */
 .page-size-select {
-  font-size: 0.8125rem;
-  padding: 0.375rem 0.625rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  background: white;
-  color: #6b7280;
+  font-size: 0.75rem;
+  height: 28px;
+  padding: 0 4px;
+  border: 1px solid transparent; /* No visible border initially */
+  border-radius: 5px;
+  background: #f3f4f6; /* Light grey pill background */
+  color: #4b5563;
   cursor: pointer;
   outline: none;
-  font-weight: 500;
-  min-width: 80px;
-}
-
-.page-size-select:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  font-weight: 600;
+  min-width: 55px;
+  box-sizing: border-box;
+  transition: all 0.2s;
 }
 
 .page-size-select:hover {
-  border-color: #2563eb;
+  background: #e5e7eb; /* Darker grey on hover */
+  color: #111827;
+}
+
+.page-size-select:focus {
+  background: #e5e7eb;
+  box-shadow: none;
+  outline: none;
+  border-color: transparent;
+}
+
+/* Refined Toggle */
+.form-check.form-switch {
+  margin: 0;
+  padding-left: 2em;
+  min-height: auto;
+  display: flex;
+  align-items: center;
+}
+.form-check-input {
+  height: 1.25em;
+  width: 2.5em;
+  cursor: pointer;
+  margin-top: 0;
+  background-color: #e5e7eb;
+  border-color: #e5e7eb;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='white'/%3e%3c/svg%3e");
+}
+.form-check-input:checked {
+  background-color: #111827; /* Black active */
+  border-color: #111827;
+}
+.form-check-label {
+  cursor: pointer;
+  margin-left: 6px;
+  font-weight: 500;
 }
 
 .no-results {
@@ -526,32 +601,112 @@ kbd {
 @media (max-width: 768px) {
   .messages-area {
     padding: 1rem 0.5rem;
-    padding-bottom: 180px;
+    padding-bottom: 220px; /* Increased buffer for stacked input */
   }
 
+  /* Compact Input Area */
   .input-area {
-    padding: 0.75rem 1rem 0.75rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .search-input-container {
+    border-radius: 5px; /* Consistent 5px */
   }
 
   .search-input {
     font-size: 16px; /* Prevents zoom on iOS */
+    padding: 0.75rem 0.75rem 0.75rem 2.5rem; /* Tighter padding */
+    min-height: 44px;
+  }
+
+  .pdf-upload-btn {
+    top: 0.6rem;
+    left: 0.5rem;
+    padding: 0.25rem;
+  }
+
+  /* Compact Footer Row */
+  .input-footer {
+    padding: 0.75rem; /* Increased padding */
+    gap: 0.75rem;
+    display: grid;
+    grid-template-columns: 1fr auto; /* Options take space, Button takes minimal */
+    align-items: center;
+  }
+
+  .search-options {
+    gap: 0.5rem;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: nowrap; /* Prevent dropping to bottom */
+    overflow-x: auto; /* Scroll horizontally */
+    padding-bottom: 4px; /* Space for scrollbar if any */
+    -webkit-overflow-scrolling: touch;
+    mask-image: linear-gradient(
+      to right,
+      black 90%,
+      transparent 100%
+    ); /* Fade out effect */
+  }
+
+  /* Make Pills Tiny */
+  .mode-pills {
+    gap: 0.25rem;
+    overflow-x: auto; /* Allow horizontal scroll if needed */
+    padding-bottom: 2px;
+    max-width: none;
+    flex-wrap: nowrap;
   }
 
   .mode-pill {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    border-radius: 4px;
+  }
+
+  /* Compact Search Button: Inherit Rounded Square */
+  .search-btn {
+    padding: 4px 10px; /* Tighter padding for mobile */
+    min-width: 32px;
+    height: 32px;
+    border-radius: 6px; /* Rounded square */
+    width: auto; /* Allow text */
+  }
+
+  .search-btn span,
+  .search-btn i.bi-search + span {
+    display: inline; /* Show text if present */
   }
 
   .search-btn {
-    padding: 0.625rem 1rem;
+    color: white;
+  }
+
+  /* Hide AI Label, keep toggle */
+  .form-check-label {
+    display: none;
+  }
+  .form-check.form-switch {
+    margin-left: 0 !important;
+    padding-left: 2.5em; /* Keep toggle switch width */
+  }
+
+  /* Compact Page Select */
+  .page-size-select {
+    padding: 0.25rem;
+    font-size: 0.75rem;
+    min-width: auto;
   }
 
   .result-title {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
   .result-content {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 }
 

@@ -5,14 +5,15 @@ import logging
 import os
 import sys
 
+# Ensure 'src' is in path BEFORE importing local modules that might rely on 'core' package
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 import requests
 
-#  Add project root so we can import db_connection
 from db.db_connection import db_connection
 from flask import Flask, redirect, render_template, request
 from frontend.graphs.analyze import generate_query_graph
 
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATE_DIR = os.path.join(BASE_DIR, "frontend", "templates")
 STATIC_DIR = os.path.join(BASE_DIR, "frontend", "static")
@@ -430,11 +431,20 @@ def UploadPDF():
                 # UPDATE uploads SET status='done' WHERE filename=...
                 
             except Exception as e:
-                print(f"Background thread error for {filename}: {e}")
+                import traceback
+                print(f"❌ Background thread error for {filename}: {e}")
+                traceback.print_exc()
+                
                 if os.path.exists(path):
-                    os.remove(path)
+                    try:
+                        os.remove(path)
+                    except:
+                        pass
                 if conn:
-                    conn.close()
+                    try:
+                        conn.close()
+                    except:
+                        pass
 
         # Start Thread
         thread = threading.Thread(target=process_background, args=(temp_path, secure_name))
@@ -455,6 +465,42 @@ def proxy_generate():
         return resp.json(), resp.status_code
     except requests.RequestException as e:
         return {"answer": f"Backend Error: {str(e)}"}, 500
+
+@app.route("/api/quick-chat", methods=["POST"])
+def quick_chat_proxy():
+    """Simple proxy for the Global Chat widget to talk to Ollama"""
+    
+    data = request.json
+    user_message = data.get("message", "")
+    
+    if not user_message:
+        return {"error": "No message provided"}, 400
+
+    # Configuration for Ollama
+    OLLAMA_URL = "http://localhost:11434/api/generate"
+    # Use same model as main app or a faster one
+    MODEL = "qwen3:0.6b" 
+    
+    payload = {
+        "model": MODEL,
+        "prompt": user_message,
+        "stream": False,
+        "system": "You are a helpful, concise AI assistant."
+    }
+    
+    try:
+        # Forward request to Ollama
+        resp = requests.post(OLLAMA_URL, json=payload, timeout=30)
+        
+        if resp.status_code == 200:
+            ollama_data = resp.json()
+            return {"reply": ollama_data.get("response", "")}, 200
+        else:
+            return {"error": f"Ollama Error: {resp.text}"}, 500
+            
+    except Exception as e:
+        print(f"Global Chat Proxy Error: {e}")
+        return {"error": "Could not connect to Ollama. Is it running?"}, 500
 
 #  Run
 if __name__ == "__main__":

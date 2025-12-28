@@ -36,24 +36,27 @@ class OllamaService:
         contexts: List of dicts with 'doc_id', 'content'
         """
         
-        # 1. Construct Prompt with explicit numeric IDs
+        # 1. Construct Prompt with explicit numeric IDs and Rank
         context_block = ""
-        for item in contexts:
+        for i, item in enumerate(contexts):
             # Use a very clear delimiter that the model can't miss
-            context_block += f"DOC_ID: {item.get('doc_id')}\nCONTENT: {item.get('content')}\n\n"
+            # Include Rank to guide the model (Rank 1 is top retrieval result)
+            context_block += f"DOC_ID: {item.get('doc_id')} (Search Rank: {i+1})\nCONTENT: {item.get('content')}\n\n"
         
         system_prompt = (
-            "You are a helpful academic research assistant. "
-            "Answer the user's question explicitly using ONLY the provided Context Sources. "
-            "Do not hallucinate. If the answer is not found, say so.\n"
-            "Provide a comprehensive and detailed explanation in your answer.\n"
-            "CRITICAL INSTRUCTION: At the very end of your response, you must identify the Single Best Source ID that contributed most to your answer.\n"
-            "Format your output exactly like this:\n"
-            "<Your Answer Here>\n\n"
-            "BEST_SOURCE_ID: <DocID Number Only>"
+            "You are an expert Academic Research Assistant. "
+            "Your task is to critically evaluate the provided Context Sources and synthesize a comprehensive, high-quality answer. "
+            "Think deeply about the connections between the documents. "
+            "Use **Markdown** for formatting (structure with headers, bold terms). "
+            "Cite sources inline strictly using the format `[Doc ID]` (e.g., [Doc 123]). "
+            "Structure your response as follows:\n"
+            "1. **Synthesis**: A rigorous, academic-quality answer identifying key findings.\n"
+            "2. **Evaluation**: A concluding paragraph starting with 'In my analysis,' where you critically assess the quality and relevance of the sources used (especially the Best Source).\n"
+            "CRITICAL: At the very end, on a new line, add the tag: `BEST_SOURCE_ID: <ID>` for the single most authoritative document. "
+            "Do NOT show this ID anywhere else."
         )
         
-        full_prompt = f"System: {system_prompt}\n\nContext:\n{context_block}\n\nUser Question: {query}\n\nAnswer:"
+        full_prompt = f"System: {system_prompt}\n\nContext Data:\n{context_block}\n\nUser Question: {query}\n\nAnswer:"
 
         payload = {
             "model": self.model,

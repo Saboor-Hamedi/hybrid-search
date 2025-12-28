@@ -16,7 +16,7 @@
     <!-- Header -->
     <div class="chat-header">
       <div class="chat-title">
-        <i class="bi bi-search"></i> Hybrid Search
+         <a href="/" class="text-decoration-none">Hybrid Search</a>
       </div>
       <div class="d-flex gap-2">
         <button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('createModal').style.display='flex'">
@@ -59,7 +59,7 @@
               {% if results %}
                 <div class="response-header d-flex justify-content-between align-items-center mb-3">
                     <span class="text-muted small">{{ stats.returned }} results found in {{ stats.query_time_ms }}ms</span>
-                    <button class="btn btn-outline-primary" style="border-radius: 20px;" 
+                    <button class="btn btn-sm btn-outline-primary" style="border-radius: 5px; font-size: 0.8rem;"
                     onclick="showSessionAnalysis(this)"
                     data-p="{{ stats.precision_at_k }}"
                     data-r="{{ stats.recall_at_k }}"
@@ -73,7 +73,6 @@
                     data-rank-debug='{{ stats.rank_debug | tojson | safe if stats.rank_debug else "{}" }}'
                     data-latency-stats='{{ stats.latency_stats | tojson | safe if stats.latency_stats else "{}" }}'>
                     <i class="bi bi-bar-chart-fill"></i> Query Analysis
-                </button>
                 </button>
                 </div>
 
@@ -117,21 +116,30 @@
                             Relevant?
                         </label>
                     </span>
-                    <button class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.75rem;"
-                        onclick="showAnalysis(this)"
-                        data-doc-id="{{ r.doc_id }}"
-                        data-score="{{ r.score }}"
-                        data-sem="{{ r.semantic_score if r.semantic_score is not none else 'N/A' }}"
-                        data-key="{{ r.bm25_score if r.bm25_score is not none else 'N/A' }}"
-                        data-sem-w="{{ r.semantic_weight if r.semantic_weight is not none else 'N/A' }}"
-                        data-key-w="{{ r.bm25_weight if r.bm25_weight is not none else 'N/A' }}"
-                        data-strategy="{{ r.strategy|default('Linear') }}"
-                        data-mode="{{ r.origin_mode|default(mode) }}"
-                        data-prompt="{{ query }}"
-                        data-content="{{ r.content[:4000] }}"
-                        data-latency="{{ stats.query_time_ms }}">
-                        <i class="bi bi-graph-up"></i> Analysis
-                    </button>
+                    <div class="result-actions d-flex justify-content-end gap-2 mt-2">
+                        <button class="btn btn-sm btn-outline-info px-2 py-0" style="font-size: 0.75rem; border-radius: 5px;"
+                            onclick="showAnalysis(this)"
+                            data-doc-id="{{ r.doc_id }}"
+                            data-score="{{ r.score }}"
+                            data-sem="{{ r.semantic_score if r.semantic_score is not none else 'N/A' }}"
+                            data-key="{{ r.bm25_score if r.bm25_score is not none else 'N/A' }}"
+                            data-sem-w="{{ r.semantic_weight if r.semantic_weight is not none else 'N/A' }}"
+                            data-key-w="{{ r.bm25_weight if r.bm25_weight is not none else 'N/A' }}"
+                            data-strategy="{{ r.strategy|default('Linear') }}"
+                            data-mode="{{ r.origin_mode|default(mode) }}"
+                            data-prompt="{{ query }}"
+                            data-content="{{ r.content[:4000] }}"
+                            data-latency="{{ stats.query_time_ms }}">
+                            <i class="bi bi-graph-up me-1"></i> Analysis
+                        </button>
+                        <button class="btn btn-sm btn-link text-secondary p-0 ms-2 text-decoration-none" 
+                                onclick="navigator.clipboard.writeText(this.dataset.content); this.innerHTML='<i class=\'bi bi-check\'></i>'" 
+                                onmouseleave="this.innerHTML='<i class=\'bi bi-copy\'></i>'"
+                                data-content="{{ r.content[:4000] }}"
+                                title="Copy Content">
+                            <i class="bi bi-copy"></i>
+                        </button>
+                    </div>
                   </div>
                 </div>
                 {% endfor %}
@@ -148,6 +156,9 @@
                         <div id="aiAnswerText" class="card-text text-dark" style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;">
                             <!-- Content will be streamed here -->
                         </div>
+                    </div>
+                    <div id="aiFooter" class="card-footer bg-secondary-subtle border-top-0 py-2 d-none">
+                        <!-- Footer content (source/copy) injected via JS -->
                     </div>
                 </div>
                 
@@ -251,12 +262,14 @@
                 <!-- AI Toggle -->
                 <div class="form-check form-switch ms-2">
                     <input class="form-check-input" type="checkbox" name="use_ai" id="aiToggle" value="on" {% if use_ai %}checked{% endif %}>
-                    <label class="form-check-label text-muted small" for="aiToggle">AI Summary</label>
+                    <label class="form-check-label text-muted small" for="aiToggle">AI</label>
                 </div>
               </div>
+
+              <!-- Chat button here -->
               
               <button type="submit" class="search-btn">
-                <i class="bi bi-search"></i> Search
+                <i class="bi bi-arrow-up"></i> Chat
               </button>
             </div>
           </div>
@@ -286,6 +299,11 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="{{ url_for('static', filename='command_palette.js') }}"></script>
   <script src="{{ url_for('static', filename='PDFUpload.js') }}"></script>
+  
+  <!-- Global Chat Widget -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='global_chat/style.css') }}">
+  {% include 'components/global_chat/widget.html' %}
+  <script src="{{ url_for('static', filename='global_chat/logic.js') }}"></script>
   
   <script>
     // Inject AI preference for JS - Defined BEFORE logic loads

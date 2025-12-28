@@ -1,14 +1,12 @@
 import os
 from typing import List, Tuple, Dict, Any
 
-from core.db.algorithms.RRFScoores import RRFScorer
-from core.db.operations.search_queries import execute_vector_query
-import core.utils.bm25_utils as bm25_utils
+from core.db.algorithms.RRFScores import RRFScorer
+from core.db.operations.search_queries import execute_vector_query, execute_bm25_query
 from core.utils.ColorScheme import ColorScheme
 from core.utils.console_stats import display_search_stats
 from core.utils.helper_functions import check_if_empty_input, measure_time
 from core.utils.rich_console import display_in_table
-from core.utils.text_properties import normalize_content
 
 cs = ColorScheme()
 
@@ -27,19 +25,9 @@ def search_rrf(
     # We use a lower threshold or no threshold for RRF to get a decent candidate list for ranking
     sem_results = execute_vector_query(query, conn, cursor, model, top_k=top_k, threshold=0.1)
 
-    # 2. BM25 Search
-    bm25_utils.update_bm25_index(cursor, normalize_content)
-    bm25_results = []
-    if bm25_utils.bm25_index and bm25_utils.bm25_corpus:
-        scores = bm25_utils.bm25_index.get_scores(normalize_content(query).split())
-        for i, (doc_id, content) in enumerate(bm25_utils.bm25_corpus):
-            raw = scores[i]
-            if raw > 0:
-                bm25_results.append((doc_id, content, raw))
-        
-        # Sort BM25 results by raw score to establish rank
-        bm25_results.sort(key=lambda x: x[2], reverse=True)
-        bm25_results = bm25_results[:top_k]
+    # 2. BM25 Search (DB-Native)
+    # execute_bm25_query returns sorted results by rank
+    bm25_results = execute_bm25_query(query, cursor, top_k)
 
     # 3. Apply RRF Fusion
     scorer = RRFScorer(k=k)

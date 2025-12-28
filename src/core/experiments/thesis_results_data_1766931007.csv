@@ -1,0 +1,527 @@
+timestamp,query,doc_id,content_preview,hybrid_linear_rank,hybrid_linear_score,hybrid_linear_latency,rrf_rank,rrf_score,rrf_latency,semantic_only_rank,semantic_only_score,semantic_only_latency,keyword_refined_rank,keyword_refined_score,keyword_refined_latency,ai_relevant,ai_score,ai_reason
+2025-12-28T21:07:58.658243,What is AI engineering?,14515,"while ai engineering is a new term, it evolved out of ml eng...",1,0.9212,2463.02,1,0.0306,1159.15,9,0.7583,106.54,2,0.5787,643.14,N/A,N/A,N/A
+2025-12-28T21:07:58.660402,What is AI engineering?,13936,understand what ai engineering is and how it differs from tr...,2,0.7,2463.02,2,0.0164,1159.15,1,0.7903,106.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:07:58.660433,What is AI engineering?,14146,the rise of ai engineering...,3,0.6777,2463.02,5,0.0159,1159.15,8,0.7651,106.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:07:58.660449,What is AI engineering?,14215,the rise of ai engineering...,4,0.6777,2463.02,N/A,0,0,4,0.7651,106.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:07:58.660462,What is AI engineering?,14184,the rise of ai engineering...,5,0.6777,2463.02,N/A,0,0,2,0.7651,106.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:07:59.819699,What is AI engineering?,13971,33 maintenance 34 the ai engineering stack 35 three layers o...,N/A,0,0,3,0.0164,1159.15,N/A,0,0,1,0.696,643.14,N/A,N/A,N/A
+2025-12-28T21:07:59.819730,What is AI engineering?,14229,the rise of ai engineering...,N/A,0,0,4,0.0161,1159.15,3,0.7651,106.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:07:59.926368,What is AI engineering?,14167,the rise of ai engineering...,N/A,0,0,N/A,0,0,5,0.7651,106.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:07:59.926391,What is AI engineering?,14125,the rise of ai engineering...,N/A,0,0,N/A,0,0,6,0.7651,106.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:07:59.926400,What is AI engineering?,14198,the rise of ai engineering...,N/A,0,0,N/A,0,0,7,0.7651,106.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:07:59.926420,What is AI engineering?,16551,an ai agent is meant to accomplish tasks typically provided ...,N/A,0,0,N/A,0,0,10,0.7475,106.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:00.569631,What is AI engineering?,14409,"to understand ai engineering, itï¿½ï¿½ï¿½s important to recognize",N/A,0,0,N/A,0,0,N/A,0,0,3,0.4703,643.14,N/A,N/A,N/A
+2025-12-28T21:08:00.569651,What is AI engineering?,14412,regardless of where organizations position ai engineers and ...,N/A,0,0,N/A,0,0,N/A,0,0,4,0.4511,643.14,N/A,N/A,N/A
+2025-12-28T21:08:00.569661,What is AI engineering?,14202,from foundation models to ai engineering ai engineering refe...,N/A,0,0,N/A,0,0,N/A,0,0,5,0.4348,643.14,N/A,N/A,N/A
+2025-12-28T21:08:01.407774,How does RRF work?,17796,"utilization, mfu, and mbu...",1,0.7,837.25,1,0.0164,835.5,1,0.5244,99.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:01.407811,How does RRF work?,16367,tf-idf is an algorithm that combines these two metrics: term...,2,0.6734,837.25,2,0.0161,835.5,2,0.5045,99.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:01.407826,How does RRF work?,17807,mbu is computed as follows:...,3,0.6247,837.25,3,0.0159,835.5,3,0.468,99.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:01.407843,How does RRF work?,14818,"rlhf relies on a reward model. given a pair of (prompt, resp...",4,0.5972,837.25,4,0.0156,835.5,4,0.4474,99.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:01.407858,How does RRF work?,17802,"mfu (model flop/s utilization), which distinguishes it from ...",5,0.5869,837.25,5,0.0154,835.5,5,0.4397,99.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:02.342657,How does RRF work?,14933,this is an example of a prompt for gpt-4o to do text-to-rege...,N/A,0,0,N/A,0,0,6,0.4244,99.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:02.342687,How does RRF work?,13095,ýýý <f2> represents the f2 function key and <cr> represents th...,N/A,0,0,N/A,0,0,7,0.4241,99.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:02.342701,How does RRF work?,16992,while fp64 is still used in many computationsï¿½ï¿½ï¿½as of this ,N/A,0,0,N/A,0,0,8,0.4196,99.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:02.342716,How does RRF work?,15136,9 if youï¿½ï¿½ï¿½re unsure what sft (supervised finetuning) and r,N/A,0,0,N/A,0,0,9,0.4191,99.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:02.342729,How does RRF work?,17961,m: memory needed for the cacheï¿½ï¿½ï¿½s numerical representation,N/A,0,0,N/A,0,0,10,0.4166,99.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:04.421311,Explain hybrid search fusion strategies.,16503,what retrieval mechanisms does it support? does it support h...,1,0.7,1301.39,1,0.0164,726.9,1,0.6743,88.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:04.421349,Explain hybrid search fusion strategies.,16454,combining retrieval algorithms...,2,0.6291,1301.39,2,0.0161,726.9,2,0.606,88.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:04.421368,Explain hybrid search fusion strategies.,16455,given the distinct advantages of different retrieval algorit...,3,0.6265,1301.39,3,0.0159,726.9,3,0.6035,88.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:04.421386,Explain hybrid search fusion strategies.,16456,"different algorithms can be used in sequence. first, a cheap...",4,0.622,1301.39,4,0.0156,726.9,4,0.5991,88.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:04.421404,Explain hybrid search fusion strategies.,18035,. an optimization technique might involve multiple paralleli...,5,0.6007,1301.39,5,0.0154,726.9,5,0.5786,88.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:05.237472,Explain hybrid search fusion strategies.,16479,one common pattern for reranking is discussed in ï¿½ï¿½ï¿½combini,N/A,0,0,N/A,0,0,6,0.5712,88.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:05.237496,Explain hybrid search fusion strategies.,16460,an algorithm for combining different rankings is called reci...,N/A,0,0,N/A,0,0,7,0.5692,88.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:05.237511,Explain hybrid search fusion strategies.,16459,different algorithms can also be used in parallel as an ense...,N/A,0,0,N/A,0,0,8,0.5633,88.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:05.237524,Explain hybrid search fusion strategies.,19279,hybrid search engine: integrates instant local type-ahead (p...,N/A,0,0,N/A,0,0,9,0.552,88.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:05.237538,Explain hybrid search fusion strategies.,16418,comparing retrieval algorithms...,N/A,0,0,N/A,0,0,10,0.5471,88.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:07.845824,Difference between semantic and keyword search.,18716,search results analysis for tell me story your results break...,1,0.9251,1745.78,1,0.0311,1599.31,8,0.6104,403.4,1,0.7522,591.3,N/A,N/A,N/A
+2025-12-28T21:08:07.845864,Difference between semantic and keyword search.,16440,"allows for the use of more natural queries, as it focuses on...",2,0.7,1745.78,2,0.0164,1599.31,1,0.6835,403.4,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:07.845884,Difference between semantic and keyword search.,16352,"at its core, retrieval works by ranking documents based on t...",3,0.691,1745.78,3,0.0161,1599.31,2,0.6747,403.4,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:07.845903,Difference between semantic and keyword search.,16384,term-based retrieval computes relevance at a lexical level r...,4,0.6778,1745.78,5,0.0159,1599.31,3,0.6619,403.4,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:07.845920,Difference between semantic and keyword search.,16420,term-based retrieval is generally much faster than embedding...,5,0.6721,1745.78,N/A,0,0,4,0.6563,403.4,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:09.445335,Difference between semantic and keyword search.,18715,bm25 algorithm documentation overview bm25 (best matching 25...,N/A,0,0,4,0.0161,1599.31,N/A,0,0,2,0.5864,591.3,N/A,N/A,N/A
+2025-12-28T21:08:09.848883,Difference between semantic and keyword search.,16385,. this approach is also known as semantic retrieval....,N/A,0,0,N/A,0,0,5,0.6554,403.4,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:09.848915,Difference between semantic and keyword search.,16915,semantic parsing is a category of tasks whose success hinges...,N/A,0,0,N/A,0,0,6,0.6452,403.4,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:09.848934,Difference between semantic and keyword search.,18176,semantic caching works only if you have a reliable way of de...,N/A,0,0,N/A,0,0,7,0.6383,403.4,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:09.848963,Difference between semantic and keyword search.,15214,semantic textual similarity doesnï¿½ï¿½ï¿½t require a set of refe,N/A,0,0,N/A,0,0,9,0.606,403.4,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:09.848981,Difference between semantic and keyword search.,16481,context reranking differs from traditional search reranking ...,N/A,0,0,N/A,0,0,10,0.602,403.4,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:11.236672,What is the architecture of a transformer?,14523,"given the dominance of the transformer architecture, it migh...",1,0.7766,794.91,1,0.0308,800.77,7,0.572,94.12,3,0.265,682.46,N/A,N/A,N/A
+2025-12-28T21:08:11.236707,What is the architecture of a transformer?,14596,the transformer architecture addresses both problems with th...,2,0.7291,794.91,2,0.0308,800.77,6,0.5753,94.12,4,0.1884,682.46,N/A,N/A,N/A
+2025-12-28T21:08:11.236720,What is the architecture of a transformer?,14619,transformer block. now that weï¿½ï¿½ï¿½ve discussed how attention,3,0.7203,794.91,3,0.0299,800.77,9,0.5701,94.12,5,0.1834,682.46,N/A,N/A,N/A
+2025-12-28T21:08:11.236731,What is the architecture of a transformer?,14631,the number of transformer blocks....,4,0.7,794.91,4,0.0164,800.77,1,0.6669,94.12,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:11.236740,What is the architecture of a transformer?,17960,l: number of transformer layers...,5,0.6543,794.91,N/A,0,0,2,0.6234,94.12,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:12.037617,What is the architecture of a transformer?,14593,figure 2-4. seq2seq architecture versus transformer architec...,N/A,0,0,5,0.0164,800.77,N/A,0,0,1,0.4512,682.46,N/A,N/A,N/A
+2025-12-28T21:08:12.131844,What is the architecture of a transformer?,14646,developing a new architecture to outperform transformers isn...,N/A,0,0,N/A,0,0,3,0.603,94.12,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:12.131874,What is the architecture of a transformer?,14624,the number of transformer blocks in a transformer model is o...,N/A,0,0,N/A,0,0,4,0.6006,94.12,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:12.131892,What is the architecture of a transformer?,14588,"to understand the transformer, letï¿½ï¿½ï¿½s look at the problem ",N/A,0,0,N/A,0,0,5,0.5833,94.12,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:12.131945,What is the architecture of a transformer?,14629,figure 2-6 visualizes a transformer model architecture. the ...,N/A,0,0,N/A,0,0,8,0.571,94.12,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:12.131970,What is the architecture of a transformer?,18595,"(see also specific architectures, e.g.: transï¿½ï¿½",N/A,0,0,N/A,0,0,10,0.5639,94.12,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:12.814490,What is the architecture of a transformer?,14586,"model architecture as of this writing, the most dominant arc...",N/A,0,0,N/A,0,0,N/A,0,0,2,0.4085,682.46,N/A,N/A,N/A
+2025-12-28T21:08:13.505785,How to optimize PostgreSQL for vector search?,16405,. here are some significant vector search algorithms:...,1,0.7,690.35,1,0.0164,809.72,1,0.6869,79.84,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:13.505815,How to optimize PostgreSQL for vector search?,16402,"for large datasets, vector search is typically done using an...",2,0.6605,690.35,2,0.0161,809.72,2,0.6481,79.84,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:13.505829,How to optimize PostgreSQL for vector search?,16504,"if itï¿½ï¿½ï¿½s a vector database, what embedding models and vect",3,0.6208,690.35,3,0.0159,809.72,3,0.6092,79.84,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:13.505839,How to optimize PostgreSQL for vector search?,16404,"in general, vector databases organize vectors into buckets, ...",4,0.6174,690.35,4,0.0156,809.72,4,0.6058,79.84,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:13.505849,How to optimize PostgreSQL for vector search?,16397,vector search is typically framed as a nearest-neighbor sear...,5,0.6075,690.35,5,0.0154,809.72,5,0.5961,79.84,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:14.395587,How to optimize PostgreSQL for vector search?,16518,3. query in the vector database for all images and texts who...,N/A,0,0,N/A,0,0,6,0.5815,79.84,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:14.395613,How to optimize PostgreSQL for vector search?,16438,embedding-based retrieval query embedding generation and vec...,N/A,0,0,N/A,0,0,7,0.5721,79.84,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:14.395625,How to optimize PostgreSQL for vector search?,14930,". for example, text-to-postgresql allows users to query a po...",N/A,0,0,N/A,0,0,8,0.5693,79.84,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:14.395635,How to optimize PostgreSQL for vector search?,18178,2. use vector search to find the cached embedding with the h...,N/A,0,0,N/A,0,0,9,0.56,79.84,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:14.395645,How to optimize PostgreSQL for vector search?,16395,embedding-based retrieval also introduces a new component: v...,N/A,0,0,N/A,0,0,10,0.5577,79.84,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:15.770593,Limitations of BM25 algorithm.,18715,bm25 algorithm documentation overview bm25 (best matching 25...,1,0.7,707.02,1,0.0164,795.27,1,0.6789,91.87,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:15.770621,Limitations of BM25 algorithm.,16379,"bm25 and its variances (bm25+, bm25f) are still widely used ...",2,0.6552,707.02,2,0.0161,795.27,2,0.6354,91.87,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:15.770632,Limitations of BM25 algorithm.,16377,"okapi bm25, the 25th generation of the best matching algorit...",3,0.6079,707.02,3,0.0159,795.27,3,0.5896,91.87,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:15.770642,Limitations of BM25 algorithm.,18598,"model optimization, 426-439...",4,0.5694,707.02,4,0.0156,795.27,4,0.5523,91.87,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:15.770650,Limitations of BM25 algorithm.,18596,"model bandwidth utilization (mbu), 416-419 model compression...",5,0.5663,707.02,5,0.0154,795.27,5,0.5493,91.87,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:16.657946,Limitations of BM25 algorithm.,13985,rag beyond texts 273 agents 275 agent overview 276 tools 278...,N/A,0,0,N/A,0,0,6,0.5427,91.87,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:16.657967,Limitations of BM25 algorithm.,18634,"potential model collapse, 394 power consumption, 424-425 ppo...",N/A,0,0,N/A,0,0,7,0.5392,91.87,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:16.657976,Limitations of BM25 algorithm.,19287,"filtering (e.g. ignores ""of"") and bm25 ranking for high accu...",N/A,0,0,N/A,0,0,8,0.5367,91.87,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:16.657985,Limitations of BM25 algorithm.,18592,"mfu (model flops utilization), 416-419 milestone planning, 3...",N/A,0,0,N/A,0,0,9,0.5363,91.87,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:16.657994,Limitations of BM25 algorithm.,18557,"at model/hardware/service levels, 426 model optimization, 42...",N/A,0,0,N/A,0,0,10,0.5351,91.87,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:18.177229,Benefits of Retrieval Augmented Generation.,16383,embedding-based retrieval...,1,0.7,807.01,1,0.0164,895.18,1,0.6462,239.09,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:18.177273,Benefits of Retrieval Augmented Generation.,16455,given the distinct advantages of different retrieval algorit...,2,0.6929,807.01,2,0.0161,895.18,2,0.6397,239.09,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:18.177295,Benefits of Retrieval Augmented Generation.,16449,"additionally, beir (benchmarking ir) (thakur et al., 2021) i...",3,0.6925,807.01,3,0.0159,895.18,3,0.6393,239.09,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:18.177313,Benefits of Retrieval Augmented Generation.,16503,what retrieval mechanisms does it support? does it support h...,4,0.6912,807.01,4,0.0156,895.18,4,0.6381,239.09,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:18.177330,Benefits of Retrieval Augmented Generation.,16422,"embedding-based retrieval, on the other hand, can be signifi...",5,0.6819,807.01,5,0.0154,895.18,5,0.6295,239.09,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:19.311930,Benefits of Retrieval Augmented Generation.,16392,the embedding-based retrieval workflow shown here is simplif...,N/A,0,0,N/A,0,0,6,0.6148,239.09,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:19.312006,Benefits of Retrieval Augmented Generation.,16419,"due to the long history of retrieval, its many mature soluti...",N/A,0,0,N/A,0,0,7,0.6107,239.09,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:19.312026,Benefits of Retrieval Augmented Generation.,16451,1. evaluate the retrieval quality....,N/A,0,0,N/A,0,0,8,0.5993,239.09,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:19.312042,Benefits of Retrieval Augmented Generation.,18661,retrieval-augmented generation (see rag) retrievers...,N/A,0,0,N/A,0,0,9,0.5962,239.09,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:19.312056,Benefits of Retrieval Augmented Generation.,16453,3. evaluate the embeddings (for embedding-based retrieval)....,N/A,0,0,N/A,0,0,10,0.5955,239.09,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:21.079732,Explain the concept of embeddings.,15222,". however, the quality of these embeddings might not be as g...",1,0.7,1213.3,1,0.0164,857.54,1,0.7194,127.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:21.079778,Explain the concept of embeddings.,15216,"introduction to embedding since computers work with numbers,...",2,0.6965,1213.3,2,0.0161,857.54,2,0.7158,127.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:21.079803,Explain the concept of embeddings.,16393,"with embedding-based retrieval, we again encounter embedding...",3,0.6936,1213.3,3,0.0159,857.54,3,0.7129,127.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:21.079975,Explain the concept of embeddings.,15206,ýýýintroduction to embeddingýýý on page 134 discusses how embedd...,4,0.658,1213.3,4,0.0156,857.54,4,0.6763,127.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:21.080017,Explain the concept of embeddings.,16453,3. evaluate the embeddings (for embedding-based retrieval)....,5,0.6124,1213.3,5,0.0154,857.54,5,0.6294,127.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:22.065211,Explain the concept of embeddings.,15228,you can also evaluate the quality of embeddings based on the...,N/A,0,0,N/A,0,0,6,0.623,127.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:22.065245,Explain the concept of embeddings.,15215,"before we move on to discuss ai as a judge, letï¿½ï¿½ï¿½s go over",N/A,0,0,N/A,0,0,7,0.6056,127.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:22.065262,Explain the concept of embeddings.,15235,a joint embedding space that can represent data of different...,N/A,0,0,N/A,0,0,8,0.5777,127.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:22.065278,Explain the concept of embeddings.,14188,note that clip isnï¿½ï¿½ï¿½t a generative modelï¿½ï¿½ï¿½it wasnï¿½ï¿½,N/A,0,0,N/A,0,0,9,0.5723,127.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:22.065294,Explain the concept of embeddings.,18193,observability is a universal practice across all software en...,N/A,0,0,N/A,0,0,10,0.5699,127.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:23.573522,How does sparse vs dense retrieval differ?,16355,"sparse versus dense retrieval in the literature, you might e...",1,0.7,815.64,1,0.0164,852.53,1,0.7679,103.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:23.573555,How does sparse vs dense retrieval differ?,16358,dense retrievers represent data using dense vectors. a dense...,2,0.6587,815.64,2,0.0161,852.53,2,0.7226,103.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:23.573574,How does sparse vs dense retrieval differ?,16356,sparse retrievers represent data using sparse vectors. a spa...,3,0.5992,815.64,3,0.0159,852.53,3,0.6573,103.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:23.573588,How does sparse vs dense retrieval differ?,16360,the sparse versus dense division causes splade to be grouped...,4,0.5842,815.64,4,0.0156,852.53,4,0.6408,103.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:23.573602,How does sparse vs dense retrieval differ?,16451,1. evaluate the retrieval quality....,5,0.5695,815.64,5,0.0154,852.53,5,0.6247,103.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:24.530148,How does sparse vs dense retrieval differ?,16421,term-based retrieval also works well out of the box. solutio...,N/A,0,0,N/A,0,0,6,0.6,103.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:24.530181,How does sparse vs dense retrieval differ?,16352,"at its core, retrieval works by ranking documents based on t...",N/A,0,0,N/A,0,0,7,0.5898,103.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:24.530197,How does sparse vs dense retrieval differ?,16476,smaller chunk sizes can also increase computational overhead...,N/A,0,0,N/A,0,0,8,0.586,103.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:24.530209,How does sparse vs dense retrieval differ?,16503,what retrieval mechanisms does it support? does it support h...,N/A,0,0,N/A,0,0,9,0.5846,103.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:24.530222,How does sparse vs dense retrieval differ?,18662,"combining retrieval algorithms, 266 main functions, 256 mult...",N/A,0,0,N/A,0,0,10,0.5825,103.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:26.020322,What are the challenges of long-context LLMs?,16334,"second, a model that can process long context doesnï¿½ï¿½ï¿½t nec",1,0.7,800.71,1,0.0164,834.64,1,0.6705,136.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:26.020367,What are the challenges of long-context LLMs?,16853,itï¿½ï¿½ï¿½s possible to finetune a model to extend its context l,2,0.6961,800.71,2,0.0161,834.64,2,0.6668,136.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:26.020387,What are the challenges of long-context LLMs?,18638,"context length and context efficiency,...",3,0.6763,800.71,3,0.0159,834.64,3,0.6478,136.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:26.020416,What are the challenges of long-context LLMs?,14649,modeling long sequences remains a core challenge in developi...,4,0.6653,800.71,4,0.0156,834.64,4,0.6373,136.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:26.020432,What are the challenges of long-context LLMs?,16779,a modelï¿½ï¿½ï¿½s context is a memory mechanism. previous message,5,0.6632,800.71,5,0.0154,834.64,5,0.6353,136.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:26.992263,What are the challenges of long-context LLMs?,16333,". context length is expanding quickly, but not fast enough f...",N/A,0,0,N/A,0,0,6,0.6125,136.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:26.992296,What are the challenges of long-context LLMs?,16013,context length and context efficiency how much information c...,N/A,0,0,N/A,0,0,7,0.6106,136.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:26.992310,What are the challenges of long-context LLMs?,16014,context length expansion soon became a race among model prov...,N/A,0,0,N/A,0,0,8,0.6079,136.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:26.992322,What are the challenges of long-context LLMs?,16332,"in the early days of foundation models, rag emerged as one o...",N/A,0,0,N/A,0,0,9,0.6054,136.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:26.992334,What are the challenges of long-context LLMs?,17729,the factors that affect the amount of prefilling and decodin...,N/A,0,0,N/A,0,0,10,0.5985,136.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:28.398302,Explain Chain-of-Thought prompting.,15969,introduction to prompting...,1,0.7,755.74,3,0.0159,878.59,3,0.6783,134.45,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:28.398336,Explain Chain-of-Thought prompting.,16012,introduction to prompting...,2,0.7,755.74,1,0.0164,878.59,1,0.6783,134.45,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:28.398351,Explain Chain-of-Thought prompting.,15987,introduction to prompting...,3,0.7,755.74,2,0.0161,878.59,4,0.6783,134.45,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:28.398367,Explain Chain-of-Thought prompting.,16027,introduction to prompting...,4,0.7,755.74,4,0.0156,878.59,2,0.6783,134.45,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:28.398382,Explain Chain-of-Thought prompting.,14148,"as another example, given the prompt:...",5,0.6528,755.74,5,0.0154,878.59,5,0.6325,134.45,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:29.411641,Explain Chain-of-Thought prompting.,14948,prompting is the first line of action for structured outputs...,N/A,0,0,N/A,0,0,6,0.6247,134.45,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:29.411677,Explain Chain-of-Thought prompting.,16077,the following example from openaiï¿½ï¿½ï¿½s prompt engineering gu,N/A,0,0,N/A,0,0,7,0.5763,134.45,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:29.411694,Explain Chain-of-Thought prompting.,18263,4. the model generates a response based on the prompt....,N/A,0,0,N/A,0,0,8,0.567,134.45,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:29.411709,Explain Chain-of-Thought prompting.,16017,not all parts of a prompt are equal. research has shown that...,N/A,0,0,N/A,0,0,9,0.5519,134.45,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:29.411724,Explain Chain-of-Thought prompting.,14792,data may contain complex prompts whose responses require cri...,N/A,0,0,N/A,0,0,10,0.5509,134.45,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:31.058878,How does Reinforcement Learning from Human Feedback (RLHF) work?,15136,9 if youï¿½ï¿½ï¿½re unsure what sft (supervised finetuning) and r,1,0.7,879.27,1,0.0164,850.17,1,0.8337,118.98,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:31.058915,How does Reinforcement Learning from Human Feedback (RLHF) work?,18663,"reverse prompt engineering, 236-238 reward models, 84-87, 14...",2,0.6335,879.27,2,0.0161,850.17,2,0.7544,118.98,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:31.058932,How does Reinforcement Learning from Human Feedback (RLHF) work?,15011,. another is to use reinforcement learning. remember that th...,3,0.5686,879.27,3,0.0159,850.17,3,0.6772,118.98,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:31.058946,How does Reinforcement Learning from Human Feedback (RLHF) work?,14818,"rlhf relies on a reward model. given a pair of (prompt, resp...",4,0.5631,879.27,4,0.0156,850.17,4,0.6706,118.98,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:31.058959,How does Reinforcement Learning from Human Feedback (RLHF) work?,16852,a model can also be finetuned with reinforcement learning to...,5,0.5193,879.27,5,0.0154,850.17,5,0.6185,118.98,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:32.028344,How does Reinforcement Learning from Human Feedback (RLHF) work?,14766,2. preference finetuning: further finetune the model to outp...,N/A,0,0,N/A,0,0,6,0.6054,118.98,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:32.028377,How does Reinforcement Learning from Human Feedback (RLHF) work?,14841,"with the trained rm, we further train the sft model to gener...",N/A,0,0,N/A,0,0,7,0.5998,118.98,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:32.028394,How does Reinforcement Learning from Human Feedback (RLHF) work?,18279,user feedback can be used not only to personalize models for...,N/A,0,0,N/A,0,0,8,0.5913,118.98,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:32.028408,How does Reinforcement Learning from Human Feedback (RLHF) work?,17571,model learned from the execution feedback and improved its p...,N/A,0,0,N/A,0,0,9,0.5902,118.98,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:32.028423,How does Reinforcement Learning from Human Feedback (RLHF) work?,16718,14 this reminds me of the actor-critic (ac) agent method (ko...,N/A,0,0,N/A,0,0,10,0.5895,118.98,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:33.374187,What is the vanishing gradient problem?,14597,6 rnns are especially prone to vanishing and exploding gradi...,1,0.7,715.34,1,0.0164,694.92,1,0.6308,121.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:33.374226,What is the vanishing gradient problem?,14598,"must be propagated through many steps, and if they are small...",2,0.6896,715.34,2,0.0161,694.92,2,0.6214,121.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:33.374242,What is the vanishing gradient problem?,16951,2. compute how much each trainable parameter contributes to ...,3,0.6079,715.34,3,0.0159,694.92,3,0.5478,121.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:33.374258,What is the vanishing gradient problem?,17255,the progression path looks like this:...,4,0.5874,715.34,4,0.0156,694.92,4,0.5293,121.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:33.374276,What is the vanishing gradient problem?,19078,we trained our models using stochastic gradient descent with...,5,0.58,715.34,5,0.0154,694.92,6,0.5227,121.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:34.191065,What is the vanishing gradient problem?,18937,we trained our models using stochastic gradient descent with...,N/A,0,0,N/A,0,0,5,0.5227,121.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:34.191103,What is the vanishing gradient problem?,18796,we trained our models using stochastic gradient descent with...,N/A,0,0,N/A,0,0,7,0.5227,121.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:34.191119,What is the vanishing gradient problem?,17598,. (2023) named this phenomenon model collapse and demonï¿½ï¿½ï¿½ ,N/A,0,0,N/A,0,0,8,0.5125,121.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:34.191132,What is the vanishing gradient problem?,16261,"figure 5-13. a demonstration of the divergence attack, where...",N/A,0,0,N/A,0,0,9,0.5074,121.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:34.191147,What is the vanishing gradient problem?,17291,37 i tried to find the first paper where gradient accumulati...,N/A,0,0,N/A,0,0,10,0.5034,121.68,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:35.601587,Compare BERT and GPT architectures.,18595,"(see also specific architectures, e.g.: transï¿½ï¿½",1,0.7,762.09,1,0.0164,789.27,1,0.5956,110.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:35.601628,Compare BERT and GPT architectures.,14643,other model architectures...,2,0.6675,762.09,2,0.0161,789.27,2,0.5679,110.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:35.601646,Compare BERT and GPT architectures.,19244,3. technical architecture...,3,0.6545,762.09,3,0.0159,789.27,3,0.5568,110.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:35.601664,Compare BERT and GPT architectures.,16735,2. different models have different tool preferences. for exa...,4,0.6529,762.09,4,0.0156,789.27,4,0.5555,110.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:35.601680,Compare BERT and GPT architectures.,17879,a lot of gpu optimization is about how to make the most out ...,5,0.6474,762.09,5,0.0154,789.27,5,0.5509,110.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:36.501936,Compare BERT and GPT architectures.,18594,"model architecture, 58-66...",N/A,0,0,N/A,0,0,6,0.5456,110.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:36.501968,Compare BERT and GPT architectures.,18619,"batch apis, 410 evaluation harnesses, 191 first gpt model, 8...",N/A,0,0,N/A,0,0,7,0.5387,110.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:36.501985,Compare BERT and GPT architectures.,17633,figure 8-7. the distribution of response length for gpt-4 an...,N/A,0,0,N/A,0,0,8,0.5328,110.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:36.502002,Compare BERT and GPT architectures.,15314,"zheng et al.ï¿½ï¿½ï¿½s 2023 experiment, gpt-4 favors itself with ",N/A,0,0,N/A,0,0,9,0.5242,110.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:36.502018,Compare BERT and GPT architectures.,14179,"while many people still call gemini and gpt-4v llms, theyï¿½ï¿½ï¿",N/A,0,0,N/A,0,0,10,0.5214,110.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:38.536666,How do diffusion models generate images?,16270,figure 5-14. many of stable diffusionï¿½ï¿½ï¿½s generated images ,1,0.9507,1281.02,1,0.0325,860.48,1,0.7718,123.42,2,0.4696,713.34,N/A,N/A,N/A
+2025-12-28T21:08:38.536700,How do diffusion models generate images?,17981,23 convolution operations are often used in image generation...,2,0.9165,1281.02,3,0.032,860.48,2,0.7415,123.42,3,0.4571,713.34,N/A,N/A,N/A
+2025-12-28T21:08:38.536716,How do diffusion models generate images?,16263,training data extraction is possible with models of other mo...,3,0.8914,1281.02,2,0.0323,860.48,3,0.6521,123.42,1,0.562,713.34,N/A,N/A,N/A
+2025-12-28T21:08:38.536731,How do diffusion models generate images?,17720,different model architectures and workloads result in differ...,4,0.6343,1281.02,4,0.0312,860.48,4,0.5135,123.42,4,0.3156,713.34,N/A,N/A,N/A
+2025-12-28T21:08:38.536745,How do diffusion models generate images?,18363,2. generate variations for any of these images....,5,0.4633,1281.02,5,0.0154,860.48,5,0.5108,123.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:39.520848,How do diffusion models generate images?,17237,figure 7-18. you can create an moe model from a pre-trained ...,N/A,0,0,N/A,0,0,6,0.5088,123.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:39.520877,How do diffusion models generate images?,18148,. figure 10-6 shows a high-level visualization of a model ga...,N/A,0,0,N/A,0,0,7,0.5003,123.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:39.520890,How do diffusion models generate images?,18924,". in our implementation, the transformed images are generate...",N/A,0,0,N/A,0,0,8,0.4826,123.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:39.520922,How do diffusion models generate images?,18783,". in our implementation, the transformed images are generate...",N/A,0,0,N/A,0,0,9,0.4826,123.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:39.520967,How do diffusion models generate images?,19065,". in our implementation, the transformed images are generate...",N/A,0,0,N/A,0,0,10,0.4826,123.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:41.144260,What is contrastive learning?,16835,"finetuning is one way to do transfer learning, a concept fir...",1,0.7,908.62,1,0.0164,882.99,1,0.5302,100.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:41.144322,What is contrastive learning?,15967,. this makes in-context learning a form of continual learnin...,2,0.6422,908.62,2,0.0161,882.99,2,0.4864,100.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:41.144344,What is contrastive learning?,16852,a model can also be finetuned with reinforcement learning to...,3,0.6389,908.62,3,0.0159,882.99,3,0.4839,100.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:41.144362,What is contrastive learning?,14766,2. preference finetuning: further finetune the model to outp...,4,0.596,908.62,4,0.0156,882.99,4,0.4514,100.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:41.144380,What is contrastive learning?,17591,superficial imitation. as warned by ï¿½ï¿½ï¿½the false promise of,5,0.584,908.62,5,0.0154,882.99,5,0.4423,100.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:42.128324,What is contrastive learning?,16261,"figure 5-13. a demonstration of the divergence attack, where...",N/A,0,0,N/A,0,0,6,0.4359,100.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:42.128352,What is contrastive learning?,15011,. another is to use reinforcement learning. remember that th...,N/A,0,0,N/A,0,0,7,0.4319,100.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:42.128367,What is contrastive learning?,15136,9 if youï¿½ï¿½ï¿½re unsure what sft (supervised finetuning) and r,N/A,0,0,N/A,0,0,8,0.4289,100.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:42.128382,What is contrastive learning?,14769,watch out for terminology ambiguity. some people use the ter...,N/A,0,0,N/A,0,0,9,0.4243,100.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:42.128396,What is contrastive learning?,16824,finetuning is the process of adapting a model to a specific ...,N/A,0,0,N/A,0,0,10,0.4236,100.77,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:43.645079,Explain the attention mechanism in deep learning.,14610,the attention mechanism computes how much attention to give ...,1,0.7,863.16,1,0.0164,945.7,1,0.6887,159.55,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:43.645196,Explain the attention mechanism in deep learning.,18558,"attention mechanism optimization,...",2,0.6785,863.16,2,0.0161,945.7,2,0.6675,159.55,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:43.645226,Explain the attention mechanism in deep learning.,17947,attention mechanism optimization...,3,0.6755,863.16,3,0.0159,945.7,3,0.6646,159.55,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:43.645245,Explain the attention mechanism in deep learning.,14612,figure 2-5. an example of the attention mechanism in action ...,4,0.6285,863.16,4,0.0156,945.7,4,0.6184,159.55,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:43.645261,Explain the attention mechanism in deep learning.,17956,the computation and memory requirements of the attention mec...,5,0.623,863.16,5,0.0154,945.7,5,0.6129,159.55,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:44.750731,Explain the attention mechanism in deep learning.,14605,attention mechanism. at the heart of the transformer archite...,N/A,0,0,N/A,0,0,6,0.6126,159.55,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:44.750763,Explain the attention mechanism in deep learning.,14616,the attention mechanism is almost always multi-headed. multi...,N/A,0,0,N/A,0,0,7,0.5801,159.55,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:44.750779,Explain the attention mechanism in deep learning.,14617,"attention(q, k, v) = softmax( qk t...",N/A,0,0,N/A,0,0,8,0.5764,159.55,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:44.750795,Explain the attention mechanism in deep learning.,17957,many techniques have been developed to make the attention me...,N/A,0,0,N/A,0,0,9,0.5659,159.55,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:44.750813,Explain the attention mechanism in deep learning.,18825,another way to probe the networkï¿½ï¿½ï¿½s visual knowledge is to,N/A,0,0,N/A,0,0,10,0.56,159.55,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:46.312597,What are Hallucinations in LLMs?,14995,while hallucination became a prominent issue with the rise o...,1,0.9423,855.47,1,0.0323,853.02,3,0.7045,114.22,1,0.1467,617.69,N/A,N/A,N/A
+2025-12-28T21:08:46.312625,What are Hallucinations in LLMs?,14012,what causes hallucinations? how do i detect and mitigate hal...,2,0.7,855.47,2,0.0164,853.02,1,0.7678,114.22,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:46.312636,What are Hallucinations in LLMs?,15624,internal hallucination dataset...,3,0.6582,855.47,3,0.0161,853.02,2,0.7219,114.22,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:46.312644,What are Hallucinations in LLMs?,18546,"h h3 architecture, 66 hallucinations...",4,0.6381,855.47,5,0.0156,853.02,4,0.6999,114.22,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:46.312655,What are Hallucinations in LLMs?,14999,itï¿½ï¿½ï¿½s hard to devise a way to eliminate hallucinations wit,5,0.592,855.47,N/A,0,0,5,0.6494,114.22,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:47.165762,What are Hallucinations in LLMs?,15010,"in april 2023, john schulman, an openai co-founder, expresse...",N/A,0,0,4,0.0161,853.02,N/A,0,0,2,0.0022,617.69,N/A,N/A,N/A
+2025-12-28T21:08:47.280191,What are Hallucinations in LLMs?,15016,. prompting and context construction techniques in chapters ...,N/A,0,0,N/A,0,0,6,0.6357,114.22,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:47.280275,What are Hallucinations in LLMs?,14996,. this section focuses on explaining why hallucinations happ...,N/A,0,0,N/A,0,0,7,0.6215,114.22,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:47.280357,What are Hallucinations in LLMs?,16326,. lewis et al. found that having access to relevant informat...,N/A,0,0,N/A,0,0,8,0.6136,114.22,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:47.280379,What are Hallucinations in LLMs?,15013,"in that same talk, schulman mentioned that openai found that...",N/A,0,0,N/A,0,0,9,0.6078,114.22,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:47.280393,What are Hallucinations in LLMs?,15002,. starting with a generated sequence slightly out of the ord...,N/A,0,0,N/A,0,0,10,0.5911,114.22,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:48.780527,How does quantization reduce model size?,17900,model compression involves techniques that reduce a modelï¿½ï¿½ï¿,1,0.908,881.23,1,0.0311,879.29,8,0.7077,148.81,1,0.7935,696.69,N/A,N/A,N/A
+2025-12-28T21:08:48.780572,How does quantization reduce model size?,16942,4. quantization refers to the practice of converting a model...,2,0.7,881.23,2,0.0164,879.29,1,0.8147,148.81,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:48.780590,How does quantization reduce model size?,15131,". similarly, quantizationï¿½ï¿½ï¿½a technique that reduces a modelï",3,0.683,881.23,3,0.0161,879.29,2,0.7949,148.81,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:48.780606,How does quantization reduce model size?,17049,2. to reduce training time and cost. quantization reduces a ...,4,0.6733,881.23,4,0.0159,879.29,3,0.7836,148.81,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:48.780619,How does quantization reduce model size?,17906,weight-only quantization is by far the most popular approach...,5,0.6496,881.23,5,0.0156,879.29,4,0.7561,148.81,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:49.809095,How does quantization reduce model size?,17810,this underscores the importance of quantization (discussed i...,N/A,0,0,N/A,0,0,5,0.7369,148.81,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:49.809128,How does quantization reduce model size?,17018,"to do quantization, you need to decide what to quantize and ...",N/A,0,0,N/A,0,0,6,0.7241,148.81,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:49.809143,How does quantization reduce model size?,17012,quantization the fewer bits needed to represent a modelï¿½ï¿½ï¿½s,N/A,0,0,N/A,0,0,7,0.7155,148.81,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:49.809164,How does quantization reduce model size?,17014,"quantization versus reduced precision strictly speaking, itï¿½ï¿½",N/A,0,0,N/A,0,0,9,0.7001,148.81,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:49.809177,How does quantization reduce model size?,17048,1. to produce a model that can perform well in low precision...,N/A,0,0,N/A,0,0,10,0.6587,148.81,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:51.311958,What is LoRA (Low-Rank Adaptation)?,17109,lora (low-rank adaptation) is built on the concept of low-ra...,1,1,805.1,1,0.0328,888.28,1,0.8225,136.75,1,0.8456,658.6,N/A,N/A,N/A
+2025-12-28T21:08:51.311995,What is LoRA (Low-Rank Adaptation)?,17102,"unlike the original adapter method by houlsby et al. (2019),...",2,0.7497,805.1,2,0.0315,888.28,4,0.6399,136.75,3,0.578,658.6,N/A,N/A,N/A
+2025-12-28T21:08:51.312017,What is LoRA (Low-Rank Adaptation)?,17161,quantized lora. the rapid rise of lora has led to the develo...,3,0.5727,805.1,3,0.0161,888.28,2,0.6729,136.75,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:51.312033,What is LoRA (Low-Rank Adaptation)?,17113,"like the original adapter method, lora is parameter-efficien...",4,0.5571,805.1,5,0.0159,888.28,3,0.6545,136.75,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:51.312050,What is LoRA (Low-Rank Adaptation)?,17126,while there have been examples of lora with other architectu...,5,0.5301,805.1,N/A,0,0,5,0.6228,136.75,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:52.200409,What is LoRA (Low-Rank Adaptation)?,18579,"lmm (large multimodal model), 9 local factual consistency, 1...",N/A,0,0,4,0.0161,888.28,N/A,0,0,2,0.6442,658.6,N/A,N/A,N/A
+2025-12-28T21:08:52.337294,What is LoRA (Low-Rank Adaptation)?,17144,serving lora adapters. lora not only lets you finetune model...,N/A,0,0,N/A,0,0,6,0.6215,136.75,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:52.337326,What is LoRA (Low-Rank Adaptation)?,17101,"because of loraï¿½ï¿½ï¿½s popularity, the next section focuses on",N/A,0,0,N/A,0,0,7,0.5894,136.75,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:52.337342,What is LoRA (Low-Rank Adaptation)?,17140,the beauty of lora is that while its performance depends on ...,N/A,0,0,N/A,0,0,8,0.5795,136.75,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:52.337357,What is LoRA (Low-Rank Adaptation)?,17125,lora can be applied to each individual weight matrix. the ef...,N/A,0,0,N/A,0,0,9,0.5761,136.75,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:52.337372,What is LoRA (Low-Rank Adaptation)?,17178,"due to its memory-saving promise, quantized lora is an activ...",N/A,0,0,N/A,0,0,10,0.5571,136.75,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:53.834440,Explain Zero-shot vs Few-shot learning.,15972,"for gpt-3, few-shot learning showed significant improvement ...",1,0.7,837.37,1,0.0164,822.39,1,0.747,109.88,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:53.834550,Explain Zero-shot vs Few-shot learning.,18698,"z zero-shot learning, 213-215...",2,0.6812,837.37,2,0.0161,822.39,2,0.7269,109.88,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:53.834571,Explain Zero-shot vs Few-shot learning.,15970,each example provided in the prompt is called a shot. teachi...,3,0.6724,837.37,3,0.0159,822.39,3,0.7175,109.88,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:53.834587,Explain Zero-shot vs Few-shot learning.,18639,in-context learning: zero-shot and few-...,4,0.6704,837.37,4,0.0156,822.39,4,0.7155,109.88,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:53.834680,Explain Zero-shot vs Few-shot learning.,15964,in-context learning: zero-shot and few-shot teaching models ...,5,0.5679,837.37,5,0.0154,822.39,5,0.6061,109.88,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:54.767176,Explain Zero-shot vs Few-shot learning.,14882,being rounded down to zero....,N/A,0,0,N/A,0,0,6,0.5369,109.88,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:54.767206,Explain Zero-shot vs Few-shot learning.,17546,3. finetune the weak model with this new high-quality instru...,N/A,0,0,N/A,0,0,7,0.5363,109.88,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:54.767221,Explain Zero-shot vs Few-shot learning.,15025,due to the low quality of training data and self-supervision...,N/A,0,0,N/A,0,0,8,0.5324,109.88,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:54.767234,Explain Zero-shot vs Few-shot learning.,17413,"data, including weak supervision, semi-supervision, and acti...",N/A,0,0,N/A,0,0,9,0.5309,109.88,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:54.767254,Explain Zero-shot vs Few-shot learning.,14177,"shouldnï¿½ï¿½ï¿½t it require fewer examples to learn from? howeve",N/A,0,0,N/A,0,0,10,0.5303,109.88,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:56.213363,What is the role of a vector index like HNSW?,16504,"if itï¿½ï¿½ï¿½s a vector database, what embedding models and vect",1,0.7,800.28,1,0.0164,764.75,1,0.5779,108.19,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:56.213400,What is the role of a vector index like HNSW?,14609,each value vector (v) represents the actual value of a previ...,2,0.6572,800.28,2,0.0161,764.75,2,0.5426,108.19,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:56.213417,What is the role of a vector index like HNSW?,17104,consider the weight matrix w of the dimension n ï¿½ï¿½ m. lora w,3,0.6326,800.28,3,0.0159,764.75,3,0.5223,108.19,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:56.213432,What is the role of a vector index like HNSW?,17152,"to put this in perspective, letï¿½ï¿½ï¿½s say that the original m",4,0.6294,800.28,4,0.0156,764.75,4,0.5197,108.19,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:56.213448,What is the role of a vector index like HNSW?,16409,hnsw constructs a multi-layer graph where nodes represent ve...,5,0.6095,800.28,5,0.0154,764.75,5,0.5032,108.19,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:57.086593,What is the role of a vector index like HNSW?,14610,the attention mechanism computes how much attention to give ...,N/A,0,0,N/A,0,0,6,0.5031,108.19,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:57.086622,What is the role of a vector index like HNSW?,18940,"where i is the iteration index, v is the momentum variable, ...",N/A,0,0,N/A,0,0,7,0.5015,108.19,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:57.086636,What is the role of a vector index like HNSW?,18799,"where i is the iteration index, v is the momentum variable, ...",N/A,0,0,N/A,0,0,8,0.5015,108.19,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:57.086650,What is the role of a vector index like HNSW?,19081,"where i is the iteration index, v is the momentum variable, ...",N/A,0,0,N/A,0,0,9,0.5015,108.19,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:57.086664,What is the role of a vector index like HNSW?,16399,2. rank all vectors by their similarity scores....,N/A,0,0,N/A,0,0,10,0.4924,108.19,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:58.545853,Advantages of Reciprocal Rank Fusion over linear combination.,16460,an algorithm for combining different rankings is called reci...,1,0.7,812.11,1,0.0164,785.9,1,0.7444,120.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:58.545884,Advantages of Reciprocal Rank Fusion over linear combination.,18621,"operator fusion, 438 optimization...",2,0.5717,812.11,2,0.0161,785.9,2,0.608,120.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:58.545900,Advantages of Reciprocal Rank Fusion over linear combination.,16399,2. rank all vectors by their similarity scores....,3,0.569,812.11,3,0.0159,785.9,3,0.6052,120.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:58.545916,Advantages of Reciprocal Rank Fusion over linear combination.,15751,benchmark selection and aggregation...,4,0.5648,812.11,4,0.0156,785.9,4,0.6006,120.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:58.545926,Advantages of Reciprocal Rank Fusion over linear combination.,18608,"benchmark selection and aggregation,...",5,0.5618,812.11,5,0.0154,785.9,5,0.5975,120.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:59.452456,Advantages of Reciprocal Rank Fusion over linear combination.,15754,how to aggregate these benchmark results to rank models?...,N/A,0,0,N/A,0,0,6,0.5871,120.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:59.452487,Advantages of Reciprocal Rank Fusion over linear combination.,17131,2. two matrices with the rank of 4...,N/A,0,0,N/A,0,0,7,0.573,120.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:59.452504,Advantages of Reciprocal Rank Fusion over linear combination.,15415,ranking models with comparative evaluation...,N/A,0,0,N/A,0,0,8,0.5666,120.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:59.452520,Advantages of Reciprocal Rank Fusion over linear combination.,15377,ranking models with comparative evaluation...,N/A,0,0,N/A,0,0,9,0.5666,120.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:08:59.452630,Advantages of Reciprocal Rank Fusion over linear combination.,15356,ranking models with comparative evaluation...,N/A,0,0,N/A,0,0,10,0.5666,120.42,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:00.898086,What is multi-modal learning?,15967,. this makes in-context learning a form of continual learnin...,1,0.7,777.76,1,0.0164,703.8,1,0.5649,94.06,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:00.898130,What is multi-modal learning?,16835,"finetuning is one way to do transfer learning, a concept fir...",2,0.6238,777.76,2,0.0161,703.8,2,0.5034,94.06,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:00.898149,What is multi-modal learning?,17190,model merging is one way to do federated learning (mcmahan e...,3,0.618,777.76,3,0.0159,703.8,3,0.4987,94.06,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:00.898167,What is multi-modal learning?,14169,self-supervised learning means that language models can lear...,4,0.6178,777.76,4,0.0156,703.8,4,0.4986,94.06,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:00.898180,What is multi-modal learning?,17372,"for general-purpose use cases like chatbots, the finetuning ...",5,0.6131,777.76,5,0.0154,703.8,5,0.4948,94.06,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:01.696288,What is multi-modal learning?,16846,. self-supervised finetuning is also called conï¿½ï¿½ï¿½ tinued p,N/A,0,0,N/A,0,0,6,0.4928,94.06,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:01.696321,What is multi-modal learning?,16375,term banana machine learning ï¿½ï¿½,N/A,0,0,N/A,0,0,7,0.4914,94.06,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:01.696338,What is multi-modal learning?,15964,in-context learning: zero-shot and few-shot teaching models ...,N/A,0,0,N/A,0,0,8,0.4877,94.06,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:01.696351,What is multi-modal learning?,18857,"international conference on machine learning, 2010....",N/A,0,0,N/A,0,0,9,0.485,94.06,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:01.696365,What is multi-modal learning?,18998,"international conference on machine learning, 2010....",N/A,0,0,N/A,0,0,10,0.485,94.06,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:03.145843,Explain the bias-variance tradeoff.,18384,leniency bias is the tendency for people to rate items more ...,1,0.7,806.29,1,0.0164,925.87,1,0.647,104,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:03.145879,Explain the bias-variance tradeoff.,16862,one especially interesting use case of finetuning is bias mi...,2,0.6933,806.29,2,0.0161,925.87,2,0.6409,104,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:03.145897,Explain the bias-variance tradeoff.,18434,"biases, 144 criteria ambiguity, 142-144 inconsistency, 142 i...",3,0.6892,806.29,3,0.0159,925.87,3,0.6371,104,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:03.145914,Explain the bias-variance tradeoff.,18396,"many other biases can affect a personï¿½ï¿½ï¿½s feedback, some of",4,0.6872,806.29,4,0.0156,925.87,4,0.6352,104,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:03.145930,Explain the bias-variance tradeoff.,17603,ai-generated data might also perpetuate biases. ï¿½ï¿½ï¿½data fee,5,0.6697,806.29,5,0.0154,925.87,5,0.619,104,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:04.176013,Explain the bias-variance tradeoff.,15778,an important aspect of benchmark selection that is often ove...,N/A,0,0,N/A,0,0,6,0.6069,104,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:04.176043,Explain the bias-variance tradeoff.,18695,"biases, 490 degenerate feedback loops, 491...",N/A,0,0,N/A,0,0,7,0.6005,104,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:04.176070,Explain the bias-variance tradeoff.,15315,many ai models have first-position bias. an ai judge may fav...,N/A,0,0,N/A,0,0,8,0.5777,104,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:04.176084,Explain the bias-variance tradeoff.,15891,"avoid potential biases, such as biases against minority user...",N/A,0,0,N/A,0,0,9,0.5711,104,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:04.176097,Explain the bias-variance tradeoff.,18401,". over time, aï¿½ï¿½ï¿½s ranking soared, leaving b behind. this f",N/A,0,0,N/A,0,0,10,0.5705,104,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:05.731816,What are Graph Neural Networks?,19147,"[26] s.c. turaga, j.f. murray, v. jain, f. roth, m. helmstae...",1,0.9984,805.55,3,0.0317,793.65,3,0.6521,106.59,3,0.2053,746.69,N/A,N/A,N/A
+2025-12-28T21:09:05.731851,What are Graph Neural Networks?,18865,"[26] s.c. turaga, j.f. murray, v. jain, f. roth, m. helmstae...",2,0.9984,805.55,1,0.0325,793.65,2,0.6521,106.59,1,0.2053,746.69,N/A,N/A,N/A
+2025-12-28T21:09:05.731869,What are Graph Neural Networks?,19006,"[26] s.c. turaga, j.f. murray, v. jain, f. roth, m. helmstae...",3,0.9984,805.55,2,0.0318,793.65,4,0.6521,106.59,2,0.2053,746.69,N/A,N/A,N/A
+2025-12-28T21:09:05.731885,What are Graph Neural Networks?,16956,figure 7-4. the forward and backward pass of a simple neural...,4,0.7,805.55,4,0.0164,793.65,1,0.6536,106.59,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:05.731901,What are Graph Neural Networks?,14040,"various neural network architectures, including feedforward,...",5,0.6673,805.55,5,0.0154,793.65,5,0.6231,106.59,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:06.632447,What are Graph Neural Networks?,18871,". the neural network, which has 60 million parameters and 65...",N/A,0,0,N/A,0,0,6,0.601,106.59,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:06.632479,What are Graph Neural Networks?,18730,". the neural network, which has 60 million parameters and 65...",N/A,0,0,N/A,0,0,7,0.601,106.59,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:06.632496,What are Graph Neural Networks?,19012,". the neural network, which has 60 million parameters and 65...",N/A,0,0,N/A,0,0,8,0.601,106.59,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:06.632510,What are Graph Neural Networks?,14336,"18 personally, i also find ai good at explaining data and gr...",N/A,0,0,N/A,0,0,9,0.5845,106.59,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:06.632524,What are Graph Neural Networks?,16409,hnsw constructs a multi-layer graph where nodes represent ve...,N/A,0,0,N/A,0,0,10,0.582,106.59,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:08.231478,How does self-supervised learning work?,17404,self-supervised ï¿½ï¿½ï¿½ supervi,1,0.7,851.24,1,0.0164,799.71,1,0.7573,153,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:08.231523,How does self-supervised learning work?,16844,recall that a modelï¿½ï¿½ï¿½s training process starts with pre-tr,2,0.6672,851.24,2,0.0161,799.71,2,0.7219,153,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:08.231544,How does self-supervised learning work?,16846,. self-supervised finetuning is also called conï¿½ï¿½ï¿½ tinued p,3,0.6481,851.24,3,0.0159,799.71,3,0.7012,153,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:08.231563,How does self-supervised learning work?,14153,the answer is that language models can be trained using self...,4,0.645,851.24,4,0.0156,799.71,4,0.6979,153,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:08.231579,How does self-supervised learning work?,14159,self-supervision helps overcome the data labeling bottleneck...,5,0.6132,851.24,5,0.0154,799.71,5,0.6635,153,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:09.184568,How does self-supervised learning work?,14168,self-supervision differs from unsupervision. in self-supervi...,N/A,0,0,N/A,0,0,6,0.6555,153,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:09.184600,How does self-supervised learning work?,15025,due to the low quality of training data and self-supervision...,N/A,0,0,N/A,0,0,7,0.6412,153,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:09.184615,How does self-supervised learning work?,14774,you can think of post-training as unlocking the capabilities...,N/A,0,0,N/A,0,0,8,0.6302,153,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:09.184629,How does self-supervised learning work?,16849,the massive amount of data a model can learn from during sel...,N/A,0,0,N/A,0,0,9,0.6224,153,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:09.184642,How does self-supervised learning work?,14169,self-supervised learning means that language models can lear...,N/A,0,0,N/A,0,0,10,0.6118,153,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:10.876393,What is catastrophic forgetting in neural networks?,17186,you can finetune the model on each task separately but seque...,1,0.9567,937.27,1,0.032,947.86,4,0.6257,123.6,1,0.4884,749.27,N/A,N/A,N/A
+2025-12-28T21:09:10.876655,What is catastrophic forgetting in neural networks?,19110,"our results show that a large, deep convolutional neural net...",2,0.7,937.27,3,0.0161,947.86,2,0.667,123.6,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:10.876687,What is catastrophic forgetting in neural networks?,18828,"our results show that a large, deep convolutional neural net...",3,0.7,937.27,2,0.0164,947.86,3,0.667,123.6,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:10.876704,What is catastrophic forgetting in neural networks?,18969,"our results show that a large, deep convolutional neural net...",4,0.7,937.27,4,0.0159,947.86,1,0.667,123.6,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:10.876719,What is catastrophic forgetting in neural networks?,19074,combining the predictions of many different models is a very...,5,0.656,937.27,N/A,0,0,7,0.6251,123.6,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:11.824711,What is catastrophic forgetting in neural networks?,18792,combining the predictions of many different models is a very...,N/A,0,0,5,0.0154,947.86,5,0.6251,123.6,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:11.948427,What is catastrophic forgetting in neural networks?,18933,combining the predictions of many different models is a very...,N/A,0,0,N/A,0,0,6,0.6251,123.6,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:11.948457,What is catastrophic forgetting in neural networks?,18922,our neural network architecture has 60 million parameters. a...,N/A,0,0,N/A,0,0,8,0.6069,123.6,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:11.948466,What is catastrophic forgetting in neural networks?,18781,our neural network architecture has 60 million parameters. a...,N/A,0,0,N/A,0,0,9,0.6069,123.6,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:11.948475,What is catastrophic forgetting in neural networks?,19063,our neural network architecture has 60 million parameters. a...,N/A,0,0,N/A,0,0,10,0.6069,123.6,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:13.552763,Explain the differences between L1 and L2 regularization.,19049,". the constants k,n,ï¿½ï¿½, and ï¿½ï¿½ are hyper-parameters whose",1,0.7,854.19,3,0.0159,827.85,1,0.5122,134.02,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:13.552909,Explain the differences between L1 and L2 regularization.,18767,". the constants k,n,ï¿½ï¿½, and ï¿½ï¿½ are hyper-parameters whose",2,0.7,854.19,2,0.0161,827.85,3,0.5122,134.02,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:13.552954,Explain the differences between L1 and L2 regularization.,18908,". the constants k,n,ï¿½ï¿½, and ï¿½ï¿½ are hyper-parameters whose",3,0.7,854.19,1,0.0164,827.85,2,0.5122,134.02,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:13.553468,Explain the differences between L1 and L2 regularization.,16359,. it leverages embeddings generated by bert but uses regular...,4,0.6775,854.19,4,0.0156,827.85,4,0.4958,134.02,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:13.553564,Explain the differences between L1 and L2 regularization.,14772,"22 rl fundamentals are beyond the scope of this book, but th...",5,0.6288,854.19,5,0.0154,827.85,5,0.4601,134.02,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:14.515690,Explain the differences between L1 and L2 regularization.,17121,more recent attempts to train low-rank llms include relora (...,N/A,0,0,N/A,0,0,6,0.4457,134.02,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:14.515728,Explain the differences between L1 and L2 regularization.,18961,. this kind of specialization occurs during every run and is...,N/A,0,0,N/A,0,0,7,0.4443,134.02,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:14.515744,Explain the differences between L1 and L2 regularization.,18820,. this kind of specialization occurs during every run and is...,N/A,0,0,N/A,0,0,8,0.4443,134.02,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:14.515757,Explain the differences between L1 and L2 regularization.,19102,. this kind of specialization occurs during every run and is...,N/A,0,0,N/A,0,0,9,0.4443,134.02,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:14.515773,Explain the differences between L1 and L2 regularization.,12985,example for g followed by ctrl + x : example for 3g followed...,N/A,0,0,N/A,0,0,10,0.4415,134.02,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:16.014197,What is prompt reliability?,15623,criteria code generation capability factual consistency...,1,0.7,795.93,1,0.0164,901.69,1,0.6143,138.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:16.014228,What is prompt reliability?,17557,"to ensure the quality of the generated data, they employed a...",2,0.6987,795.93,3,0.0161,901.69,2,0.6131,138.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:16.014241,What is prompt reliability?,16202,"while well-crafted prompts are valuable, proprietary prompts...",3,0.6731,795.93,5,0.0159,901.69,3,0.5906,138.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:16.014251,What is prompt reliability?,15910,. say a new prompt achieves a 10% higher score than the old ...,4,0.6634,795.93,N/A,0,0,4,0.5821,138.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:16.014260,What is prompt reliability?,15482,local factual consistency is important for tasks with limite...,5,0.6605,795.93,N/A,0,0,5,0.5796,138.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:16.916015,What is prompt reliability?,14964,finetuning a model on examples following your desirable form...,N/A,0,0,2,0.0164,901.69,N/A,0,0,1,0.0985,716.8,N/A,N/A,N/A
+2025-12-28T21:09:16.916182,What is prompt reliability?,16073,"however, since thereï¿½ï¿½ï¿½s no guarantee that the model will f",N/A,0,0,4,0.0161,901.69,N/A,0,0,2,0.0952,716.8,N/A,N/A,N/A
+2025-12-28T21:09:17.055028,What is prompt reliability?,15921,how reliable is your evaluation pipeline?...,N/A,0,0,N/A,0,0,6,0.5744,138.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:17.055059,What is prompt reliability?,15284,itï¿½ï¿½ï¿½s possible to get an ai judge to be more consistent. c,N/A,0,0,N/A,0,0,7,0.5686,138.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:17.055089,What is prompt reliability?,15530,factual consistency is a crucial evaluation criteria for rag...,N/A,0,0,N/A,0,0,8,0.565,138.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:17.055105,What is prompt reliability?,15289,prompt [partially omitted for brevity] faithfulness is only ...,N/A,0,0,N/A,0,0,9,0.5645,138.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:17.055125,What is prompt reliability?,16285,"to evaluate a systemï¿½ï¿½ï¿½s robustness against prompt attacks,",N/A,0,0,N/A,0,0,10,0.5608,138.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:17.772013,What is prompt reliability?,14818,"rlhf relies on a reward model. given a pair of (prompt, resp...",N/A,0,0,N/A,0,0,N/A,0,0,3,0,716.8,N/A,N/A,N/A
+2025-12-28T21:09:18.604671,How does temperature affect LLM sampling?,16159,"the ideal sampling parameters, like temperature or top-p...",1,0.7,830.97,1,0.0164,791.18,1,0.71,131.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:18.605196,How does temperature affect LLM sampling?,14865,"without using temperature, which is equivalent to using the ...",2,0.594,830.97,2,0.0161,791.18,2,0.6025,131.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:18.605208,How does temperature affect LLM sampling?,14868,figure 2-16 shows the softmax probabilities for tokens a and...,3,0.583,830.97,3,0.0159,791.18,3,0.5913,131.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:18.605218,How does temperature affect LLM sampling?,14866,"with temperature = 0.5, the probabilities are [0.12, 0.88]. ...",4,0.5698,830.97,4,0.0156,791.18,4,0.578,131.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:18.605228,How does temperature affect LLM sampling?,14845,sampling a model constructs its outputs through a process kn...,5,0.5568,830.97,5,0.0154,791.18,5,0.5647,131.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:19.527827,How does temperature affect LLM sampling?,14873,itï¿½ï¿½ï¿½s common practice to set the temperature to 0 for the ,N/A,0,0,N/A,0,0,6,0.5603,131.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:19.527857,How does temperature affect LLM sampling?,14867,"the higher the temperature, the less likely it is that the m...",N/A,0,0,N/A,0,0,7,0.5506,131.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:19.527871,How does temperature affect LLM sampling?,14861,"to redistribute the probabilities of the possible values, yo...",N/A,0,0,N/A,0,0,8,0.5262,131.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:19.527884,How does temperature affect LLM sampling?,14869,". if you own your model, you can use any non-negative temper...",N/A,0,0,N/A,0,0,9,0.5092,131.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:19.527896,How does temperature affect LLM sampling?,14871,higher temperature causes the probability distribution to be...,N/A,0,0,N/A,0,0,10,0.5039,131.07,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:21.102328,What are mixture-of-experts (MoE) models?,18612,"moe (mixture-of-experts) models, 354 monitoring, 226, 465-47...",1,0.7751,867.35,1,0.0308,797.64,7,0.6004,112.54,3,0.64,756.51,N/A,N/A,N/A
+2025-12-28T21:09:21.102365,What are mixture-of-experts (MoE) models?,14670,a type of sparse model that has gained popularity in recent ...,2,0.7,867.35,2,0.0164,797.64,1,0.7636,112.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:21.102384,What are mixture-of-experts (MoE) models?,17232,komatsuzaki et al. showed that layer stacking can produce mo...,3,0.5843,867.35,4,0.0161,797.64,2,0.6375,112.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:21.102399,What are mixture-of-experts (MoE) models?,17237,figure 7-18. you can create an moe model from a pre-trained ...,4,0.5808,867.35,N/A,0,0,3,0.6336,112.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:21.102415,What are mixture-of-experts (MoE) models?,17206,you can linearly combine entire models or parts of models. m...,5,0.5606,867.35,N/A,0,0,4,0.6115,112.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:21.900143,What are mixture-of-experts (MoE) models?,17230,layer stacking can be used to train mixture-of-experts (moe)...,N/A,0,0,3,0.0164,797.64,N/A,0,0,1,0.8543,756.51,N/A,N/A,N/A
+2025-12-28T21:09:21.900184,What are mixture-of-experts (MoE) models?,18592,"mfu (model flops utilization), 416-419 milestone planning, 3...",N/A,0,0,5,0.0161,797.64,N/A,0,0,2,0.6968,756.51,N/A,N/A,N/A
+2025-12-28T21:09:22.012830,What are mixture-of-experts (MoE) models?,17213,some people proposed aligning models before averaging to ens...,N/A,0,0,N/A,0,0,5,0.6097,112.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:22.012858,What are mixture-of-experts (MoE) models?,14727,the scaling law was developed for dense models trained on pr...,N/A,0,0,N/A,0,0,6,0.6023,112.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:22.012880,What are mixture-of-experts (MoE) models?,17617,. this base model was then finetuned using instruction and p...,N/A,0,0,N/A,0,0,8,0.5907,112.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:22.012894,What are mixture-of-experts (MoE) models?,17146,"in general, there are two ways to serve a lora-finetuned mod...",N/A,0,0,N/A,0,0,9,0.5807,112.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:22.012912,What are mixture-of-experts (MoE) models?,18440,"apis (see open source models, model apis verï¿½ï¿½",N/A,0,0,N/A,0,0,10,0.5803,112.54,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:23.795435,How to evaluate RAG systems?,16450,"to summarize, the quality of a rag system should be evaluate...",1,0.9056,1024.32,1,0.0323,806.19,1,0.5659,129.71,3,0.2643,756.37,N/A,N/A,N/A
+2025-12-28T21:09:23.795489,How to evaluate RAG systems?,16817,rag employs a two-step process. it first retrieves relevant ...,2,0.6936,1024.32,3,0.0161,806.19,2,0.5607,129.71,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:23.795510,How to evaluate RAG systems?,18515,step 2: evaluating all components in a sysï¿½ï¿½,3,0.6771,1024.32,5,0.0159,806.19,3,0.5474,129.71,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:23.795524,How to evaluate RAG systems?,16341,rag architecture a rag system has two components: a retrieve...,4,0.6741,1024.32,N/A,0,0,4,0.545,129.71,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:23.795538,How to evaluate RAG systems?,17783,throughput is typically measured as tokens/s (tps). if you s...,5,0.6719,1024.32,N/A,0,0,5,0.5431,129.71,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:24.601802,How to evaluate RAG systems?,15530,factual consistency is a crucial evaluation criteria for rag...,N/A,0,0,2,0.0164,806.19,N/A,0,0,1,0.3856,756.37,N/A,N/A,N/A
+2025-12-28T21:09:24.601907,How to evaluate RAG systems?,16431,the quality of a retriever should also be evaluated in the c...,N/A,0,0,4,0.0161,806.19,N/A,0,0,2,0.3179,756.37,N/A,N/A,N/A
+2025-12-28T21:09:24.731725,How to evaluate RAG systems?,16344,the success of a rag system depends on the quality of its re...,N/A,0,0,N/A,0,0,6,0.5288,129.71,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:24.731754,How to evaluate RAG systems?,18296,evaluation: derive metrics to monitor the application...,N/A,0,0,N/A,0,0,7,0.5106,129.71,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:24.731769,How to evaluate RAG systems?,16452,2. evaluate the final rag outputs....,N/A,0,0,N/A,0,0,8,0.5105,129.71,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:24.731782,How to evaluate RAG systems?,18518,step 3: defining evaluation methods and...,N/A,0,0,N/A,0,0,9,0.5067,129.71,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:24.731800,How to evaluate RAG systems?,18682,step 3: defining evaluation methods and...,N/A,0,0,N/A,0,0,10,0.5067,129.71,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:25.488248,How to evaluate RAG systems?,15228,you can also evaluate the quality of embeddings based on the...,N/A,0,0,N/A,0,0,N/A,0,0,4,0.0991,756.37,N/A,N/A,N/A
+2025-12-28T21:09:26.382063,What is dense passage retrieval?,16358,dense retrievers represent data using dense vectors. a dense...,1,0.7,890.96,1,0.0164,776.69,1,0.6603,111.78,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:26.382104,What is dense passage retrieval?,18623,"of retrieval systems, 267-272...",2,0.6607,890.96,2,0.0161,776.69,2,0.6233,111.78,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:26.382123,What is dense passage retrieval?,16503,what retrieval mechanisms does it support? does it support h...,3,0.6375,890.96,3,0.0159,776.69,3,0.6013,111.78,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:26.382139,What is dense passage retrieval?,16501,evaluating retrieval solutions...,4,0.6306,890.96,4,0.0156,776.69,4,0.5949,111.78,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:26.382151,What is dense passage retrieval?,16385,. this approach is also known as semantic retrieval....,5,0.6226,890.96,5,0.0154,776.69,5,0.5873,111.78,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:27.270831,What is dense passage retrieval?,16451,1. evaluate the retrieval quality....,N/A,0,0,N/A,0,0,6,0.5802,111.78,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:27.270862,What is dense passage retrieval?,16355,"sparse versus dense retrieval in the literature, you might e...",N/A,0,0,N/A,0,0,7,0.5789,111.78,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:27.270879,What is dense passage retrieval?,16349,retrieval algorithms retrieval isnï¿½ï¿½ï¿½t unique to rag. infor,N/A,0,0,N/A,0,0,8,0.5691,111.78,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:27.270893,What is dense passage retrieval?,18492,"embedding-based retrieval, 260-263 multimodal rag and, 273...",N/A,0,0,N/A,0,0,9,0.5567,111.78,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:27.270907,What is dense passage retrieval?,18656,"combining, 266 comparing, 264-266 embedding-based retrieval,...",N/A,0,0,N/A,0,0,10,0.552,111.78,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:28.714339,Explain the concept of tokenization in NLP.,17774,latency as a single output token....,1,0.7,772.43,1,0.0164,809.03,1,0.5805,119.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:28.714376,Explain the concept of tokenization in NLP.,17948,recall from chapter 2 that generating the next token require...,2,0.6824,772.43,2,0.0161,809.03,2,0.5659,119.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:28.714394,Explain the concept of tokenization in NLP.,18227,time to first token (ttft): the time it takes for the first ...,3,0.6555,772.43,3,0.0159,809.03,3,0.5436,119.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:28.714409,Explain the concept of tokenization in NLP.,17941,"3. if one or more tokens fail verification, instead of aggre...",4,0.6552,772.43,4,0.0156,809.03,4,0.5433,119.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:28.714422,Explain the concept of tokenization in NLP.,17763,variations of this metric include time between tokens (tbt) ...,5,0.6521,772.43,5,0.0154,809.03,5,0.5408,119.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:29.642968,Explain the concept of tokenization in NLP.,15094,since different models have different tokenization methodsï¿½ï¿½ï,N/A,0,0,N/A,0,0,6,0.5327,119.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:29.643001,Explain the concept of tokenization in NLP.,17776,"from the modelï¿½ï¿½ï¿½s perspective, the first token is generate",N/A,0,0,N/A,0,0,7,0.5294,119.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:29.643020,Explain the concept of tokenization in NLP.,17764,the total latency will equal ttft + tpot ï¿½ï¿½ (number of outpu,N/A,0,0,N/A,0,0,8,0.5294,119.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:29.643037,Explain the concept of tokenization in NLP.,17772,9 time between tokens (tbt) is used by linkedin and inter-to...,N/A,0,0,N/A,0,0,9,0.5282,119.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:29.643052,Explain the concept of tokenization in NLP.,14959,"at a high level, to generate a token, the model samples amon...",N/A,0,0,N/A,0,0,10,0.5281,119.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:31.110484,What are adversarial attacks in AI?,16228,chao et al. (2023) proposed a systematic approach to ai-powe...,1,0.7,835.31,1,0.0164,802.23,1,0.7149,111.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:31.110532,What are adversarial attacks in AI?,16544,the set of actions an ai agent can perform is augmented by t...,2,0.6757,835.31,2,0.0161,802.23,2,0.69,111.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:31.110551,What are adversarial attacks in AI?,16210,"ai safety, like any area of cybersecurity, is an evolving ca...",3,0.6696,835.31,3,0.0159,802.23,3,0.6838,111.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:31.110568,What are adversarial attacks in AI?,16212,this family of attacks involves manually crafting a prompt o...,4,0.6598,835.31,4,0.0156,802.23,4,0.6738,111.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:31.110585,What are adversarial attacks in AI?,16180,ai models help attackers gain knowledge and tutorials about ...,5,0.6265,835.31,5,0.0154,802.23,5,0.6398,111.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:32.024699,What are adversarial attacks in AI?,16551,an ai agent is meant to accomplish tasks typically provided ...,N/A,0,0,N/A,0,0,6,0.6328,111.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:32.024733,What are adversarial attacks in AI?,16546,10 artificial intelligence: a modern approach (1995) defines...,N/A,0,0,N/A,0,0,7,0.6234,111.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:32.024750,What are adversarial attacks in AI?,18574,"ai product defensibility, 31 role of ai and humans in the ap...",N/A,0,0,N/A,0,0,8,0.6224,111.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:32.024766,What are adversarial attacks in AI?,16538,"ai-powered agents are an emerging field, with no established...",N/A,0,0,N/A,0,0,9,0.6125,111.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:32.024781,What are adversarial attacks in AI?,16535,agents intelligent agents are considered by many to be the u...,N/A,0,0,N/A,0,0,10,0.6023,111.67,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:33.366786,How does Federated Learning preserve privacy?,17474,to mitigate privacy concerns...,1,0.7,739.92,1,0.0164,769.54,1,0.6949,801.66,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:33.366815,How does Federated Learning preserve privacy?,15743,"control, access, and transparency...",2,0.6139,739.92,2,0.0161,769.54,2,0.6094,801.66,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:33.366828,How does Federated Learning preserve privacy?,16264,. the author concluded that diffusion models are much less p...,3,0.5754,739.92,3,0.0159,769.54,3,0.5713,801.66,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:33.366837,How does Federated Learning preserve privacy?,16252,extracting private and sensitive information in both the tra...,4,0.5372,739.92,4,0.0156,769.54,4,0.5333,801.66,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:33.366846,How does Federated Learning preserve privacy?,15650,"from the internet, which was generated by the public, the pu...",5,0.536,739.92,5,0.0154,769.54,5,0.5321,801.66,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:34.938516,How does Federated Learning preserve privacy?,16273,models can also just regurgitate training data without adver...,N/A,0,0,N/A,0,0,6,0.5232,801.66,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:34.938581,How does Federated Learning preserve privacy?,15731,donï¿½ï¿½ï¿½t have to send your data externally ï¿½ï¿½ï¿½ fewer che,N/A,0,0,N/A,0,0,7,0.5081,801.66,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:34.938621,How does Federated Learning preserve privacy?,18113,ýýý responses that contain private and sensitive information....,N/A,0,0,N/A,0,0,8,0.507,801.66,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:34.938657,How does Federated Learning preserve privacy?,15649,10 another argument for making training data public is that ...,N/A,0,0,N/A,0,0,9,0.5055,801.66,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:34.940325,How does Federated Learning preserve privacy?,16253,"if the model is trained on copyrighted data, attackers could...",N/A,0,0,N/A,0,0,10,0.502,801.66,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:36.517403,What is the purpose of positional encodings in Transformers?,18483,"autoregressive decoding bottleneck, 428-433 decoupling from ...",1,0.7,804.63,1,0.0164,804.08,1,0.5275,226.16,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:36.517441,What is the purpose of positional encodings in Transformers?,14631,the number of transformer blocks....,2,0.6897,804.63,2,0.0161,804.08,2,0.5197,226.16,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:36.517458,What is the purpose of positional encodings in Transformers?,17960,l: number of transformer layers...,3,0.6708,804.63,3,0.0159,804.08,3,0.5055,226.16,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:36.517473,What is the purpose of positional encodings in Transformers?,14600,the transformer architecture dispenses with rnns entirely. w...,4,0.6652,804.63,4,0.0156,804.08,4,0.5012,226.16,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:36.517489,What is the purpose of positional encodings in Transformers?,14132,. a well-known example of a masked language model is bidirec...,5,0.6647,804.63,5,0.0154,804.08,5,0.5009,226.16,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:37.548139,What is the purpose of positional encodings in Transformers?,14625,an embedding module before the transformer blocks...,N/A,0,0,N/A,0,0,6,0.5003,226.16,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:37.548251,What is the purpose of positional encodings in Transformers?,14627,an output layer after the transformer blocks...,N/A,0,0,N/A,0,0,7,0.4934,226.16,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:37.548293,What is the purpose of positional encodings in Transformers?,14624,the number of transformer blocks in a transformer model is o...,N/A,0,0,N/A,0,0,8,0.4796,226.16,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:37.548311,What is the purpose of positional encodings in Transformers?,14596,the transformer architecture addresses both problems with th...,N/A,0,0,N/A,0,0,9,0.476,226.16,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:37.548326,What is the purpose of positional encodings in Transformers?,14593,figure 2-4. seq2seq architecture versus transformer architec...,N/A,0,0,N/A,0,0,10,0.4706,226.16,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:38.920697,Explain the difference between encoder-only and decoder-only models.,14132,. a well-known example of a masked language model is bidirec...,1,0.7,753.33,1,0.0164,1222.1,1,0.6209,157.59,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:38.920740,Explain the difference between encoder-only and decoder-only models.,18016,llm inference consists of two steps: prefill and decode. bec...,2,0.6737,753.33,2,0.0161,1222.1,2,0.5976,157.59,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:38.920757,Explain the difference between encoder-only and decoder-only models.,18015,decoupling prefill and decode...,3,0.6372,753.33,3,0.0159,1222.1,3,0.5652,157.59,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:38.920771,Explain the difference between encoder-only and decoder-only models.,18948,model sparse coding [2] sift + fvs [24] cnn...,4,0.6371,753.33,4,0.0156,1222.1,6,0.5651,157.59,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:38.920787,Explain the difference between encoder-only and decoder-only models.,19089,model sparse coding [2] sift + fvs [24] cnn...,5,0.6371,753.33,5,0.0154,1222.1,4,0.5651,157.59,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:40.300777,Explain the difference between encoder-only and decoder-only models.,18807,model sparse coding [2] sift + fvs [24] cnn...,N/A,0,0,N/A,0,0,5,0.5651,157.59,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:40.300825,Explain the difference between encoder-only and decoder-only models.,17721,"as an illustration, letï¿½ï¿½ï¿½s look into language model infere",N/A,0,0,N/A,0,0,7,0.5623,157.59,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:40.300842,Explain the difference between encoder-only and decoder-only models.,17728,because prefill and decode have different computational prof...,N/A,0,0,N/A,0,0,8,0.5538,157.59,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:40.300858,Explain the difference between encoder-only and decoder-only models.,14590,"at a high level, seq2seq contains an encoder that processes ...",N/A,0,0,N/A,0,0,9,0.5488,157.59,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:40.300874,Explain the difference between encoder-only and decoder-only models.,17923,"3. decoding is memory bandwidth-bound, which means that duri...",N/A,0,0,N/A,0,0,10,0.5486,157.59,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:41.763754,What is curriculum learning?,15967,. this makes in-context learning a form of continual learnin...,1,0.7,765.37,1,0.0164,853.11,1,0.5749,121.24,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:41.763791,What is curriculum learning?,15964,in-context learning: zero-shot and few-shot teaching models ...,2,0.6781,765.37,2,0.0161,853.11,2,0.5569,121.24,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:41.763808,What is curriculum learning?,16851,. chapter 8 discusses how to acquire instruction data....,3,0.6597,765.37,3,0.0159,853.11,3,0.5418,121.24,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:41.763888,What is curriculum learning?,17533,instruction data synthesis...,4,0.6247,765.37,4,0.0156,853.11,4,0.5131,121.24,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:41.763928,What is curriculum learning?,14169,self-supervised learning means that language models can lear...,5,0.614,765.37,5,0.0154,853.11,5,0.5043,121.24,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:42.738491,What is curriculum learning?,14768,. some people compare pre-training to reading to acquire kno...,N/A,0,0,N/A,0,0,6,0.5025,121.24,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:42.738522,What is curriculum learning?,14446,the term training can often be used in place of pre-training...,N/A,0,0,N/A,0,0,7,0.5012,121.24,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:42.738537,What is curriculum learning?,16838,"for llms, knowledge gained from pre-training on text complet...",N/A,0,0,N/A,0,0,8,0.4967,121.24,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:42.738551,What is curriculum learning?,15559,instruction-following criteria...,N/A,0,0,N/A,0,0,9,0.4932,121.24,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:42.738564,What is curriculum learning?,15970,each example provided in the prompt is called a shot. teachi...,N/A,0,0,N/A,0,0,10,0.4829,121.24,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:44.440414,How do vision transformers (ViT) differ from CNNs?,14655,12 the transformer was originally designed by google to run ...,1,0.7,966.12,1,0.0164,916.81,1,0.5217,193.2,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:44.440451,How do vision transformers (ViT) differ from CNNs?,14596,the transformer architecture addresses both problems with th...,2,0.6943,966.12,2,0.0161,916.81,2,0.5175,193.2,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:44.440470,How do vision transformers (ViT) differ from CNNs?,14619,transformer block. now that weï¿½ï¿½ï¿½ve discussed how attention,3,0.6904,966.12,3,0.0159,916.81,3,0.5146,193.2,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:44.440485,How do vision transformers (ViT) differ from CNNs?,14599,while the attention mechanism is often associated with the t...,4,0.6779,966.12,4,0.0156,916.81,4,0.5052,193.2,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:44.440500,How do vision transformers (ViT) differ from CNNs?,14646,developing a new architecture to outperform transformers isn...,5,0.6642,966.12,5,0.0154,916.81,5,0.495,193.2,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:45.550733,How do vision transformers (ViT) differ from CNNs?,16842,feature-based transfer is very common in computer vision. fo...,N/A,0,0,N/A,0,0,6,0.4777,193.2,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:45.550763,How do vision transformers (ViT) differ from CNNs?,17960,l: number of transformer layers...,N/A,0,0,N/A,0,0,7,0.4744,193.2,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:45.550779,How do vision transformers (ViT) differ from CNNs?,14605,attention mechanism. at the heart of the transformer archite...,N/A,0,0,N/A,0,0,8,0.472,193.2,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:45.550792,How do vision transformers (ViT) differ from CNNs?,18453,"attention mechanism redesign, 435 wiring kernels for attenti...",N/A,0,0,N/A,0,0,9,0.4696,193.2,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:45.550806,How do vision transformers (ViT) differ from CNNs?,18852,"[17] y. lecun, k. kavukcuoglu, and c. farabet. convolutional...",N/A,0,0,N/A,0,0,10,0.4683,193.2,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:46.975251,What is active learning?,17413,"data, including weak supervision, semi-supervision, and acti...",1,0.8905,817.57,1,0.0313,836.14,6,0.4671,115.01,2,0.0991,737.84,N/A,N/A,N/A
+2025-12-28T21:09:46.975343,What is active learning?,14083,our unique network of experts and innovators share their kno...,2,0.7,817.57,2,0.0164,836.14,1,0.5349,115.01,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:46.975380,What is active learning?,15967,. this makes in-context learning a form of continual learnin...,3,0.6719,817.57,4,0.0161,836.14,2,0.5135,115.01,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:46.975397,What is active learning?,16718,14 this reminds me of the actor-critic (ac) agent method (ko...,4,0.6521,817.57,5,0.0159,836.14,3,0.4983,115.01,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:46.975414,What is active learning?,16637,foundation model (fm) versus reinforcement learning (rl) pla...,5,0.648,817.57,N/A,0,0,4,0.4952,115.01,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:47.811619,What is active learning?,17662,if there is more data than you need or can afford to use (e....,N/A,0,0,3,0.0164,836.14,N/A,0,0,1,0.1065,737.84,N/A,N/A,N/A
+2025-12-28T21:09:47.926788,What is active learning?,17325,training data should exhibit the behaviors you want your mod...,N/A,0,0,N/A,0,0,5,0.469,115.01,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:47.926834,What is active learning?,17479,generated content. you need ai-generated content as training...,N/A,0,0,N/A,0,0,7,0.4627,115.01,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:47.926849,What is active learning?,14223,a linkedin survey from august 2023 shows that the number of ...,N/A,0,0,N/A,0,0,8,0.4549,115.01,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:47.926863,What is active learning?,14442,modeling and training. modeling and training refers to the p...,N/A,0,0,N/A,0,0,9,0.4545,115.01,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:47.926962,What is active learning?,16970,training memory = model weights + activations + gradients + ...,N/A,0,0,N/A,0,0,10,0.4439,115.01,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:48.664879,What is active learning?,17638,"there are many data exploration tools you should use, but th...",N/A,0,0,N/A,0,0,N/A,0,0,3,0.0974,737.84,N/A,N/A,N/A
+2025-12-28T21:09:48.664898,What is active learning?,14621,an mlp module consists of linear layers separated by nonline...,N/A,0,0,N/A,0,0,N/A,0,0,4,0.0764,737.84,N/A,N/A,N/A
+2025-12-28T21:09:48.664909,What is active learning?,18341,"in the beginning. when a user has just signed up, user feedb...",N/A,0,0,N/A,0,0,N/A,0,0,5,0.0517,737.84,N/A,N/A,N/A
+2025-12-28T21:09:49.571527,Explain the role of hyperparameters in model training.,14736,parameter versus hyperparameter a parameter can be learned b...,1,0.7,905.76,1,0.0164,945.84,1,0.8202,89.57,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:49.571563,Explain the role of hyperparameters in model training.,14735,the performance of a model depends heavily on the values of ...,2,0.6985,905.76,2,0.0161,945.84,2,0.8184,89.57,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:49.571581,Explain the role of hyperparameters in model training.,18539,"parameter versus hyperparameter, 74 post-training, 78-88...",3,0.6342,905.76,3,0.0159,945.84,3,0.7431,89.57,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:49.571592,Explain the role of hyperparameters in model training.,14737,"this means that for many models, you might have only one sho...",4,0.6246,905.76,4,0.0156,945.84,4,0.7319,89.57,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:49.571604,Explain the role of hyperparameters in model training.,14741,"scaling extrapolation is still a niche topic, as few people ...",5,0.617,905.76,5,0.0154,945.84,5,0.7229,89.57,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:50.607227,Explain the role of hyperparameters in model training.,14738,. the current approach is to study the impact of hyperparame...,N/A,0,0,N/A,0,0,6,0.7143,89.57,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:50.607269,Explain the role of hyperparameters in model training.,14592,5 ml fundamentals related to model training are outside the ...,N/A,0,0,N/A,0,0,7,0.7105,89.57,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:50.607292,Explain the role of hyperparameters in model training.,14176,8 it seems counterintuitive that larger models require more ...,N/A,0,0,N/A,0,0,8,0.6818,89.57,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:50.607310,Explain the role of hyperparameters in model training.,17265,2. use this finetuned model to generate more training data....,N/A,0,0,N/A,0,0,9,0.6655,89.57,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:50.607330,Explain the role of hyperparameters in model training.,14583,this section gave a high-level overview of how training data...,N/A,0,0,N/A,0,0,10,0.6504,89.57,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:52.097943,What is data augmentation?,17506,data augmentation and synthesis...,1,0.7,798.04,N/A,0,0,7,0.7819,107.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:52.097983,What is data augmentation?,17572,data augmentation and synthesis...,2,0.7,798.04,N/A,0,0,3,0.7819,107.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:52.098068,What is data augmentation?,17542,data augmentation and synthesis...,3,0.7,798.04,N/A,0,0,2,0.7819,107.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:52.098103,What is data augmentation?,17613,data augmentation and synthesis...,4,0.7,798.04,1,0.0164,792.63,4,0.7819,107.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:52.098121,What is data augmentation?,17488,data augmentation and synthesis...,5,0.7,798.04,N/A,0,0,8,0.7819,107.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:52.890823,What is data augmentation?,17451,data augmentation and synthesis together with compute and ta...,N/A,0,0,2,0.0164,792.63,N/A,0,0,1,0.3597,828.11,N/A,N/A,N/A
+2025-12-28T21:09:52.890857,What is data augmentation?,17470,data augmentation and synthesis...,N/A,0,0,3,0.0161,792.63,5,0.7819,107.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:52.890872,What is data augmentation?,13988,8. dataset engineering. . . . . . . . . . . . . . . . . . . ...,N/A,0,0,4,0.0161,792.63,N/A,0,0,2,0.3533,828.11,N/A,N/A,N/A
+2025-12-28T21:09:52.890885,What is data augmentation?,17596,data augmentation and synthesis...,N/A,0,0,5,0.0159,792.63,1,0.7819,107.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:52.998305,What is data augmentation?,17526,data augmentation and synthesis...,N/A,0,0,N/A,0,0,6,0.7819,107.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:52.998357,What is data augmentation?,18479,"data augmentation/synthesis, 380-396 data curation, 365-380...",N/A,0,0,N/A,0,0,9,0.7102,107.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:52.998378,What is data augmentation?,18472,"data augmentation, 380-396...",N/A,0,0,N/A,0,0,10,0.6745,107.3,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:53.826687,What is data augmentation?,13989,8. dataset engineering. . . . . . . . . . . . . . . . . . . ...,N/A,0,0,N/A,0,0,N/A,0,0,3,0.3533,828.11,N/A,N/A,N/A
+2025-12-28T21:09:53.826716,What is data augmentation?,17454,"in other words, augmented data is derived from real data, wh...",N/A,0,0,N/A,0,0,N/A,0,0,4,0.3272,828.11,N/A,N/A,N/A
+2025-12-28T21:09:53.826731,What is data augmentation?,17452,data augmentation creates new data from existing data (which...,N/A,0,0,N/A,0,0,N/A,0,0,5,0.2562,828.11,N/A,N/A,N/A
+2025-12-28T21:09:54.634785,How does transfer learning benefit NLP tasks?,16837,"since the early days of deep learning, transfer learning has...",1,0.7,806.77,1,0.0164,822.48,1,0.706,107.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:54.634820,How does transfer learning benefit NLP tasks?,16839,"transfer learning improves sample efficiency, allowing a mod...",2,0.6229,806.77,2,0.0161,822.48,2,0.6282,107.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:54.634839,How does transfer learning benefit NLP tasks?,16841,finetuning isnï¿½ï¿½ï¿½t the only way to do transfer learning. an,3,0.6127,806.77,3,0.0159,822.48,3,0.6179,107.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:54.634853,How does transfer learning benefit NLP tasks?,16835,"finetuning is one way to do transfer learning, a concept fir...",4,0.5941,806.77,4,0.0156,822.48,4,0.5991,107.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:54.634868,How does transfer learning benefit NLP tasks?,16838,"for llms, knowledge gained from pre-training on text complet...",5,0.5481,806.77,5,0.0154,822.48,5,0.5528,107.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:55.565559,How does transfer learning benefit NLP tasks?,17865,"because a gpu has many cores working in parallel, data often...",N/A,0,0,N/A,0,0,6,0.5495,107.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:55.565589,How does transfer learning benefit NLP tasks?,17417,. this suggests that the model benefits greatly from exposur...,N/A,0,0,N/A,0,0,7,0.5398,107.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:55.565604,How does transfer learning benefit NLP tasks?,16842,feature-based transfer is very common in computer vision. fo...,N/A,0,0,N/A,0,0,8,0.518,107.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:55.565619,How does transfer learning benefit NLP tasks?,17414,figure 8-3. the performance gain curve with different datase...,N/A,0,0,N/A,0,0,9,0.4976,107.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:55.565634,How does transfer learning benefit NLP tasks?,17230,layer stacking can be used to train mixture-of-experts (moe)...,N/A,0,0,N/A,0,0,10,0.4915,107.97,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:57.253442,What is a knowledge graph?,14336,"18 personally, i also find ai good at explaining data and gr...",1,0.7,898.38,1,0.0164,929.84,1,0.6406,644.43,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:57.253474,What is a knowledge graph?,14790,figure 2-12. the distribution of prompts used to finetune in...,2,0.6332,898.38,2,0.0161,929.84,2,0.5794,644.43,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:57.253487,What is a knowledge graph?,17447,10. the stanford large network dataset collection is a great...,3,0.6234,898.38,3,0.0159,929.84,3,0.5705,644.43,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:57.253500,What is a knowledge graph?,16813,youï¿½ï¿½ï¿½ll need a way to know when a model uses a given piece,4,0.5851,898.38,4,0.0156,929.84,4,0.5354,644.43,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:57.253512,What is a knowledge graph?,14726,figure 2-8. graphs that depict the relationships between tra...,5,0.5401,898.38,5,0.0154,929.84,5,0.4943,644.43,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:58.827995,What is a knowledge graph?,19147,"[26] s.c. turaga, j.f. murray, v. jain, f. roth, m. helmstae...",N/A,0,0,N/A,0,0,6,0.4925,644.43,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:58.828027,What is a knowledge graph?,19006,"[26] s.c. turaga, j.f. murray, v. jain, f. roth, m. helmstae...",N/A,0,0,N/A,0,0,7,0.4925,644.43,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:58.828047,What is a knowledge graph?,18865,"[26] s.c. turaga, j.f. murray, v. jain, f. roth, m. helmstae...",N/A,0,0,N/A,0,0,8,0.4925,644.43,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:58.828064,What is a knowledge graph?,16778,"the model itself is a memory mechanism, as it retains the kn...",N/A,0,0,N/A,0,0,9,0.4919,644.43,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:09:58.828081,What is a knowledge graph?,17719,figure 9-2. the roofline chart can help you visualize whethe...,N/A,0,0,N/A,0,0,10,0.4914,644.43,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:00.419057,Explain the concept of latent space.,17762,time between tokens and inter-token latency...,1,0.7,927.38,1,0.0164,1136.71,1,0.5355,138.63,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:00.419105,Explain the concept of latent space.,15223,"13 while a 10,000-element vector space seems high-dimensiona...",2,0.6727,927.38,2,0.0161,1136.71,2,0.5146,138.63,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:00.419126,Explain the concept of latent space.,16800,". for example, if 30% of the context is reserved, then the m...",3,0.6682,927.38,3,0.0159,1136.71,3,0.5112,138.63,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:00.419143,Explain the concept of latent space.,17910,"as the space is rapidly evolving, new techniques are being d...",4,0.636,927.38,4,0.0156,1136.71,4,0.4865,138.63,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:00.419160,Explain the concept of latent space.,15606,there are multiple metrics for latency for foundation models...,5,0.6357,927.38,5,0.0154,1136.71,5,0.4863,138.63,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:01.694705,Explain the concept of latent space.,12982,"for(i=1; i<5; i++) for(j=i; j<10; j++) for block selection, ...",N/A,0,0,N/A,0,0,6,0.4726,138.63,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:01.694735,Explain the concept of latent space.,16799,long-term memory can be used to store the overflow from shor...,N/A,0,0,N/A,0,0,7,0.4665,138.63,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:01.694750,Explain the concept of latent space.,15113,"the longer the context length, the lower the perplexity...",N/A,0,0,N/A,0,0,8,0.4619,138.63,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:01.694764,Explain the concept of latent space.,17710,terminology ambiguity: memory-bound versus bandwidth-bound m...,N/A,0,0,N/A,0,0,9,0.4608,138.63,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:01.694778,Explain the concept of latent space.,17774,latency as a single output token....,N/A,0,0,N/A,0,0,10,0.4582,138.63,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:03.269361,What are the ethical concerns of generative AI?,16546,10 artificial intelligence: a modern approach (1995) defines...,1,0.7,954.81,1,0.0164,861.21,1,0.6247,97.34,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:03.269400,What are the ethical concerns of generative AI?,15528,all artificial intelligences currently follow the three laws...,2,0.6736,954.81,2,0.0161,861.21,2,0.6012,97.34,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:03.269416,What are the ethical concerns of generative AI?,15687,"on top of that, the ip laws around ai are actively evolving....",3,0.6679,954.81,3,0.0159,861.21,3,0.596,97.34,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:03.269432,What are the ethical concerns of generative AI?,16535,agents intelligent agents are considered by many to be the u...,4,0.6651,954.81,4,0.0156,861.21,4,0.5936,97.34,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:03.269447,What are the ethical concerns of generative AI?,18574,"ai product defensibility, 31 role of ai and humans in the ap...",5,0.6632,954.81,5,0.0154,861.21,5,0.5919,97.34,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:04.228196,What are the ethical concerns of generative AI?,14349,the role of ai and humans in the application...,N/A,0,0,N/A,0,0,6,0.5838,97.34,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:04.228300,What are the ethical concerns of generative AI?,14812,fear of ai models generating inappropriate responses can sto...,N/A,0,0,N/A,0,0,7,0.5742,97.34,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:04.228321,What are the ethical concerns of generative AI?,16595,"these are all valid concerns, and any organization that want...",N/A,0,0,N/A,0,0,8,0.5658,97.34,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:04.228338,What are the ethical concerns of generative AI?,16210,"ai safety, like any area of cybersecurity, is an evolving ca...",N/A,0,0,N/A,0,0,9,0.5588,97.34,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:04.228354,What are the ethical concerns of generative AI?,14406,"some changes can even be fatal. for example, regulations aro...",N/A,0,0,N/A,0,0,10,0.5492,97.34,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:05.693797,How does beam search decoding work?,16503,what retrieval mechanisms does it support? does it support h...,1,0.7,785.2,1,0.0164,818.59,1,0.5538,125.18,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:05.693835,How does beam search decoding work?,18655,"retrieval algorithms, 257-267...",2,0.692,785.2,2,0.0161,818.59,2,0.5475,125.18,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:05.693850,How does beam search decoding work?,18600,"autoregressive decoding bottleneck, 428-433...",3,0.6711,785.2,3,0.0159,818.59,3,0.531,125.18,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:05.693863,How does beam search decoding work?,17996,4. add speculative decoding....,4,0.6568,785.2,4,0.0156,818.59,4,0.5196,125.18,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:05.693878,How does beam search decoding work?,18559,"autoregressive decoding bottleneck,...",5,0.6523,785.2,5,0.0154,818.59,5,0.5161,125.18,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:06.637870,How does beam search decoding work?,17907,overcoming the autoregressive decoding bottleneck...,N/A,0,0,N/A,0,0,6,0.5122,125.18,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:06.637903,How does beam search decoding work?,14901,". for example, instead of generating all outputs independent...",N/A,0,0,N/A,0,0,7,0.5102,125.18,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:06.637919,How does beam search decoding work?,16501,evaluating retrieval solutions...,N/A,0,0,N/A,0,0,8,0.5074,125.18,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:06.637934,How does beam search decoding work?,16454,combining retrieval algorithms...,N/A,0,0,N/A,0,0,9,0.5053,125.18,N/A,0,0,N/A,N/A,N/A
+2025-12-28T21:10:06.637948,How does beam search decoding work?,16418,comparing retrieval algorithms...,N/A,0,0,N/A,0,0,10,0.5028,125.18,N/A,0,0,N/A,N/A,N/A

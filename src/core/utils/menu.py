@@ -3,12 +3,16 @@ from utils.ColorScheme import ColorScheme
 cs = ColorScheme()
 MENU = {
     "i": ("Insert", "Add new document text manually."),
+    "u": ("Upload PDF", "Bulk ingest folder or single PDF."),
     "h": ("Hybrid Search", "Search using both semantic + keyword (BM25)."),
     "s": ("Semantic Search", "Search using AI embeddings (vector similarity)."),
     "k": ("Keyword Search", "Traditional full-text search (Postgres FTS)."),
     "p": ("Paragraph Search", "Show results in readable paragraphs."),
-    "d": ("Delete", "Delete a document by ID."),
+    "e": ("Evaluate", "Run Automatic Thesis Evaluation (AI/Data modes)."),
+    "t": ("Thesis Compare", "Compare all algorithms side-by-side."),
     "c": ("Count", "Show total number of documents."),
+    "d": ("Delete", "Delete a document by ID."),
+    "?": ("Help", "Show detailed usage guide and hints."),
     "q": ("Quit", "Exit the program."),
 }
 
