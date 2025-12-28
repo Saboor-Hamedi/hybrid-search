@@ -55,9 +55,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Handle file selection
     pdfFileInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        handlePDFFile(file);
+      const files = e.target.files;
+      if (files.length > 0) {
+        handlePDFFiles(files);
       }
     });
     
@@ -82,161 +82,211 @@ document.addEventListener('DOMContentLoaded', function() {
       pdfDropZone.style.borderColor = '#d1d5db';
       pdfDropZone.style.background = 'transparent';
       
-      const file = e.dataTransfer.files[0];
-      if (file) {
-        if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
-          // Create a new DataTransfer object and add the file
-          const dataTransfer = new DataTransfer();
-          dataTransfer.items.add(file);
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+          // Filter for PDFs
+          const validFiles = Array.from(files).filter(f => f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf'));
           
-          // Set the files to the input element
-          pdfFileInput.files = dataTransfer.files;
-          
-          // Now handle the file
-          handlePDFFile(file);
-        } else {
-          alert('Please select a PDF file');
-        }
+          if (validFiles.length > 0) {
+              const dataTransfer = new DataTransfer();
+              validFiles.forEach(f => dataTransfer.items.add(f));
+              pdfFileInput.files = dataTransfer.files;
+              
+              handlePDFFiles(validFiles);
+          } else {
+              alert('Please select PDF files');
+          }
       }
     });
   }
   
-  // Handle PDF file
-  function handlePDFFile(file) {
-    if (selectedFileName) selectedFileName.textContent = file.name;
+  // Handle PDF files
+  function handlePDFFiles(files) {
+    if (files.length === 1) {
+        if (selectedFileName) selectedFileName.textContent = files[0].name;
+    } else {
+        if (selectedFileName) selectedFileName.textContent = `${files.length} files selected`;
+    }
+    
     if (pdfFileName) pdfFileName.style.display = 'block';
     if (pdfUploadBtn) pdfUploadBtn.disabled = false;
     if (pdfUploadResult) pdfUploadResult.style.display = 'none';
   }
   
   // Upload PDF directly (from quick button)
-  async function uploadPDFDirectly(file) {
+  function uploadPDFDirectly(file) {
     console.log('uploadPDFDirectly called with:', file.name);
     
-    if (!confirm(`Upload and process "${file.name}"? This may take a few minutes.`)) {
-      console.log('User cancelled upload');
-      return;
-    }
+    // Use Custom Modal
+    const modalEl = document.getElementById('confirmModal');
+    const titleEl = document.getElementById('confirmModalTitle');
+    const msgEl = document.getElementById('confirmModalMessage');
+    const btnEl = document.getElementById('confirmModalBtn');
     
-    console.log('Starting upload...');
-    
-    const formData = new FormData();
-    formData.append('pdfFile', file);
-    
-    try {
-      // Show loading indicator in input area
-      const searchBtn = document.querySelector('.search-btn');
-      const originalBtnText = searchBtn.innerHTML;
-      searchBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing PDF...';
-      searchBtn.disabled = true;
-      
-      console.log('Sending request to /upload-pdf');
-      
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 min timeout
-      
-      const response = await fetch('/upload-pdf', {
-        method: 'POST',
-        body: formData,
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
-      console.log('Response received:', response.status);
-      
-      const data = await response.json();
-      console.log('Response data:', data);
-      
-      searchBtn.innerHTML = originalBtnText;
-      searchBtn.disabled = false;
-      
-      if (data.success) {
-        alert(`Success! ${data.message}`);
-        window.location.reload();
-      } else {
-        alert(`Error: ${data.error}`);
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
-      alert(`Upload failed: ${error.message}`);
-      const searchBtn = document.querySelector('.search-btn');
-      searchBtn.innerHTML = '<i class="bi bi-search"></i> Search';
-      searchBtn.disabled = false;
+    if (modalEl && typeof bootstrap !== 'undefined') {
+        titleEl.textContent = 'Upload PDF?';
+        msgEl.textContent = `Process "${file.name}" in the background?`;
+        
+        // Clone button to remove old listeners
+        const newBtn = btnEl.cloneNode(true);
+        btnEl.parentNode.replaceChild(newBtn, btnEl);
+        
+        const bsModal = new bootstrap.Modal(modalEl);
+        
+        newBtn.onclick = async () => {
+            bsModal.hide();
+            // Start background upload
+            await processUpload([file], true);
+        };
+        
+        bsModal.show();
+    } else {
+        // Fallback
+        if (confirm(`Process "${file.name}" in background?`)) {
+             processUpload([file], true);
+        }
     }
   }
+
+  // Common upload processor
+  // files: FileList or Array of File objects
+  // isDirect: boolean (true for quick upload, false for modal)
+  async function processUpload(files, isDirect) {
+      const filesArray = Array.from(files);
+      if (filesArray.length === 0) return;
+
+      // Truncate filename helper
+      function truncateName(name, maxLength=20) {
+          if (name.length <= maxLength) return name;
+          return name.substring(0, maxLength) + '...';
+      }
+
+      // Persistent Toast Logic
+      function updateToast(id, msg, type='info', isLoading=false) {
+          let container = document.getElementById('toast-container');
+          if (!container) {
+              container = document.createElement('div');
+              container.id = 'toast-container';
+              container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px;';
+              document.body.appendChild(container); // Moved to TOP right as requested by "under the header" hint
+          }
+          
+          let toast = document.getElementById(id);
+          
+          // Icon Selection
+          let icon = '<i class="bi bi-info-circle me-2"></i>';
+          if (isLoading) icon = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>';
+          if (type === 'success') icon = '<i class="bi bi-check-circle-fill text-success me-2"></i>';
+          if (type === 'danger') icon = '<i class="bi bi-x-circle-fill text-danger me-2"></i>';
+
+          const contentHtml = `
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="d-flex align-items-center">
+                    ${icon}
+                    <span class="fw-medium">${msg}</span>
+                </div>
+                <button type="button" class="btn-close btn-close-sm ms-3" onclick="document.getElementById('${id}').remove()" aria-label="Close"></button>
+            </div>
+          `;
+
+          if (!toast) {
+              // Create New
+              toast = document.createElement('div');
+              toast.id = id;
+              toast.className = `alert alert-light shadow-sm border border-${type} mb-0 p-2`;
+              toast.style.cssText = 'min-width: 200px; max-width: 300px; animation: slideInRight 0.3s ease-out; background: white; font-size: 0.9rem;';
+              toast.innerHTML = contentHtml;
+              container.appendChild(toast);
+          } else {
+              // Update Existing
+              toast.className = `alert alert-light shadow-sm border border-${type} mb-0 p-2`;
+              toast.innerHTML = contentHtml;
+          }
+      }
+      
+      // Inject CSS
+      if (!document.getElementById('toast-styles')) {
+           const style = document.createElement('style');
+           style.id = 'toast-styles';
+           style.innerHTML = `@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`;
+           document.head.appendChild(style);
+      }
+
+      for (let i = 0; i < filesArray.length; i++) {
+          const file = filesArray[i];
+          const formData = new FormData();
+          formData.append('pdfFile', file); 
+          
+          const toastId = 'toast-' + Math.random().toString(36).substr(2, 9);
+          const shortName = truncateName(file.name, 25);
+
+          if (isDirect) {
+              updateToast(toastId, `Processing ${shortName}...`, 'primary', true);
+          }
+
+          try {
+              // Since backend is threaded (202 Accepted), this returns practically instantly
+              const response = await fetch('/upload-pdf', {
+                  method: 'POST',
+                  body: formData
+              });
+              
+              const data = await response.json();
+
+              if (data.success) {
+                  // The "heavy" part is now in background. 
+                  // HOWEVER, since we can't poll via websocket/DB, 
+                  // we have to fake a bit of "wait" or just tell user it's started.
+                  // User wanted "Processing -> Success". 
+                  // Since the Server returns IMMEDIATELY now (202), we can't know when it's *actually* done without polling.
+                  // For the sake of UX asked ("Loader -> Success"):
+                  // We will transition to "Processing in Background..." 
+                  
+                  // Wait a realistic amount of time? No, that's fake.
+                  // Correct UX for 202: "Upload Queued" -> "Processing..."
+                  
+                  // Given the constraints (no DB status polling), checking 'success' logic:
+                  // The previous code waited for the Whole Process.
+                  // Now logic is: Python returns 202 instantly.
+                  // So the JS receives 'success' instantly. 
+                  // This creates a UX problem: It will say "Success" before it's actually searchable.
+                  
+                  // Update toast to say "Backgrounding"
+                  updateToast(toastId, `Processing ${shortName} in background...`, 'info', true);
+                  
+                  // We simulate a completion after some time or just leave it as "Processing..." 
+                  // But the user wants "Success" notification.
+                  // Without a polling endpoint, we can't know.
+                  
+                  // PROPOSAL: I will auto-mark it as "Queued" (Success) but keep the spinner for a few seconds.
+                  setTimeout(() => {
+                       updateToast(toastId, `PDF ${shortName} queued successfully.`, 'success', false);
+                  }, 2000);
+                  
+              } else {
+                  updateToast(toastId, `Failed: ${shortName}`, 'danger', false);
+              }
+
+          } catch (error) {
+              console.error(error);
+              updateToast(toastId, `Error: ${shortName}`, 'danger', false);
+          }
+      }
+  }
+
   
   // Handle form submission (from modal)
   if (pdfUploadForm) {
     pdfUploadForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
-      const file = pdfFileInput.files[0];
-      if (!file) {
-        alert('Please select a PDF file');
+       
+      const files = pdfFileInput.files;
+      if (!files || files.length === 0) {
+        alert('Please select PDF file(s)');
         return;
       }
       
-      // Show progress
-      pdfUploadProgress.style.display = 'block';
-      pdfUploadBtn.disabled = true;
-      pdfUploadResult.style.display = 'none';
-      
-      const formData = new FormData();
-      formData.append('pdfFile', file);
-      
-      try {
-        // Add timeout (5 minutes)
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 300000);
-        
-        const response = await fetch('/upload-pdf', {
-          method: 'POST',
-          body: formData,
-          signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-        const data = await response.json();
-        
-        // Hide progress
-        pdfUploadProgress.style.display = 'none';
-        
-        if (data.success) {
-          pdfUploadResult.innerHTML = `
-            <div class="alert alert-success">
-              <i class="bi bi-check-circle me-2"></i>
-              ${data.message}
-            </div>
-          `;
-          pdfUploadResult.style.display = 'block';
-          
-          // Reset form after 2 seconds and close modal
-          setTimeout(() => {
-            closeCreateModal();
-            window.location.reload();
-          }, 2000);
-        } else {
-          pdfUploadResult.innerHTML = `
-            <div class="alert alert-danger">
-              <i class="bi bi-exclamation-triangle me-2"></i>
-              Error: ${data.error}
-            </div>
-          `;
-          pdfUploadResult.style.display = 'block';
-          pdfUploadBtn.disabled = false;
-        }
-      } catch (error) {
-        pdfUploadProgress.style.display = 'none';
-        const errorMsg = error.name === 'AbortError' ? 'Upload timed out (5 min limit)' : error.message;
-        pdfUploadResult.innerHTML = `
-          <div class="alert alert-danger">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            Upload failed: ${errorMsg}
-          </div>
-        `;
-        pdfUploadResult.style.display = 'block';
-        pdfUploadBtn.disabled = false;
-      }
+      await processUpload(files, false);
     });
   }
 });

@@ -1,0 +1,71 @@
+<!-- Create Modal -->
+<div id="createModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+  <div style="background: white; border-radius: 12px; padding: 1.5rem; max-width: 600px; width: 90%;">
+    <h5 class="mb-3">Create New Document</h5>
+    
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-3" id="createTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#textTab" type="button" role="tab">
+          <i class="bi bi-text-paragraph"></i> Text
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pdf-tab" data-bs-toggle="tab" data-bs-target="#pdfTab" type="button" role="tab">
+          <i class="bi bi-file-pdf"></i> PDF Upload
+        </button>
+      </li>
+    </ul>
+    
+    <!-- Tab Content -->
+    <div class="tab-content" id="createTabsContent">
+      <!-- Text Tab -->
+      <div class="tab-pane fade show active" id="textTab" role="tabpanel">
+        <form method="POST" action="{{ url_for('new_post') }}">
+          <input type="hidden" name="q" value="{{ query }}">
+          <input type="hidden" name="mode" value="{{ mode }}">
+          <input type="hidden" name="language" value="en">
+          <textarea class="form-control mb-3" name="content" rows="8" placeholder="Enter document content..." required></textarea>
+          <div class="d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create</button>
+          </div>
+        </form>
+      </div>
+      
+      <!-- PDF Tab -->
+      <div class="tab-pane fade" id="pdfTab" role="tabpanel">
+        <form id="pdfUploadForm" enctype="multipart/form-data">
+          <div id="pdfDropZone" style="border: 2px dashed #d1d5db; border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s;">
+            <i class="bi bi-cloud-upload" style="font-size: 3rem; color: #9ca3af;"></i>
+            <p class="mt-2 mb-2">Drag and drop PDF file here or click to browse</p>
+            <p style="font-size: 0.875rem; color: #6b7280;">Only .pdf files are supported</p>
+            <input type="file" id="pdfFileInput" name="pdfFile" accept=".pdf" multiple style="display: none;">
+          </div>
+          
+          <div id="pdfFileName" class="mt-3" style="display: none;">
+            <div class="alert alert-info d-flex align-items-center">
+              <i class="bi bi-file-pdf me-2"></i>
+              <span id="selectedFileName"></span>
+              <button type="button" class="btn-close ms-auto" onclick="clearPDFSelection()"></button>
+            </div>
+          </div>
+          
+          <div id="pdfUploadProgress" class="mt-3" style="display: none;">
+            <div class="progress">
+              <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+            </div>
+            <p class="text-center mt-2 mb-0" style="font-size: 0.875rem; color: #6b7280;">Processing PDF...</p>
+          </div>
+          
+          <div id="pdfUploadResult" class="mt-3" style="display: none;"></div>
+          
+          <div class="d-flex gap-2 justify-content-end mt-3">
+            <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
+            <button type="submit" id="pdfUploadBtn" class="btn btn-primary" disabled>Upload PDF</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

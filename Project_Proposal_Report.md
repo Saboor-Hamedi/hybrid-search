@@ -89,7 +89,8 @@ hybrid_search/
 The system's flagship feature is its **Chat-Driven Retrieval**.
 
 - **Multilingual Semantic Support**: Powered by `paraphrase-multilingual-MiniLM-L12-v2`, allowing the chatbot to understand and retrieve documents across different languages (e.g., English, Persian, Arabic).
-- **Hybrid Scorer**: A sophisticated logic that balances conceptual similarity with exact keyword matches.
+- **Hybrid Scorer (Weighted)**: A sophisticated logic that balances conceptual similarity with exact keyword matches using a tunable alpha parameter.
+- **RRF Fusion (Rank-Based)**: Implementation of **Reciprocal Rank Fusion**, providing a scale-agnostic way to combine semantic and keyword results without needing hyperparameter tuning.
 - **Context-Aware Presentation**: Search results are presented as chat responses with highlighted excerpts and source metadata.
 
 ### Intelligent Document Management

@@ -75,9 +75,9 @@ import matplotlib.pyplot as plt
 
 #     return img_base64
 def generate_query_graph(mode, latency_ms, results_count, semantic_count=0, bm25_count=0):
-    modes = ['keyword', 'semantic', 'hybrid']
-    latency = {'keyword': 0, 'semantic': 0, 'hybrid': 0}
-    results = {'keyword': 0, 'semantic': 0, 'hybrid': 0}
+    modes = ['keyword', 'semantic', 'hybrid', 'rrf']
+    latency = {m: 0 for m in modes}
+    results = {m: 0 for m in modes}
 
     # Fill current mode
     latency[mode] = latency_ms
@@ -86,13 +86,16 @@ def generate_query_graph(mode, latency_ms, results_count, semantic_count=0, bm25
     # If hybrid → show both
     if mode == 'hybrid':
         latency['semantic'] = latency_ms * 0.6  # estimate
-        latency['bm25'] = latency_ms * 0.4
+        latency['keyword'] = latency_ms * 0.4   # Use 'keyword' instead of 'bm25'
         results['semantic'] = semantic_count
-        results['bm25'] = bm25_count
+        results['keyword'] = bm25_count         # Use 'keyword' instead of 'bm25'
 
-    active_modes = [m for m in modes if latency[m] > 0]
+    active_modes = [m for m in modes if latency.get(m, 0) > 0]
     lat_vals = [latency[m] for m in active_modes]
     res_vals = [results[m] for m in active_modes]
+
+    if not lat_vals:
+        return None  # Or handle gracefully
 
     plt.clf()
     plt.close('all')
@@ -100,11 +103,13 @@ def generate_query_graph(mode, latency_ms, results_count, semantic_count=0, bm25
 
     bars = ax1.bar(active_modes, lat_vals, color='#4ecdc4', alpha=0.8)
     ax1.set_ylabel('Latency (ms)', color='tab:blue')
-    ax1.set_ylim(0, max(lat_vals) * 1.3)
+    
+    max_lat = max(lat_vals)
+    ax1.set_ylim(0, max_lat * 1.3)
 
     for bar in bars:
         h = bar.get_height()
-        ax1.text(bar.get_x() + bar.get_width()/2, h + max(lat_vals)*0.02,
+        ax1.text(bar.get_x() + bar.get_width()/2, h + max_lat * 0.02,
                  f'{h:.0f}ms', ha='center', va='bottom', fontsize=10)
 
     ax2 = ax1.twinx()

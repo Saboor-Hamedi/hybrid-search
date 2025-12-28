@@ -7,559 +7,7 @@
   
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  
-  <style>
-    /* Chat Container */
-    .chat-container {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    
-    /* Header */
-    .chat-header {
-      background: white;
-      border-bottom: 1px solid #e5e7eb;
-      padding: 0.875rem 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    }
-    
-    .chat-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #111827;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    
-    .chat-title i {
-      color: #2563eb;
-    }
-    
-    /* Messages Area */
-    .messages-area {
-      position: relative;
-      flex: 1;
-      overflow-y: auto;
-      padding: 2rem 1rem;
-      padding-bottom: 0;
-      background: white;
-    }
-    
-    .messages-wrapper {
-      max-width: 680px;
-      margin: 0 auto;
-      padding-bottom: 200px;
-    }
-    
-    /* Message Bubble */
-    .message {
-      margin-bottom: 1.5rem;
-      animation: fadeIn 0.3s ease;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .message-query {
-      background: transparent;
-      color: #6b7280;
-      padding: 0;
-      border-radius: 0;
-      max-width: 100%;
-      margin: 0;
-      font-size: 0.875rem;
-      box-shadow: none;
-      font-style: italic;
-    }
-    
-    .message-response {
-      background: transparent;
-      padding: 0 0 1.5rem 0;
-      border: none;
-      box-shadow: none;
-    }
-    
-    .response-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-      padding-bottom: 0.75rem;
-      border-bottom: 1px solid #f3f4f6;
-    }
-    
-    .response-stats {
-      font-size: 0.8125rem;
-      color: #6b7280;
-    }
-    
-    .result-item {
-      padding: 0 0 1.25rem 0;
-      margin-bottom: 0;
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid #f3f4f6;
-      transition: none;
-    }
-    
-    .result-item:last-child {
-      border-bottom: none;
-    }
-    
-    .result-title {
-      font-weight: 500;
-      color: #111827;
-      text-decoration: none;
-      font-size: 0.9375rem;
-      display: inline;
-      margin-bottom: 0.5rem;
-    }
-    
-    .result-title:hover {
-      color: #2563eb;
-      text-decoration: underline;
-    }
-    
-    .result-content {
-      font-size: 0.9375rem;
-      color: #374151;
-      line-height: 1.7;
-      margin: 0.5rem 0;
-    }
-    
-    .result-meta {
-      font-size: 0.75rem;
-      color: #9ca3af;
-      margin-top: 0.5rem;
-    }
-    
-    .score-badge {
-      padding: 0.25rem 0.625rem;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-    
-    .score-high { background: #dcfce7; color: #166534; }
-    .score-medium { background: #fef3c7; color: #92400e; }
-    .score-low { background: #fee2e2; color: #991b1b; }
-    
-    /* Input Area - Seamless Container */
-    .input-area {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      max-width: 850px;
-      width: 100%;
-      background: transparent;
-      border-top: none;
-      padding: 1rem 1.5rem;
-      z-index: 100;
-    }
-    
-    .input-wrapper {
-      width: 100%;
-    }
-    
-    .search-form {
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .search-input-container {
-      position: relative;
-      background: white;
-      border: 1px solid #d1d5db;
-      border-radius: 1rem 1rem 0 0;
-      overflow: hidden;
-      transition: border-color 0.2s;
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08), 0 -1px 3px rgba(0, 0, 0, 0.05);
-    }
-    
-    .search-input-container:focus-within {
-      border-color: #d1d5db;
-    }
-    
-    .search-input {
-      width: 100%;
-      padding: 0.875rem 1rem 0.875rem 3rem; /* Extra left padding for button */
-      border: none;
-      font-size: 0.9375rem;
-      resize: none;
-      min-height: 48px;
-      max-height: 120px;
-      outline: none !important;
-      box-shadow: none !important;
-    }
-    
-    /* PDF Upload Button */
-    .pdf-upload-btn {
-      position: absolute;
-      left: 0.75rem;
-      top: 0.875rem; /* Align with textarea padding */
-      background: transparent;
-      border: none;
-      color: #6b7280;
-      font-size: 1.125rem;
-      cursor: pointer;
-      padding: 0.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-      z-index: 10;
-      border-radius: 4px;
-      line-height: 1;
-    }
-    
-    .pdf-upload-btn:hover {
-      color: #2563eb;
-      background: #eff6ff;
-    }
-    
-    .pdf-upload-btn:active {
-      transform: scale(0.95);
-    }
-    
-    .input-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      padding: 0.75rem 1rem;
-      background: #f9fafb;
-      border-top: 1px solid #e5e7eb;
-      flex-wrap: wrap;
-    }
-    
-    .search-btn {
-      padding: 0.5rem 1.25rem;
-      background: #2563eb;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.875rem;
-      gap: 0.375rem;
-      white-space: nowrap;
-    }
-    
-    .search-btn:hover {
-      background: #1d4ed8;
-    }
-    
-    .search-options {
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-      flex-wrap: wrap;
-      font-size: 0.8125rem;
-      flex: 1;
-    }
-    
-    .mode-pills {
-      display: flex;
-      gap: 0.5rem;
-    }
-    
-    .mode-pill {
-      padding: 0.375rem 0.875rem;
-      border-radius: 6px;
-      border: 1px solid #d1d5db;
-      background: white;
-      color: #6b7280;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 0.8125rem;
-      line-height: 1.3;
-      font-weight: 500;
-    }
-    
-    .mode-pill:hover {
-      border-color: #2563eb;
-      color: #2563eb;
-      background: #eff6ff;
-    }
-    
-    .mode-pill.active {
-      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-      color: white;
-      border-color: #2563eb;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-      transform: translateY(-1px);
-    }
-    
-    .page-size-select {
-      font-size: 0.8125rem;
-      padding: 0.375rem 0.625rem;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      background: white;
-      color: #6b7280;
-      cursor: pointer;
-      outline: none;
-      font-weight: 500;
-      min-width: 80px;
-    }
-    
-    .page-size-select:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    }
-    
-    .page-size-select:hover {
-      border-color: #2563eb;
-    }
-    
-    .no-results {
-      text-align: center;
-      padding: 2rem;
-      color: #9ca3af;
-    }
-    
-    .pagination-btns {
-      display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-    
-    .page-btn {
-      padding: 0.5rem 1rem;
-      border: 1px solid #e5e7eb;
-      background: white;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.875rem;
-      transition: all 0.2s;
-    }
-    
-    .page-btn:hover:not(:disabled) {
-      border-color: #2563eb;
-      color: #2563eb;
-    }
-    
-    .page-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    
-    /* === UX ENHANCEMENTS === */
-    
-    /* Loading State */
-    .search-btn.loading {
-      position: relative;
-      pointer-events: none;
-      opacity: 0.7;
-    }
-    
-    .search-btn.loading::after {
-      content: "";
-      position: absolute;
-      width: 14px;
-      height: 14px;
-      top: 50%;
-      left: 50%;
-      margin-left: -7px;
-      margin-top: -7px;
-      border: 2px solid white;
-      border-radius: 50%;
-      border-top-color: transparent;
-      animation: spin 0.6s linear infinite;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    /* Result Hover Enhancement */
-    .result-item {
-      position: relative;
-      transition: transform 0.2s ease, background-color 0.2s ease;
-    }
-    
-    .result-item:hover {
-      transform: translateX(4px);
-      background: #f9fafb;
-    }
-    
-    .result-item::before {
-      content: "→";
-      position: absolute;
-      left: -20px;
-      opacity: 0;
-      transition: opacity 0.2s ease, left 0.2s ease;
-      color: #2563eb;
-      font-weight: bold;
-    }
-    
-    .result-item:hover::before {
-      opacity: 1;
-      left: -16px;
-    }
-    
-    /* Smooth Fade-in Animation */
-    .message {
-      animation: fadeInUp 0.4s ease;
-    }
-    
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    
-    /* Result Count Badge */
-    .result-count-badge {
-      display: inline-block;
-      background: #2563eb;
-      color: white;
-      padding: 0.25rem 0.625rem;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      margin-left: 0.5rem;
-    }
-    
-    /* Empty State Enhancement */
-    .empty-state {
-      text-align: center;
-      padding: 3rem 1rem;
-      color: #9ca3af;
-    }
-    
-    .empty-state-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      opacity: 0.3;
-    }
-    
-    .empty-state-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #6b7280;
-      margin-bottom: 0.5rem;
-    }
-    
-    .empty-state-text {
-      font-size: 0.875rem;
-      margin-bottom: 1.5rem;
-    }
-    
-    .example-searches {
-      display: flex;
-      gap: 0.5rem;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 1rem;
-    }
-    
-    .example-search {
-      padding: 0.375rem 0.75rem;
-      background: #f3f4f6;
-      border-radius: 6px;
-      font-size: 0.8125rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: 1px solid transparent;
-    }
-    
-    .example-search:hover {
-      background: #e5e7eb;
-      border-color: #2563eb;
-      color: #2563eb;
-    }
-    
-    /* Keyboard Shortcut Hint */
-    .keyboard-hint {
-      position: fixed;
-      bottom: 1.5rem;
-      right: 1.5rem;
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 0.5rem 0.75rem;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-      z-index: 50;
-    }
-    
-    .keyboard-hint.show {
-      opacity: 1;
-    }
-    
-    kbd {
-      background: rgba(255, 255, 255, 0.2);
-      padding: 0.125rem 0.375rem;
-      border-radius: 3px;
-      font-family: monospace;
-      font-size: 0.875em;
-    }
-    
-    /* Mobile Optimizations */
-    @media (max-width: 768px) {
-      .messages-area {
-        padding: 1rem 0.5rem;
-        padding-bottom: 180px;
-      }
-      
-      .input-area {
-        padding: 0.75rem 1rem 0.75rem;
-      }
-      
-      .search-input {
-        font-size: 16px; /* Prevents zoom on iOS */
-      }
-      
-      .mode-pill {
-        padding: 0.5rem 1rem;
-        font-size: 0.875rem;
-      }
-      
-      .search-btn {
-        padding: 0.625rem 1rem;
-      }
-      
-      .result-title {
-        font-size: 1rem;
-      }
-      
-      .result-content {
-        font-size: 1rem;
-      }
-    }
-    
-    /* Focus Visible Enhancement */
-    *:focus-visible {
-      outline: 2px solid #2563eb;
-      outline-offset: 2px;
-    }
-    
-    /* Smooth Scroll */
-    html {
-      scroll-behavior: smooth;
-    }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='chat_style.css') }}">
   
   {% block extra_css %}{% endblock %}
 </head>
@@ -588,7 +36,20 @@
           <!-- User Query Message -->
           <div class="message">
             <div class="message-query">
-              Searching for: "{{ query }}"
+              <strong>User:</strong> {{ query }}
+              {% if use_ai %}
+              <span class="badge bg-info text-dark ms-2" style="font-size: 0.7em; vertical-align: middle;">
+                  <i class="bi bi-robot"></i> AI Auto-Summary
+              </span>
+              {% endif %}
+              
+              <button class="btn btn-sm btn-link text-secondary p-0 ms-2 text-decoration-none" 
+                      onclick="navigator.clipboard.writeText(this.dataset.query); this.innerHTML='<i class=\'bi bi-check\'></i>'" 
+                      onmouseleave="this.innerHTML='<i class=\'bi bi-copy\'></i>'"
+                      data-query="{{ query }}"
+                      title="Copy Prompt">
+                  <i class="bi bi-copy"></i>
+              </button>
             </div>
           </div>
           
@@ -596,75 +57,144 @@
           <div class="message">
             <div class="message-response">
               {% if results %}
+                <div class="response-header d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted small">{{ stats.returned }} results found in {{ stats.query_time_ms }}ms</span>
+                    <button class="btn btn-outline-primary" style="border-radius: 20px;" 
+                    onclick="showSessionAnalysis(this)"
+                    data-p="{{ stats.precision_at_k }}"
+                    data-r="{{ stats.recall_at_k }}"
+                    data-map="{{ stats.map_score }}"
+                    data-ndcg="{{ stats.ndcg_score }}"
+                    data-qpms="{{ stats.qpms }}"
+                    data-latency="{{ stats.query_time_ms }}"
+                    data-router="{{ stats.router_accuracy }}"
+                    data-choice="{{ stats.router_choice }}"
+                    data-prompt="{{ query }}"
+                    data-rank-debug='{{ stats.rank_debug | tojson | safe if stats.rank_debug else "{}" }}'
+                    data-latency-stats='{{ stats.latency_stats | tojson | safe if stats.latency_stats else "{}" }}'>
+                    <i class="bi bi-bar-chart-fill"></i> Query Analysis
+                </button>
+                </button>
+                </div>
+
+
+
                 {% for r in results %}
                 <div class="result-item">
-                  {% set base = url_for('document_page', doc_id=r.doc_id) %}
-                  {% set use_mode = r.origin_mode if r.origin_mode is not none else mode %}
-                  {% set qs = '?q=' ~ (query|urlencode) ~ '&mode=' ~ (use_mode|urlencode) ~ '&score=' ~ (r.score|string) %}
-                  {% if r.semantic_score is not none %}{% set qs = qs ~ '&semantic_score=' ~ (r.semantic_score|string) %}{% endif %}
-                  {% if r.bm25_score is not none %}{% set qs = qs ~ '&bm25_score=' ~ (r.bm25_score|string) %}{% endif %}
+                  <div class="d-flex justify-content-between align-items-start mb-1">
+                    <h6 class="mb-0">
+                      {% set base = url_for('document_page', doc_id=r.doc_id) %}
+                      {% set use_mode = r.origin_mode if r.origin_mode is not none else mode %}
+                      {% set qs = '?q=' ~ (query|urlencode) ~ '&mode=' ~ (use_mode|urlencode) ~ '&score=' ~ (r.score|string) %}
+                      {% if r.semantic_score is not none %}{% set qs = qs ~ '&semantic_score=' ~ (r.semantic_score|string) %}{% endif %}
+                      {% if r.bm25_score is not none %}{% set qs = qs ~ '&bm25_score=' ~ (r.bm25_score|string) %}{% endif %}
+                      
+                      <a href="{{ base ~ qs }}" class="result-title">
+                        {{ r.content[:80] }}...
+                      </a>
+                    </h6>
+                    
+                    {% if mode == 'ltr' or use_mode == 'ltr' or use_ltr %}
+                    <span class="score-badge bg-primary text-white" style="background: linear-gradient(45deg, #4f46e5, #9333ea);">
+                        <i class="bi bi-stars"></i> AI: {{ "%.4f"|format(r.score) }}
+                    </span>
+                    {% else %}
+                    <span class="score-badge {% if r.score >= 0.7 %}score-high{% elif r.score >= 0.4 %}score-medium{% else %}score-low{% endif %}">
+                        {{ "%.3f"|format(r.score) }}
+                    </span>
+                    {% endif %}
+                  </div>
                   
-                  <div class="result-content">
-                    <a href="{{ base ~ qs }}" class="result-title">#{{ r.doc_id }}</a> • 
+                  <div class="result-content mb-2" title="Double click to copy">
+                    <a href="{{ base ~ qs }}" class="result-title result-doc-id">#{{ r.doc_id }}</a> • 
                     {{ r.content_highlighted | safe }}
                   </div>
-                  <div class="result-meta">
-                    Score: {{ "%.3f"|format(r.score) }} • {{ r.language|upper }} • {{ r.created_at }}
+                  <div class="result-meta d-flex justify-content-between align-items-center">
+                    <span class="d-flex align-items-center">
+                        Score: {{ "%.3f"|format(r.score) }} • {{ r.language|upper }} • {{ r.created_at }}
+                        <label class="relevance-toggle" title="Mark as Relevant (Ground Truth)">
+                            <input type="checkbox" onchange="toggleRelevance(this)" data-doc-id="{{ r.doc_id }}">
+                            Relevant?
+                        </label>
+                    </span>
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill py-0 px-2" style="font-size: 0.75rem;"
+                        onclick="showAnalysis(this)"
+                        data-doc-id="{{ r.doc_id }}"
+                        data-score="{{ r.score }}"
+                        data-sem="{{ r.semantic_score if r.semantic_score is not none else 'N/A' }}"
+                        data-key="{{ r.bm25_score if r.bm25_score is not none else 'N/A' }}"
+                        data-sem-w="{{ r.semantic_weight if r.semantic_weight is not none else 'N/A' }}"
+                        data-key-w="{{ r.bm25_weight if r.bm25_weight is not none else 'N/A' }}"
+                        data-strategy="{{ r.strategy|default('Linear') }}"
+                        data-mode="{{ r.origin_mode|default(mode) }}"
+                        data-prompt="{{ query }}"
+                        data-content="{{ r.content[:4000] }}"
+                        data-latency="{{ stats.query_time_ms }}">
+                        <i class="bi bi-graph-up"></i> Analysis
+                    </button>
                   </div>
                 </div>
                 {% endfor %}
-                
-                <!-- Stats at Bottom -->
-                <div style="padding-top: 1.5rem; margin-top: 1.5rem; font-size: 0.8125rem; color: #9ca3af; text-align: center;">
-                  <strong>{{ total_results or 0 }}</strong> results found
-                  {% if stats %}
-                   • {{ stats.query_time_ms|default(0)|round(0) }}ms
-                  {% endif %}
-                   • Page {{ page }} of {{ total_pages }}
+
+                <!-- AI Answer Container (Moved to Bottom) -->
+                <div id="aiAnswerContainer" class="card shadow-sm mt-4 mb-4 border-info d-none">
+                    <div class="card-header bg-info-subtle text-info-emphasis d-flex justify-content-between align-items-center">
+                        <span class="d-flex align-items-center gap-2">
+                             <i class="bi bi-robot"></i> <strong>AI Research Summary</strong>
+                        </span>
+                        <div id="aiSpinner" class="spinner-border spinner-border-sm text-info d-none" role="status"></div>
+                    </div>
+                    <div class="card-body bg-light-subtle">
+                        <div id="aiAnswerText" class="card-text text-dark" style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;">
+                            <!-- Content will be streamed here -->
+                        </div>
+                    </div>
                 </div>
                 
-                <!-- Pagination -->
                 <div class="pagination-btns">
-                  <form method="POST" action="{{ url_for('home') }}" class="d-inline">
-                    <input type="hidden" name="query" value="{{ query }}">
-                    <input type="hidden" name="mode" value="{{ mode }}">
-                    <input type="hidden" name="page_size" value="{{ page_size }}">
-                    <input type="hidden" name="page" value="{{ prev_page }}">
-                    <button class="page-btn" {% if not prev_page %}disabled{% endif %}>← Previous</button>
-                  </form>
-                  <form method="POST" action="{{ url_for('home') }}" class="d-inline">
-                    <input type="hidden" name="query" value="{{ query }}">
-                    <input type="hidden" name="mode" value="{{ mode }}">
-                    <input type="hidden" name="page_size" value="{{ page_size }}">
-                    <input type="hidden" name="page" value="{{ next_page }}">
-                    <button class="page-btn" {% if not next_page %}disabled{% endif %}>Next →</button>
-                  </form>
+                    <form method="POST" action="{{ url_for('home') }}">
+                        <input type="hidden" name="query" value="{{ query }}">
+                        <input type="hidden" name="mode" value="{{ mode }}">
+                        <input type="hidden" name="page" value="{{ prev_page }}">
+                        <input type="hidden" name="page_size" value="{{ page_size }}">
+                        <button class="page-btn" {% if not prev_page %}disabled{% endif %}>Previous</button>
+                    </form>
+                    <span class="d-flex align-items-center text-muted small px-2">
+                        Page {{ page }} of {{ total_pages }}
+                    </span>
+                    <form method="POST" action="{{ url_for('home') }}">
+                        <input type="hidden" name="query" value="{{ query }}">
+                        <input type="hidden" name="mode" value="{{ mode }}">
+                        <input type="hidden" name="page" value="{{ next_page }}">
+                        <input type="hidden" name="page_size" value="{{ page_size }}">
+                        <input type="hidden" name="use_ai" value="{{ 'on' if use_ai else '' }}">
+                        <button class="page-btn" {% if not next_page %}disabled{% endif %}>Next</button>
+                    </form>
                 </div>
+
               {% else %}
                 <div class="no-results">
-                  <i class="bi bi-search display-4"></i>
-                  <p class="mt-2">No results found</p>
+                  <i class="bi bi-search" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+                  No results found for "{{ query }}"
                 </div>
               {% endif %}
             </div>
           </div>
         {% else %}
-          <!-- Welcome State (no search yet) -->
+          <!-- Empty State / Welcome -->
           <div class="empty-state">
-            <div class="empty-state-icon">🔍</div>
+            <div class="empty-state-icon">
+              <i class="bi bi-chat-square-text"></i>
+            </div>
             <div class="empty-state-title">Welcome to Hybrid Search</div>
             <div class="empty-state-text">
-              Search across your documents using semantic, keyword, or hybrid search modes.<br>
-              Try one of these examples to get started:
+              Type your query below to search through documents using<br>
+              semantic embedding and keyword matching.
             </div>
             <div class="example-searches">
-              <span class="example-search">machine learning algorithms</span>
-              <span class="example-search">database optimization</span>
-              <span class="example-search">api documentation</span>
-              <span class="example-search">python best practices</span>
-            </div>
-            <div style="margin-top: 2rem; font-size: 0.8125rem; color: #9ca3af;">
-              Press <kbd>/</kbd> to focus search • <kbd>Ctrl+K</kbd> to open command palette
+              <span class="example-search">Machine learning trends</span>
+              <span class="example-search">Database optimization</span>
+              <span class="example-search">Python async/await</span>
             </div>
           </div>
         {% endif %}
@@ -672,16 +202,16 @@
       </div>
     </div>
 
-    <!-- Input Area (Fixed at Bottom) -->
+    <!-- Input Area -->
     <div class="input-area">
       <div class="input-wrapper">
-        <form method="POST" action="{{ url_for('home') }}" class="search-form" onsubmit="scrollToBottom()">
+        <form method="POST" action="{{ url_for('home') }}" class="search-form" id="searchForm">
           <div class="search-input-container">
-            <!-- PDF Upload Button (Left Side) -->
-            <button type="button" class="pdf-upload-btn" onclick="document.getElementById('quickPdfInput').click()" title="Upload PDF File">
-              <i class="bi bi-file-earmark-pdf"></i>
+            <!-- PDF Upload Trigger -->
+            <input type="file" id="quickPdfInput" accept=".pdf" multiple style="display: none;">
+            <button type="button" class="pdf-upload-btn" onclick="document.getElementById('quickPdfInput').click()" title="Quick Upload PDF">
+              <i class="bi bi-paperclip"></i>
             </button>
-            <input type="file" id="quickPdfInput" accept=".pdf" style="display: none;">
             
             <textarea 
               name="query" 
@@ -698,6 +228,9 @@
                   <input type="radio" name="mode" value="hybrid" id="mHybrid" {% if mode == 'hybrid' or not mode %}checked{% endif %} hidden>
                   <label for="mHybrid" class="mode-pill {% if mode == 'hybrid' or not mode %}active{% endif %}">Hybrid</label>
                   
+                  <input type="radio" name="mode" value="rrf" id="mRRF" {% if mode == 'rrf' %}checked{% endif %} hidden>
+                  <label for="mRRF" class="mode-pill {% if mode == 'rrf' %}active{% endif %}">RRF</label>
+
                   <input type="radio" name="mode" value="semantic" id="mSemantic" {% if mode == 'semantic' %}checked{% endif %} hidden>
                   <label for="mSemantic" class="mode-pill {% if mode == 'semantic' %}active{% endif %}">Semantic</label>
                   
@@ -714,6 +247,12 @@
                   <option value="500" {% if page_size == 500 %}selected{% endif %}>500</option>
                   <option value="1000" {% if page_size == 1000 %}selected{% endif %}>1000</option>
                 </select>
+
+                <!-- AI Toggle -->
+                <div class="form-check form-switch ms-2">
+                    <input class="form-check-input" type="checkbox" name="use_ai" id="aiToggle" value="on" {% if use_ai %}checked{% endif %}>
+                    <label class="form-check-label text-muted small" for="aiToggle">AI Summary</label>
+                </div>
               </div>
               
               <button type="submit" class="search-btn">
@@ -723,6 +262,9 @@
           </div>
           
           <input type="hidden" name="page" value="1">
+          <!-- Hidden Bindings for Advanced Search Params (Synced via Command Palette or defaults) -->
+          <input type="hidden" name="fusion_strategy" value="{{ fusion_strategy }}">
+          <input type="hidden" name="use_ltr" value="{{ 'on' if use_ltr else 'off' }}">
         </form>
       </div>
     </div>
@@ -732,247 +274,33 @@
   {% include 'components/command_palette.html' %}
 
   <!-- Create Modal -->
-  <div id="createModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
-    <div style="background: white; border-radius: 12px; padding: 1.5rem; max-width: 600px; width: 90%;">
-      <h5 class="mb-3">Create New Document</h5>
-      
-      <!-- Tabs -->
-      <ul class="nav nav-tabs mb-3" id="createTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#textTab" type="button" role="tab">
-            <i class="bi bi-text-paragraph"></i> Text
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="pdf-tab" data-bs-toggle="tab" data-bs-target="#pdfTab" type="button" role="tab">
-            <i class="bi bi-file-pdf"></i> PDF Upload
-          </button>
-        </li>
-      </ul>
-      
-      <!-- Tab Content -->
-      <div class="tab-content" id="createTabsContent">
-        <!-- Text Tab -->
-        <div class="tab-pane fade show active" id="textTab" role="tabpanel">
-          <form method="POST" action="{{ url_for('new_post') }}">
-            <input type="hidden" name="q" value="{{ query }}">
-            <input type="hidden" name="mode" value="{{ mode }}">
-            <input type="hidden" name="language" value="en">
-            <textarea class="form-control mb-3" name="content" rows="8" placeholder="Enter document content..." required></textarea>
-            <div class="d-flex gap-2 justify-content-end">
-              <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
-              <button type="submit" class="btn btn-primary">Create</button>
-            </div>
-          </form>
-        </div>
-        
-        <!-- PDF Tab -->
-        <div class="tab-pane fade" id="pdfTab" role="tabpanel">
-          <form id="pdfUploadForm" enctype="multipart/form-data">
-            <div id="pdfDropZone" style="border: 2px dashed #d1d5db; border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s;">
-              <i class="bi bi-cloud-upload" style="font-size: 3rem; color: #9ca3af;"></i>
-              <p class="mt-2 mb-2">Drag and drop PDF file here or click to browse</p>
-              <p style="font-size: 0.875rem; color: #6b7280;">Only .pdf files are supported</p>
-              <input type="file" id="pdfFileInput" name="pdfFile" accept=".pdf" style="display: none;">
-            </div>
-            
-            <div id="pdfFileName" class="mt-3" style="display: none;">
-              <div class="alert alert-info d-flex align-items-center">
-                <i class="bi bi-file-pdf me-2"></i>
-                <span id="selectedFileName"></span>
-                <button type="button" class="btn-close ms-auto" onclick="clearPDFSelection()"></button>
-              </div>
-            </div>
-            
-            <div id="pdfUploadProgress" class="mt-3" style="display: none;">
-              <div class="progress">
-                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
-              </div>
-              <p class="text-center mt-2 mb-0" style="font-size: 0.875rem; color: #6b7280;">Processing PDF...</p>
-            </div>
-            
-            <div id="pdfUploadResult" class="mt-3" style="display: none;"></div>
-            
-            <div class="d-flex gap-2 justify-content-end mt-3">
-              <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
-              <button type="submit" id="pdfUploadBtn" class="btn btn-primary" disabled>Upload PDF</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
+  {% include 'components/modal_create.html' %} 
+
+  <!-- Analysis Modal -->
+  {% include 'components/modal_analysis.html' %}
+  
+  <!-- Confirm Modal -->
+  {% include 'components/modal_confirm.html' %}
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="{{ url_for('static', filename='command_palette.js') }}"></script>
   <script src="{{ url_for('static', filename='PDFUpload.js') }}"></script>
+  
   <script>
-    // === UX ENHANCEMENTS ===
-    
-    // Auto-resize textarea
-    const textarea = document.querySelector('.search-input');
-    textarea?.addEventListener('input', function() {
-      this.style.height = 'auto';
-      this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-    });
-    
-    // Mode pill interaction
-    document.querySelectorAll('.mode-pill').forEach(pill => {
-      pill.addEventListener('click', function() {
-        document.querySelectorAll('.mode-pill').forEach(p => p.classList.remove('active'));
-        this.classList.add('active');
-        this.previousElementSibling.checked = true;
-      });
-    });
-    
-    // Loading state on form submit
-    const searchForm = document.querySelector('.search-form');
-    const searchBtn = document.querySelector('.search-btn');
-    
-    if (searchForm && searchBtn) {
-      searchForm.addEventListener('submit', function(e) {
-        if (textarea && textarea.value.trim()) {
-          searchBtn.classList.add('loading');
-          searchBtn.disabled = true;
-        }
-      });
-    }
-    
-    // Keyboard Shortcuts
-    let keyboardHint = null;
-    
-    // Create keyboard hint element
-    function createKeyboardHint() {
-      if (!keyboardHint) {
-        keyboardHint = document.createElement('div');
-        keyboardHint.className = 'keyboard-hint';
-        keyboardHint.innerHTML = 'Press <kbd>/</kbd> to search • <kbd>Ctrl+K</kbd> for modal • <kbd>Esc</kbd> to clear';
-        document.body.appendChild(keyboardHint);
-      }
-    }
-    
-    // Show keyboard hint temporarily
-    function showKeyboardHint() {
-      createKeyboardHint();
-      keyboardHint.classList.add('show');
-      setTimeout(() => {
-        keyboardHint.classList.remove('show');
-      }, 2000);
-    }
-    
-    // Global keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-      // "/" to focus search (like Discord/Slack)
-      if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
-        e.preventDefault();
-        textarea?.focus();
-        showKeyboardHint();
-      }
-      
-      // Escape to clear search when focused on input
-      if (e.key === 'Escape' && e.target === textarea) {
-        textarea.value = '';
-        textarea.blur();
-      }
-    });
-    
-    // Show hint on first visit
-    setTimeout(() => {
-      if (!sessionStorage.getItem('keyboardHintShown')) {
-        showKeyboardHint();
-        sessionStorage.setItem('keyboardHintShown', 'true');
-      }
-    }, 1000);
-    
-    // Example searches functionality
-    const exampleSearches = document.querySelectorAll('.example-search');
-    exampleSearches.forEach(example => {
-      example.addEventListener('click', function() {
-        const searchText = this.textContent.trim();
-        if (textarea) {
-          textarea.value = searchText;
-          textarea.focus();
-          // Trigger resize
-          textarea.dispatchEvent(new Event('input'));
-        }
-      });
-    });
-    
-    // Auto-focus management after search
-    window.addEventListener('load', () => {
-      // If there's a query but textarea is empty, keep it ready for next search
-      const hasResults = document.querySelectorAll('.result-item').length > 0;
-      if (hasResults && textarea) {
-        // Don't auto-focus on mobile
-        if (window.innerWidth > 768) {
-          setTimeout(() => textarea.focus(), 100);
-        }
-      }
-    });
-    
-    // Scroll to bottom on page load if there are results
-    function scrollToBottom() {
-      setTimeout(() => {
-        const messagesArea = document.getElementById('messagesArea');
-        messagesArea?.scrollTo(0, messagesArea.scrollHeight);
-      }, 100);
-    }
-    
+    // Inject AI preference for JS - Defined BEFORE logic loads
+    window.ENABLE_AI = {{ 'true' if use_ai else 'false' }};
+
+    // Scroll logic
     {% if query %}
-    scrollToBottom();
-    {% endif %}
-    
-    // Result quick actions (copy on double-click)
-    document.querySelectorAll('.result-content').forEach(result => {
-      let clickCount = 0;
-      let clickTimer = null;
-      
-      result.addEventListener('click', function(e) {
-        // Don't interfere with link clicks
-        if (e.target.tagName === 'A') return;
-        
-        clickCount++;
-        
-        if (clickCount === 1) {
-          clickTimer = setTimeout(() => {
-            clickCount = 0;
-          }, 300);
-        } else if (clickCount === 2) {
-          clearTimeout(clickTimer);
-          // Copy content on double-click
-          const text = this.textContent.trim();
-          navigator.clipboard.writeText(text).then(() => {
-            // Show brief feedback
-            const original = this.style.background;
-            this.style.background = '#dbeafe';
-            setTimeout(() => {
-              this.style.background = original;
-            }, 200);
-          });
-          clickCount = 0;
+    window.addEventListener('load', function() {
+        if (typeof scrollToBottom === 'function') {
+            scrollToBottom();
         }
-      });
     });
-    
-    // Smooth scroll enhancement for pagination
-    document.querySelectorAll('.pagination-btns form').forEach(form => {
-      form.addEventListener('submit', function() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    });
-    
-    // Close modal on outside click
-    document.getElementById('createModal')?.addEventListener('click', function(e) {
-      if (e.target === this) {
-        this.style.display = 'none';
-      }
-    });
-    
-    // Prevent form resubmission on refresh
-    if (window.history.replaceState) {
-      window.history.replaceState(null, null, window.location.href);
-    }
+    {% endif %}
   </script>
-  {% block extra_js %}{% endblock %}
+
+  <script src="{{ url_for('static', filename='chat_logic.js') }}"></script>
 </body>
 </html>

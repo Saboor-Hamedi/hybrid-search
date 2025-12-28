@@ -65,12 +65,22 @@
         const mode = getSelectedMode();
         const pageSize = 50; // Default page size
 
+        const fusionStrategy = document.getElementById('fusionStrategy').value;
+        const useLtr = document.getElementById('ltrToggle').checked;
+        
+        // Capture AI Toggle state from main UI to persist it
+        const aiToggle = document.getElementById('aiToggle');
+        const useAi = aiToggle ? aiToggle.checked : false;
+
         // Build search URL
         const params = new URLSearchParams({
             query: query,
             mode: mode,
             page_size: pageSize,
-            page: 1
+            page: 1,
+            fusion_strategy: fusionStrategy,
+            use_ltr: useLtr ? 'on' : 'off',
+            use_ai: useAi ? 'on' : 'off'
         });
 
         // Navigate to search results
@@ -108,7 +118,7 @@
      * Sync command palette mode with main form mode
      */
     function syncModeFromMainForm() {
-        const mainModeInput = document.getElementById('selected-mode-input');
+        const mainModeInput = document.querySelector('input[name="mode"]:checked');
         if (mainModeInput) {
             const currentMode = mainModeInput.value;
             const commandModeRadio = document.querySelector(`input[name="commandMode"][value="${currentMode}"]`);
@@ -123,9 +133,9 @@
      */
     document.querySelectorAll('input[name="commandMode"]').forEach(radio => {
         radio.addEventListener('change', function () {
-            const mainModeInput = document.getElementById('selected-mode-input');
-            if (mainModeInput) {
-                mainModeInput.value = this.value;
+            const mainModeRadio = document.querySelector(`input[name="mode"][value="${this.value}"]`);
+            if (mainModeRadio) {
+                mainModeRadio.click(); // Click to trigger any attached listeners
             }
         });
     });

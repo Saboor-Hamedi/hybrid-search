@@ -117,15 +117,35 @@
             <label class="form-label mb-0 small text-muted">Search Mode:</label>
           </div>
           <div class="col-auto">
-            <div class="btn-group" role="group">
-              <input type="radio" class="btn-check" name="mode" value="hybrid" id="modeHybrid" {% if mode == 'hybrid' %}checked{% endif %}>
-              <label class="btn btn-outline-primary btn-sm" for="modeHybrid">Hybrid</label>
-              
-              <input type="radio" class="btn-check" name="mode" value="semantic" id="modeSemantic" {% if mode == 'semantic' %}checked{% endif %}>
-              <label class="btn btn-outline-primary btn-sm" for="modeSemantic">Semantic</label>
-              
-              <input type="radio" class="btn-check" name="mode" value="keyword" id="modeKeyword" {% if mode == 'keyword' %}checked{% endif %}>
-              <label class="btn btn-outline-primary btn-sm" for="modeKeyword">Keyword</label>
+            <div class="d-flex align-items-center gap-3">
+              <!-- Mode Selection -->
+              <div class="btn-group" role="group">
+                <input type="radio" class="btn-check" name="mode" value="hybrid" id="modeHybrid" {% if mode == 'hybrid' or mode == 'ltr' or 'hybrid' in mode %}checked{% endif %} onchange="toggleAdvanced()">
+                <label class="btn btn-outline-primary btn-sm" for="modeHybrid">Hybrid</label>
+
+                <input type="radio" class="btn-check" name="mode" value="rrf" id="modeRRF" {% if mode == 'rrf' %}checked{% endif %} onchange="toggleAdvanced()">
+                <label class="btn btn-outline-primary btn-sm" for="modeRRF">RRF</label>
+                
+                <input type="radio" class="btn-check" name="mode" value="semantic" id="modeSemantic" {% if mode == 'semantic' %}checked{% endif %} onchange="toggleAdvanced()">
+                <label class="btn btn-outline-primary btn-sm" for="modeSemantic">Semantic</label>
+                
+                <input type="radio" class="btn-check" name="mode" value="keyword" id="modeKeyword" {% if mode == 'keyword' %}checked{% endif %} onchange="toggleAdvanced()">
+                <label class="btn btn-outline-primary btn-sm" for="modeKeyword">Keyword</label>
+              </div>
+
+              <!-- Advanced Options (Hybrid Only) -->
+              <div id="advancedControls" class="d-flex align-items-center gap-2" style="display: none !important;">
+                <select name="fusion_strategy" class="form-select form-select-sm" style="width: auto;">
+                  <option value="linear" {% if fusion_strategy == 'linear' %}selected{% endif %}>Linear</option>
+                  <option value="combsum" {% if fusion_strategy == 'combsum' %}selected{% endif %}>CombSUM</option>
+                  <option value="combmnz" {% if fusion_strategy == 'combmnz' %}selected{% endif %}>CombMNZ</option>
+                </select>
+                
+                <div class="form-check form-switch mb-0">
+                  <input class="form-check-input" type="checkbox" name="use_ltr" id="ltrCheck" value="true" {% if use_ltr %}checked{% endif %}>
+                  <label class="form-check-label small text-muted" for="ltrCheck">AI Re-Rank</label>
+                </div>
+              </div>
             </div>
           </div>
           
@@ -198,16 +218,62 @@
                 Document #{{ r.doc_id }}
               </a>
             </h6>
+            {% if mode == 'ltr' or use_mode == 'ltr' or use_ltr %}
+            <span class="score-badge bg-primary text-white" style="background: linear-gradient(45deg, #4f46e5, #9333ea);">
+              <i class="bi bi-stars"></i> AI: {{ "%.4f"|format(r.score) }}
+            </span>
+            {% else %}
             <span class="score-badge {% if r.score >= 0.7 %}bg-success{% elif r.score >= 0.5 %}bg-warning{% else %}bg-secondary{% endif %} text-white">
               {{ "%.4f"|format(r.score) }}
             </span>
+            {% endif %}
           </div>
           
           <p class="mb-2">{{ r.content_highlighted | safe }}</p>
           
-          <div class="small text-muted">
-            <i class="bi bi-translate"></i> {{ r.language|upper }} &nbsp;
-            <i class="bi bi-calendar"></i> {{ r.created_at }}
+          <div class="d-flex gap-3 align-items-center mt-2 small text-muted">
+            <span><i class="bi bi-translate"></i> {{ r.language|upper }}</span>
+            <span><i class="bi bi-calendar"></i> {{ r.created_at }}</span>
+            
+            <!-- Detailed Scoring Breakdown (Thesis Style) -->
+            {% if r.semantic_score is not none or r.bm25_score is not none %}
+            <div class="d-flex align-items-center gap-2 border-start ps-3 ms-2">
+                {% if r.semantic_score is not none %}
+                <span class="badge bg-light text-dark border">
+                    <i class="bi bi-brain text-info"></i> Sem: {{ "%.3f"|format(r.semantic_score) }}
+                </span>
+                {% endif %}
+                
+                {% if r.bm25_score is not none %}
+                <span class="badge bg-light text-dark border">
+                    <i class="bi bi-key text-warning"></i> Key: {{ "%.3f"|format(r.bm25_score) }}
+                </span>
+                {% endif %}
+                
+                {% if r.origin_mode and 'hybrid' in r.origin_mode %}
+                 <span class="text-xs text-muted" title="Fusion Strategy">
+                    ({{ r.strategy|default('linear')|upper }})
+                 </span>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Analysis Button -->
+            <div class="ms-auto">
+                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" 
+                        onclick="showAnalysis(this)"
+                        data-doc-id="{{ r.doc_id }}"
+                        data-score="{{ r.score }}"
+                        data-sem="{{ r.semantic_score if r.semantic_score is not none else 'N/A' }}"
+                        data-key="{{ r.bm25_score if r.bm25_score is not none else 'N/A' }}"
+                        data-sem-w="{{ r.semantic_weight if r.semantic_weight is not none else 'N/A' }}"
+                        data-key-w="{{ r.bm25_weight if r.bm25_weight is not none else 'N/A' }}"
+                        data-strategy="{{ r.strategy|default('Linear') }}"
+                        data-mode="{{ r.origin_mode|default(mode) }}"
+                        data-content="{{ r.content[:200] }}...">
+                    <i class="bi bi-graph-up"></i> Analysis
+                </button>
+            </div>
           </div>
         </div>
         {% endfor %}
@@ -219,6 +285,8 @@
               <form method="POST" action="{{ url_for('home') }}" class="d-inline">
                 <input type="hidden" name="query" value="{{ query }}">
                 <input type="hidden" name="mode" value="{{ mode }}">
+                <input type="hidden" name="fusion_strategy" value="{{ fusion_strategy }}">
+                <input type="hidden" name="use_ltr" value="{{ use_ltr }}">
                 <input type="hidden" name="page_size" value="{{ page_size }}">
                 <input type="hidden" name="page" value="{{ prev_page }}">
                 <button class="page-link" {% if not prev_page %}disabled{% endif %}>Previous</button>
@@ -231,6 +299,8 @@
               <form method="POST" action="{{ url_for('home') }}" class="d-inline">
                 <input type="hidden" name="query" value="{{ query }}">
                 <input type="hidden" name="mode" value="{{ mode }}">
+                <input type="hidden" name="fusion_strategy" value="{{ fusion_strategy }}">
+                <input type="hidden" name="use_ltr" value="{{ use_ltr }}">
                 <input type="hidden" name="page_size" value="{{ page_size }}">
                 <input type="hidden" name="page" value="{{ next_page }}">
                 <button class="page-link" {% if not next_page %}disabled{% endif %}>Next</button>
@@ -250,32 +320,38 @@
   </div>
 
   <!-- Simple Create Modal -->
-  <div id="createModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
-    <div style="background: white; border-radius: 8px; padding: 2rem; max-width: 600px; width: 90%;">
-      <h5 class="mb-3">Create New Document</h5>
-      <form method="POST" action="{{ url_for('new_post') }}">
-        <input type="hidden" name="q" value="{{ query }}">
-        <input type="hidden" name="mode" value="{{ mode }}">
-        <input type="hidden" name="language" value="en">
-        <div class="mb-3">
-          <textarea class="form-control" name="content" rows="10" placeholder="Enter document content..." required></textarea>
-        </div>
-        <div class="d-flex gap-2 justify-content-end">
-          <button type="button" class="btn btn-secondary" onclick="document.getElementById('createModal').style.display='none'">Cancel</button>
-          <button type="submit" class="btn btn-primary">Create</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <!-- Create Modal (Shared) -->
+  {% include 'components/modal_create.html' %}
 
+  <!-- Analysis Modal (Dynamic) -->
+  <!-- Analysis Modal (Shared) -->
+  {% include 'components/modal_analysis.html' %}
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='PDFUpload.js') }}"></script>
+  <script src="{{ url_for('static', filename='chat_logic.js') }}"></script>
   <script>
+    // Local Logic for Simple Mode
+
     // Close modal on outside click
     document.getElementById('createModal')?.addEventListener('click', function(e) {
       if (e.target === this) {
         this.style.display = 'none';
       }
     });
+
+    function toggleAdvanced() {
+      const isHybrid = document.getElementById('modeHybrid').checked;
+      const controls = document.getElementById('advancedControls');
+      if (isHybrid) {
+        controls.style.setProperty('display', 'flex', 'important');
+      } else {
+        controls.style.setProperty('display', 'none', 'important');
+      }
+    }
+    // Run on load
+    toggleAdvanced();
   </script>
   {% block extra_js %}{% endblock %}
 </body>

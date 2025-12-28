@@ -13,25 +13,30 @@ cs = ColorScheme()
 # BASE_THRESHOLD = 0.35
 # TOP_K = 1000
 try:
-    BASE_THRESHOLD = float(os.environ.get("BASE_THRESHOLD", "0.35"))
+    BASE_THRESHOLD = float(os.environ.get("BASE_THRESHOLD", "0.15"))
 except Exception:
-    BASE_THRESHOLD = 0.35
+    BASE_THRESHOLD = 0.15
 
 try:
     TOP_K = int(os.environ.get("TOP_K", "1000"))
 except Exception:
     TOP_K = 1000
 def search_hybrid(
-    query: str, conn, cursor, model, top_k=TOP_K, threshold=BASE_THRESHOLD
+    query: str, conn, cursor, model, top_k=TOP_K, threshold=BASE_THRESHOLD, fusion_strategy="linear"
 ):
     if check_if_empty_input(query):
         print(f"{cs.RED}Input cannot be empty.{cs.RESET}")
         return [], {}
     get_elapsed = measure_time()
 
+    # Timing Breakdown
+    import time
+    t_start = time.time()
+
     # Semantic Search
     sem_results = execute_vector_query(query, conn, cursor, model, top_k, threshold)
-
+    t_sem = time.time()
+    
     # BM25 Search
     bm25_utils.update_bm25_index(cursor, normalize_content)
     bm25_results = []
@@ -43,6 +48,7 @@ def search_hybrid(
             bm25_raw_map[doc_id] = raw
             if raw > 0:
                 bm25_results.append((doc_id, content, raw))
+    t_key = time.time()
 
     # Determine alpha (BM25 weight) from environment if provided.
     # Priority: BM25_WEIGHT -> 1 - SEMANTIC_WEIGHT -> default 0.5
@@ -60,7 +66,13 @@ def search_hybrid(
         ALPHA = 0.5
 
     scorer = HybridScorer(alpha=ALPHA)
-    final, components = scorer.combine(sem_results, bm25_results, top_k=top_k)
+    final, components = scorer.combine(sem_results, bm25_results, top_k=top_k, strategy=fusion_strategy)
+    t_fuse = time.time()
+
+    # Calculate Breakdown
+    lat_sem = (t_sem - t_start) * 1000
+    lat_key = (t_key - t_sem) * 1000
+    lat_fuse = (t_fuse - t_key) * 1000
 
     # Optional debug: if DEBUG_QUERY env var matches the query, print detailed scores
     debug_q = os.environ.get("DEBUG_QUERY")
@@ -76,13 +88,7 @@ def search_hybrid(
             print("\nBM25 results (filtered, raw > 0):")
             for d in bm25_results:
                 print(d[0], d[2])
-            try:
-                norm_map = scorer.normalize_bm25(bm25_results)
-                print("\nBM25 normalized (doc_id -> norm):")
-                for k, v in norm_map.items():
-                    print(k, v)
-            except Exception:
-                pass
+            # (Normalization debug removed as API changed)
             print("\nComponents (per-doc):")
             for k, v in components.items():
                 print(k, v)
@@ -90,8 +96,9 @@ def search_hybrid(
     except Exception:
         pass
 
-    display_in_table(final, query=query, mode="hybrid")
-    display_search_stats(sem_results, bm25_results, get_elapsed, mode="hybrid")
+    display_mode = "hybrid" if fusion_strategy == "linear" else f"hybrid-{fusion_strategy}"
+    display_in_table(final, query=query, mode=display_mode)
+    display_search_stats(sem_results, bm25_results, get_elapsed, mode=display_mode)
 
     # Return stats for API (include components mapping)
     stats = {
@@ -99,6 +106,12 @@ def search_hybrid(
         "bm25_results": bm25_results,
         "components": components,
         "alpha": ALPHA,
+        "search_type": display_mode,
+        "latency_stats": {
+            "semantic": lat_sem,
+            "keyword": lat_key,
+            "fusion": lat_fuse
+        }
     }
 
     return final, stats

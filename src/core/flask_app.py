@@ -41,6 +41,8 @@ def home():
     stats = {}
     query = ""
     mode = "hybrid"
+    fusion_strategy = "linear"
+    use_ltr = False
     page = 1
     page_size = 10
     total_pages = 0
@@ -54,6 +56,9 @@ def home():
     # 1. Initialize/Retrieve Search Parameters
     query = input_source.get("query", "").strip()
     mode = input_source.get("mode", "hybrid")
+    fusion_strategy = input_source.get("fusion_strategy", "linear")
+    use_ltr = input_source.get("use_ltr") == "true" or input_source.get("use_ltr") == "on"
+    use_ai = input_source.get("use_ai") == "true" or input_source.get("use_ai") == "on"  # AI Toggle
     try:
         page = int(input_source.get("page", 1))
     except (TypeError, ValueError):
@@ -65,11 +70,17 @@ def home():
 
 
     if query:
+        # Determine actual API mode based on LTR toggle
+        api_mode = mode
+        if use_ltr and "hybrid" in mode:
+             api_mode = "ltr"
+
         payload = {
             "query": query,
             "page": page,
             "page_size": page_size,
-            "mode": mode,
+            "mode": api_mode,
+            "fusion_strategy": fusion_strategy
         }
 
         try:
@@ -106,6 +117,14 @@ def home():
                 "semantic_count": raw.get("semantic_count", 0),
                 "bm25_count": raw.get("bm25_count", 0),
                 "returned": raw.get("returned", 0),
+                # Thesis Metrics (Placeholders for now, to be calculated via Evaluation Service)
+                "precision_at_k": raw.get("metrics", {}).get("precision", "N/A"),
+                "recall_at_k": raw.get("metrics", {}).get("recall", "N/A"),
+                "map_score": raw.get("metrics", {}).get("map", "N/A"),
+                "ndcg_score": raw.get("metrics", {}).get("ndcg", "N/A"),
+                "qpms": raw.get("metrics", {}).get("qpms", "N/A"),
+                "router_accuracy": raw.get("metrics", {}).get("router_acc", "N/A"),
+                "router_choice": raw.get("metrics", {}).get("router_choice", "Hybrid")
             }
             graph_img = generate_query_graph(
                 mode=mode,
@@ -131,14 +150,16 @@ def home():
         stats=stats,
         query=query,
         mode=mode,
+        fusion_strategy=fusion_strategy,
+        use_ltr=use_ltr,
         page=page,
         page_size=page_size,
         total_pages=total_pages,
         total_results=total_results,
         prev_page=prev_page,
         next_page=next_page,
-        graph_img=graph_img
-
+        graph_img=graph_img,
+        use_ai=use_ai  # Pass to template
     )
 
 
@@ -360,8 +381,9 @@ def delete_post(doc_id: int):
     
 @app.route("/upload-pdf", methods=["POST"])
 def UploadPDF():
-    """Handle PDF file upload and process it into chunks"""
+    """Handle PDF file upload and process it into chunks (Background Thread)"""
     import tempfile
+    import threading
     from werkzeug.utils import secure_filename
     from ingestion.insert_pdf_chunks import insert_pdf
     
@@ -382,34 +404,57 @@ def UploadPDF():
         temp_dir = tempfile.gettempdir()
         temp_path = os.path.join(temp_dir, f"upload_{secure_name}")
         
-        # Save the uploaded file
+        # Save the uploaded file synchronously so the thread has access to it
         file.save(temp_path)
         
-        # Get database connection
-        conn, cursor = _db()
+        # Define background task
+        def process_background(path, filename):
+            conn = None
+            try:
+                # New DB connection for this thread
+                conn, cursor = _db()
+                print(f"Starting background processing for {filename}...")
+                success = insert_pdf(path, conn, cursor)
+                
+                # Cleanup
+                if os.path.exists(path):
+                    os.remove(path)
+                
+                cursor.close()
+                conn.close()
+                
+                status = "SUCCESS" if success else "FAILED"
+                print(f"Background processing finished for {filename}: {status}")
+                
+                # In a real app, we'd update a DB status here so the frontend can poll:
+                # UPDATE uploads SET status='done' WHERE filename=...
+                
+            except Exception as e:
+                print(f"Background thread error for {filename}: {e}")
+                if os.path.exists(path):
+                    os.remove(path)
+                if conn:
+                    conn.close()
+
+        # Start Thread
+        thread = threading.Thread(target=process_background, args=(temp_path, secure_name))
+        thread.daemon = True # ensure thread doesn't block shutdown
+        thread.start()
         
-        # Process the PDF using existing logic
-        success = insert_pdf(temp_path, conn, cursor)
-        
-        # Clean up temporary file
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-        
-        # Close database connection
-        cursor.close()
-        conn.close()
-        
-        if success:
-            return {"success": True, "message": f"PDF '{secure_name}' processed successfully"}, 200
-        else:
-            return {"success": False, "error": "Failed to process PDF"}, 500
+        # Return immediately
+        return {"success": True, "message": "PDF processing started in background"}, 202
             
     except Exception as e:
-        # Clean up temp file in case of error
-        if 'temp_path' in locals() and os.path.exists(temp_path):
-            os.remove(temp_path)
-        print(f"PDF upload error: {e}")
         return {"success": False, "error": str(e)}, 500
+
+@app.route("/generate", methods=["POST"])
+def proxy_generate():
+    try:
+        data = request.get_json()
+        resp = requests.post(f"{API_URL}/generate", json=data, timeout=30)
+        return resp.json(), resp.status_code
+    except requests.RequestException as e:
+        return {"answer": f"Backend Error: {str(e)}"}, 500
 
 #  Run
 if __name__ == "__main__":

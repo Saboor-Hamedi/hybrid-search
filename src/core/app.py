@@ -6,7 +6,7 @@ import time
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -21,6 +21,8 @@ from core.db.operations.document_management import delete_document, insert_docum
 from core.db.operations.search_flask.hybrid_search import search_hybrid
 from core.db.operations.search_flask.keyword_search import search_keyword
 from core.db.operations.search_flask.semantic_search import search_semantic
+from core.db.operations.search_flask.rrf_search import search_rrf
+from core.db.operations.search_flask.ltr_search import search_ltr
 from core.utils.text_cleansing import clean_page_content
 
 # Load model once at startup
@@ -75,7 +77,8 @@ class SearchRequest(BaseModel):
     query: str
     page: int = 1
     page_size: int = 10
-    mode: str = "hybrid"  # semantic | keyword | hybrid
+    mode: str = "hybrid"  # semantic | keyword | hybrid | rrf | ltr
+    fusion_strategy: Optional[str] = "linear" # linear | combsum | combmnz
 
 
 class SearchResult(BaseModel):
@@ -96,6 +99,36 @@ class SearchResponse(BaseModel):
     stats: dict
     pagination: dict
 
+class ContextItem(BaseModel):
+    doc_id: str
+    content: str
+
+class GenerateRequest(BaseModel):
+    query: str
+    contexts: List[ContextItem]
+
+# --------------------------------------------------------------------- #
+# RAG / LLM Services
+# --------------------------------------------------------------------- #
+from core.utils.llm_service import OllamaService
+ollama_service = OllamaService()
+
+@app.post("/generate")
+def generate_answer(request: GenerateRequest):
+    """
+    RAG Endpoint: Generates an AI answer using Local Ollama.
+    Expects 'query' and 'contexts' (list of {doc_id, content}).
+    """
+    if not request.contexts:
+        return {"answer": "No context provided to generate an answer."}
+    
+    # Convert Pydantic models to list of dicts
+    context_dicts = [{"doc_id": c.doc_id, "content": c.content} for c in request.contexts]
+    
+    # Generate
+    answer = ollama_service.generate_rag_response(request.query, context_dicts)
+    return {"answer": answer}
+
 
 # --------------------------------------------------------------------- #
 # Search Endpoint – Uses Your Clean Functions
@@ -106,6 +139,7 @@ def search_endpoint(request: SearchRequest):
     conn, cursor = get_db()
 
     try:
+        stats = {}
         page = max(1, request.page)
         try:
             PAGE_SIZE_MAX = int(os.environ.get("PAGE_SIZE_MAX", "200"))
@@ -116,6 +150,7 @@ def search_endpoint(request: SearchRequest):
         offset = (page - 1) * page_size
         # Always retrieve up to max candidates, regardless of page
         top_k = MAX_CANDIDATES
+        # Run the correct search
         # Run the correct search
         if request.mode == "semantic":
             all_results, _ = search_semantic(
@@ -132,14 +167,31 @@ def search_endpoint(request: SearchRequest):
             search_type = "keyword"
 
         elif request.mode == "hybrid":
+            strategy = request.fusion_strategy or "linear"
+            search_type = f"hybrid-{strategy}"
             all_results, stats = search_hybrid(
-                request.query, conn, cursor, model, top_k=top_k             )
+                request.query, conn, cursor, model, top_k=top_k, fusion_strategy=strategy)
+            
             sem_count = len(stats.get("sem_results") or [])
             bm25_count = len(stats.get("bm25_results") or [])
-            search_type = "hybrid"
+
+        elif request.mode == "rrf":
+            all_results, stats = search_rrf(
+                request.query, conn, cursor, model, top_k=top_k)
+            sem_count = len(stats.get("sem_results") or [])
+            bm25_count = len(stats.get("bm25_results") or [])
+            search_type = "rrf"
+
+        elif request.mode == "ltr":
+            candidate_k = max(50, page_size * 2)
+            all_results, stats = search_ltr(
+                request.query, conn, cursor, model, top_k=candidate_k, candidate_k=candidate_k)
+            search_type = "ltr"
+            sem_count = 0
+            bm25_count = 0
 
         else:
-            raise HTTPException(400, "Invalid mode. Use: semantic, keyword, hybrid")
+            raise HTTPException(400, "Invalid mode. Use: semantic, keyword, hybrid, rrf, ltr")
 
         # Paginate in Python
         paginated = all_results[offset : offset + page_size]
@@ -168,40 +220,35 @@ def search_endpoint(request: SearchRequest):
             semantic_weight = None
             bm25_weight = None
 
-            # 1) Hybrid mode: use components_map provided by search_hybrid
-            if request.mode == "hybrid":
+            # 1) Hybrid/RRF/LTR mode: use components_map/stats
+            if request.mode in ["hybrid", "rrf", "ltr"]:
                 comp = components_map.get(r[0], {})
                 semantic_score = comp.get("semantic_score")
                 bm25_score = comp.get("bm25_score")
                 semantic_weight = comp.get("semantic_weight")
                 bm25_weight = comp.get("bm25_weight")
 
-            # 2) Semantic-only mode: the returned score is the semantic score
-            elif request.mode == "semantic":
+            # 2) Semantic-only: the main score IS the semantic score
+            if request.mode == "semantic":
                 semantic_score = float(r[2])
-                semantic_weight = 1.0
-                bm25_score = None
-                bm25_weight = 0.0
 
-            # 3) Keyword-only mode: the returned score is BM25
-            elif request.mode == "keyword":
+            # 3) Keyword-only: the main score IS the bm25 score
+            if request.mode == "keyword":
                 bm25_score = float(r[2])
-                bm25_weight = 1.0
-                semantic_score = None
-                semantic_weight = 0.0
 
             formatted.append(
                 SearchResult(
                     doc_id=r[0],
                     content=r[1],
                     score=float(r[2]),
-                    language=str(r[3] or "unknown"),
+                    language=str(r[3] or "en"),
                     created_at=created_at_str,
                     semantic_score=semantic_score,
                     bm25_score=bm25_score,
                     semantic_weight=semantic_weight,
                     bm25_weight=bm25_weight,
-                    origin_mode=request.mode,
+                    origin_mode=search_type,
+                    strategy=request.fusion_strategy if request.mode == "hybrid" else None
                 )
             )
 
@@ -229,10 +276,24 @@ def search_endpoint(request: SearchRequest):
             "bm25_count": bm25_count,
         }
 
-        # If the underlying search provided extra stats (e.g., alpha for hybrid), merge them
-        if request.mode == "hybrid" and isinstance(stats, dict):
+        # If the underlying search provided extra stats, merge them (Generic for Hybrid/RRF/LTR)
+        if isinstance(stats, dict):
             if "alpha" in stats:
                 response_stats["alpha"] = stats["alpha"]
+            
+            # Pass latency breakdown if available
+            if "latency_stats" in stats:
+                response_stats["latency_stats"] = stats["latency_stats"]
+            
+            # Extract raw rankings for Thesis Comparison (Top 50 IDs)
+            # Assuming sem_results/bm25_results are lists of (id, content, score, ...)
+            sem_raw = stats.get("sem_results", []) or []
+            bm25_raw = stats.get("bm25_results", []) or []
+            
+            response_stats["rank_debug"] = {
+                "semantic": [r[0] for r in sem_raw[:50]] if sem_raw else [],
+                "keyword": [r[0] for r in bm25_raw[:50]] if bm25_raw else []
+            }
 
         # Response
         return SearchResponse(
