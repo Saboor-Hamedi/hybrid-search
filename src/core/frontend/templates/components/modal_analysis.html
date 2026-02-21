@@ -2,39 +2,39 @@
 <div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
-      <div class="modal-header bg-light py-2 px-3">
-        <h6 class="modal-title d-flex align-items-center gap-2">
+      <div class="modal-header bg-light py-2 px-3 d-flex align-items-center">
+        <h6 class="modal-title d-flex align-items-center gap-2 mb-0">
             <i class="bi bi-activity text-primary"></i> Search Analysis
         </h6>
         
         <!-- Center Tabs -->
-        <ul class="nav nav-pills nav-fill small ms-4" id="analysisTabs" role="tablist" style="width: 250px;">
+        <ul class="nav nav-pills nav-fill small ms-4" id="analysisTabs" role="tablist" style="width: 280px;">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active py-1 px-3" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basicTab" type="button" style="font-size: 0.8rem; border-radius: 20px;">Context</button>
+                <button class="nav-link active py-1 px-3" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basicTab" type="button" style="font-size: 0.8rem; border-radius: 5px;">Context</button>
             </li>
             <li class="nav-item" role="presentation">
-                <button class="nav-link py-1 px-3" id="metrics-tab" data-bs-toggle="tab" data-bs-target="#metricsTab" type="button" style="font-size: 0.8rem; border-radius: 20px;">Thesis Metrics</button>
+                <button class="nav-link py-1 px-3" id="metrics-tab" data-bs-toggle="tab" data-bs-target="#metricsTab" type="button" style="font-size: 0.8rem; border-radius: 5px;">Thesis Metrics</button>
             </li>
         </ul>
 
-        <button type="button" class="btn-close btn-sm ms-auto" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-sm ms-auto" data-bs-dismiss="modal" aria-label="Close" style="height: 1rem; width: 1rem;"></button>
       </div>
       
       <div class="modal-body p-0">
-        <!-- Persistent Prompt Header (Inline with Wrap) -->
-        <div class="bg-light border-bottom px-3 py-2 d-flex align-items-start gap-2">
-            <span class="text-muted text-lowercase fw-bold text-nowrap mt-1" style="font-size: 10px;">prompt:</span>
-            <div class="text-dark text-break" id="modalPrompt" style="font-size: 10px;">-</div>
+        <!-- Persistent Prompt Header (Aligned) -->
+        <div class="bg-light border-bottom px-3 py-2 d-flex align-items-center gap-2">
+            <span class="text-muted text-lowercase fw-bold text-nowrap" style="font-size: 10px;">prompt:</span>
+            <div class="text-dark text-break" id="modalPrompt" style="font-size: 10px; line-height: 1;">-</div>
         </div>
 
-        <div class="tab-content" id="analysisTabContent">
+        <div class="tab-content" id="analysisTabContent" style="min-height: 440px;">
             <!-- Tab 1: Basic Analysis (Radar + Scores) -->
             <div class="tab-pane fade show active" id="basicTab" role="tabpanel">
-                <div class="p-3">
+                <div class="p-3" style="min-height: 440px; display: flex; flex-direction: column; justify-content: space-between;">
                     <div class="row g-4">
                         <!-- Left: Visualization -->
                         <div class="col-md-5 d-flex align-items-center justify-content-center bg-light rounded-3 ms-2 py-3">
-                            <div style="width: 100%; height: 250px;">
+                            <div style="width: 100%; height: 260px;">
                                 <canvas id="scoreRadarChart"></canvas>
                             </div>
                         </div>
@@ -83,103 +83,104 @@
                         </div>
                     </div>
                 
-                    <!-- Inline Response with Wrap -->
-                    <div class="mt-4 pt-2 border-top d-flex align-items-start gap-2">
-                        <span class="text-muted text-lowercase fw-bold text-nowrap mt-1" style="font-size: 10px;">response:</span>
-                        <div class="text-muted fst-italic text-break" id="modalContentPreview" style="font-size: 10px;">-</div>
+                    <!-- Inline Response (Aligned) -->
+                    <div class="mt-auto pt-2 border-top d-flex align-items-center gap-2">
+                        <span class="text-muted text-lowercase fw-bold text-nowrap" style="font-size: 10px;">response:</span>
+                        <div class="text-muted fst-italic text-break" id="modalContentPreview" style="font-size: 10px; line-height: 1;">-</div>
                     </div>
                 </div>
             </div>
 
             <!-- Tab 2: Thesis Metrics (Robust Report) -->
             <div class="tab-pane fade" id="metricsTab" role="tabpanel">
-                <div class="p-4">
-                     <!-- 1. Effectiveness Section -->
-                     <h6 class="text-primary fw-bold text-uppercase small ls-1 mb-3 border-bottom pb-2">1. Effectiveness (Accuracy)</h6>
-                     
-                     <div class="d-flex justify-content-between align-items-center mb-3 bg-white p-2 border rounded">
-                        <span class="text-muted small">Target Focus:</span>
-                        <span class="fw-bold font-monospace" id="metricDocId">Session Overview</span>
-                     </div>
-
-                     <div class="row g-3 mb-4">
-                        <div class="col" style="min-width: 80px;">
-                            <div class="text-muted small mb-1 text-center border-bottom pb-1">Precision@K</div>
-                            <div class="fs-5 fw-bold text-center" id="metricP">-</div>
-                        </div>
-                        <div class="col" style="min-width: 80px;">
-                            <div class="text-muted small mb-1 text-center border-bottom pb-1">Recall@K</div>
-                            <div class="fs-5 fw-bold text-center" id="metricR">-</div>
-                        </div>
-                        <div class="col" style="min-width: 80px;">
-                            <div class="text-muted small mb-1 text-center border-bottom pb-1">MAP</div>
-                            <div class="fs-5 fw-bold text-center" id="metricMAP">-</div>
-                        </div>
-                         <div class="col" style="min-width: 80px;">
-                            <div class="text-muted small mb-1 text-center border-bottom pb-1">MRR</div>
-                            <div class="fs-5 fw-bold text-center text-info" id="metricMRR">-</div>
-                        </div>
-                        <div class="col" style="min-width: 80px;">
-                             <div class="text-muted small mb-1 text-center border-bottom pb-1">NDCG@10</div>
-                             <div class="fs-5 fw-bold text-center text-success" id="metricNDCG">-</div>
-                        </div>
-                     </div>
-
-                     <!-- 2. Efficiency Section -->
-                     <h6 class="text-primary fw-bold text-uppercase small ls-1 mb-3 border-bottom pb-2">2. Efficiency & Composite</h6>
-                     <div class="row g-3 mb-4">
-                         <div class="col-6">
-                            <div class="mb-3">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <span class="text-muted small">Latency Breakdown</span>
-                                    <span class="fw-bold small" id="metricLatency">- ms</span>
+                <div class="p-3" style="min-height: 440px; display: flex; flex-direction: column; justify-content: space-between;">
+                     <div class="row g-3">
+                        <!-- Left Pillar: Effectiveness -->
+                        <div class="col-md-7">
+                            <h6 class="text-primary fw-bold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px; margin-bottom: 12px;">1. Effectiveness (Accuracy)</h6>
+                            <div class="row g-2 mb-4">
+                                <div class="col">
+                                    <div class="bg-light p-2 rounded text-center border">
+                                        <div class="text-muted" style="font-size: 0.65rem;">P@K</div>
+                                        <div class="fw-bold" style="font-size: 0.95rem;" id="metricP">-</div>
+                                    </div>
                                 </div>
-                                <div style="height: 15px; width: 100%;">
+                                <div class="col">
+                                    <div class="bg-light p-2 rounded text-center border">
+                                        <div class="text-muted" style="font-size: 0.65rem;">R@K</div>
+                                        <div class="fw-bold" style="font-size: 0.95rem;" id="metricR">-</div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="bg-light p-2 rounded text-center border">
+                                        <div class="text-muted" style="font-size: 0.65rem;">MAP</div>
+                                        <div class="fw-bold" style="font-size: 0.95rem;" id="metricMAP">-</div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="bg-light p-2 rounded text-center border">
+                                        <div class="text-muted" style="font-size: 0.65rem;">NDCG</div>
+                                        <div class="fw-bold text-success" style="font-size: 0.95rem;" id="metricNDCG">-</div>
+                                    </div>
+                                </div>
+                             </div>
+
+                             <h6 class="text-primary fw-bold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px; margin-bottom: 12px;">2. Strategy Comparison (NDCG)</h6>
+                             <div style="width: 100%; height: 180px;">
+                                 <canvas id="strategyComparisonChart"></canvas>
+                             </div>
+                        </div>
+
+                        <!-- Right Pillar: Efficiency & Router -->
+                        <div class="col-md-5 border-start ps-3">
+                            <h6 class="text-primary fw-bold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px; margin-bottom: 12px;">3. Efficiency & Router</h6>
+                            
+                            <div class="bg-light p-3 rounded border mb-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted" style="font-size: 0.75rem;">Latency</span>
+                                    <span class="fw-bold" style="font-size: 0.8rem;" id="metricLatency">- ms</span>
+                                </div>
+                                <div style="height: 12px; width: 100%;">
                                     <canvas id="latencyStackChart"></canvas>
                                 </div>
-                                <div class="d-flex justify-content-between small text-muted mt-1" style="font-size: 0.7rem;">
-                                    <span><i class="bi bi-circle-fill text-primary" style="font-size: 6px;"></i> Sem</span>
-                                    <span><i class="bi bi-circle-fill text-warning" style="font-size: 6px;"></i> Key</span>
-                                    <span><i class="bi bi-circle-fill text-secondary" style="font-size: 6px;"></i> Fuse</span>
+                                <div class="d-flex justify-content-between mt-2" style="font-size: 0.6rem; color: #999;">
+                                    <span>Sem/Key/Fuse</span>
                                 </div>
                             </div>
-                            
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-muted">QpMS Score</span>
-                                <span class="fw-bold text-primary" id="metricQpMS">-</span>
-                            </div>
-                         </div>
-                         <div class="col-6 border-start ps-4">
-                             <span class="d-block text-muted small mb-1">Router Accuracy (RQ4)</span>
-                             <div class="d-flex align-items-center gap-2">
-                                 <span class="fs-4 fw-bold" id="metricRouter">-</span>
-                                 <span class="badge bg-light text-dark border" id="metricRouterBadge">Untested</span>
-                             </div>
-                         </div>
-                     </div>
 
-                     <!-- 3. Strategy Comparison (A/B Test) -->
-                     <h6 class="text-primary fw-bold text-uppercase small ls-1 mb-2 border-bottom pb-2">3. Strategy Comparison (NDCG)</h6>
-                     <div class="mb-4">
-                        <div style="width: 100%; height: 180px;">
-                            <canvas id="strategyComparisonChart"></canvas>
+                            <div class="d-flex justify-content-between align-items-center p-3 border rounded mb-3">
+                                <span class="text-muted" style="font-size: 0.75rem;">QpMS Score</span>
+                                <span class="fw-bold text-primary" style="font-size: 0.9rem;" id="metricQpMS">-</span>
+                            </div>
+
+                            <div class="p-3 border rounded">
+                                <span class="d-block text-muted" style="font-size: 0.7rem; margin-bottom: 4px;">Router Accuracy</span>
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <span class="fs-4 fw-bold" id="metricRouter">-</span>
+                                    <span class="badge bg-light text-dark border p-1" id="metricRouterBadge">Untested</span>
+                                </div>
+                            </div>
                         </div>
                      </div>
 
-                     <!-- 3. Pedagogical Section -->
-                     <h6 class="text-primary fw-bold text-uppercase small ls-1 mb-2 border-bottom pb-2">3. Pedagogical (User Feedback)</h6>
-                     <div class="bg-light p-3 rounded d-flex justify-content-between align-items-center">
-                         <div>
-                             <span class="fw-medium">Explanation Clarity</span>
-                             <div class="text-muted small">Rate the coherence of this search result.</div>
-                         </div>
-                         <div class="rating-stars fs-4" id="clarityRating">
-                             <i class="bi bi-star" data-rating="1" style="cursor: pointer;"></i>
-                             <i class="bi bi-star" data-rating="2" style="cursor: pointer;"></i>
-                             <i class="bi bi-star" data-rating="3" style="cursor: pointer;"></i>
-                             <i class="bi bi-star" data-rating="4" style="cursor: pointer;"></i>
-                             <i class="bi bi-star" data-rating="5" style="cursor: pointer;"></i>
-                         </div>
+                     <!-- Footer: Pedagogical and Session Meta -->
+                     <div class="mt-auto pt-2 border-top row align-items-center">
+                        <div class="col-6">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="text-muted text-lowercase fw-bold text-nowrap" style="font-size: 10px;">clarity:</span>
+                                <div class="rating-stars text-warning" id="clarityRating" style="font-size: 1rem;">
+                                    <i class="bi bi-star" data-rating="1" style="cursor: pointer;"></i>
+                                    <i class="bi bi-star" data-rating="2" style="cursor: pointer;"></i>
+                                    <i class="bi bi-star" data-rating="3" style="cursor: pointer;"></i>
+                                    <i class="bi bi-star" data-rating="4" style="cursor: pointer;"></i>
+                                    <i class="bi bi-star" data-rating="5" style="cursor: pointer;"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 text-end">
+                            <span class="text-muted text-lowercase fw-bold" style="font-size: 10px;">scope:</span>
+                            <span class="fw-bold font-monospace" style="font-size: 10px;" id="metricDocId">Session Overview</span>
+                        </div>
                      </div>
                 </div>
             </div>

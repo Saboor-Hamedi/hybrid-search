@@ -1,0 +1,102 @@
+<!-- Settings Modal -->
+<div class="modal-backdrop-custom" id="settingModal" style="display: none;">
+    <div class="modal-content-custom">
+        <div class="modal-header-custom">
+            <h5 class="m-0"><i class="bi bi-gear me-2"></i>Settings</h5>
+            <button class="btn-close-custom" onclick="document.getElementById('settingModal').style.display='none'">&times;</button>
+        </div>
+        <div class="modal-body-custom">
+            <div class="settings-section">
+                <h6>Appearance</h6>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="small text-muted">Theme</span>
+                    <select class="form-select form-select-sm w-auto">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark (Coming soon)</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="settings-section mt-4">
+                <h6>Search Preferences</h6>
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" id="pref_ai_suggest" checked>
+                    <label class="form-check-label small" for="pref_ai_suggest">Show AI Suggestions</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="pref_history_save" checked>
+                    <label class="form-check-label small" for="pref_history_save">Save Search History</label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer-custom justify-content-end">
+            <button class="btn btn-sm btn-secondary me-2" onclick="document.getElementById('settingModal').style.display='none'">Cancel</button>
+            <button class="btn btn-sm btn-dark" onclick="document.getElementById('settingModal').style.display='none'">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.modal-backdrop-custom {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content-custom {
+    background: white;
+    width: 100%;
+    max-width: 450px;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    overflow: hidden;
+}
+
+.modal-header-custom {
+    padding: 1.25rem;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-body-custom {
+    padding: 1.5rem;
+}
+
+.modal-footer-custom {
+    padding: 1.25rem;
+    background: #f9fafb;
+    display: flex;
+    border-top: 1px solid #f3f4f6;
+}
+
+.btn-close-custom {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: #9ca3af;
+    cursor: pointer;
+}
+
+.btn-close-custom:hover {
+    color: #111827;
+}
+
+.settings-section h6 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    margin-bottom: 1rem;
+}
+</style>

@@ -11,13 +11,28 @@
   
   {% block extra_css %}{% endblock %}
 </head>
-<body>
-  <div class="chat-container">
-    <!-- Header -->
-    <div class="chat-header">
-      <div class="chat-title">
-         <a href="/" class="text-decoration-none">Hybrid Search</a>
-      </div>
+<body data-enable-ai="{{ 'true' if use_ai else 'false' }}" {% if query %}class="is-query-active"{% endif %}>
+  <div class="app-layout" id="appLayout">
+    <script>
+        // Apply sidebar state immediately to prevent flicker
+        if (localStorage.getItem('sidebar-collapsed') === 'true') {
+            document.getElementById('appLayout').classList.add('sidebar-collapsed');
+        }
+    </script>
+    <!-- Sidebar -->
+    {% include 'components/sidebar.html' %}
+
+    <div class="chat-container {% if not query %}is-empty-chat{% endif %}">
+      <!-- Header -->
+      <div class="chat-header">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn-icon sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
+            <i class="bi bi-layout-sidebar-inset"></i>
+          </button>
+          <div class="chat-title">
+             <a href="/" class="text-decoration-none">Hybrid Search</a>
+          </div>
+        </div>
       <div class="d-flex gap-2">
         <button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('createModal').style.display='flex'">
           <i class="bi bi-plus-lg"></i> New Doc
@@ -117,8 +132,9 @@
                             Relevant?
                         </label>
                     </span>
-                    <div class="result-actions d-flex justify-content-end gap-2 mt-2">
-                        <button class="btn btn-sm btn-outline-info px-2 py-0" style="font-size: 0.75rem; border-radius: 5px;"
+                    <div class="result-actions d-flex justify-content-end align-items-center gap-2 mt-2">
+                        <button class="btn btn-sm btn-outline-info d-flex align-items-center px-2" 
+                        style="font-size: 0.75rem; height: 24px; border-radius: 4px;"
                             onclick="showAnalysis(this)"
                             data-doc-id="{{ r.doc_id }}"
                             data-score="{{ r.score }}"
@@ -133,15 +149,19 @@
                             data-latency="{{ stats.query_time_ms }}">
                             <i class="bi bi-graph-up me-1"></i> Analysis
                         </button>
-                        <button class="btn btn-sm btn-link text-secondary p-0 ms-2 text-decoration-none" 
+                        <button class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center" 
+                        style="width: 28px; height: 24px; border-radius: 4px; padding: 0;"
                                 onclick="navigator.clipboard.writeText(this.dataset.content); this.innerHTML='<i class=\'bi bi-check\'></i>'" 
                                 onmouseleave="this.innerHTML='<i class=\'bi bi-copy\'></i>'"
                                 data-content="{{ r.content[:4000] }}"
                                 title="Copy Content">
                             <i class="bi bi-copy"></i>
                         </button>
-                        <button class="btn btn-sm btn-link text-secondary p-0 ms-2 text-decoration-none" onclick="deleteRecord('{{ r.doc_id }}')" title="Delete Result">
-                            <i class="bi bi-trash"></i>
+                        <button class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center"
+                          style="width: 28px; height: 24px; border-radius: 4px; padding: 0;"
+                          onclick="deleteRecord('{{ r.doc_id }}')" 
+                          title="Delete Result">
+                            <i class="bi bi-trash" style="font-size: 0.75rem;"></i>
                         </button>
                     </div>
                   </div>
@@ -219,6 +239,11 @@
 
     <!-- Input Area -->
     <div class="input-area">
+      {% if not query %}
+      <div class="chat-hero">
+        <h1>What can I help you search for?</h1>
+      </div>
+      {% endif %}
       <div class="input-wrapper">
         <form method="POST" action="{{ url_for('home') }}" class="search-form" id="searchForm">
           <div class="search-input-container">
@@ -238,19 +263,40 @@
             
             <div class="input-footer">
               <div class="search-options">
-                <div class="mode-pills">
-                  <input type="radio" name="mode" value="hybrid" id="mHybrid" {% if mode == 'hybrid' or not mode %}checked{% endif %} hidden>
-                  <label for="mHybrid" class="mode-pill {% if mode == 'hybrid' or not mode %}active{% endif %}">Hybrid</label>
-                  
-                  <input type="radio" name="mode" value="rrf" id="mRRF" {% if mode == 'rrf' %}checked{% endif %} hidden>
-                  <label for="mRRF" class="mode-pill {% if mode == 'rrf' %}active{% endif %}">RRF</label>
-
-                  <input type="radio" name="mode" value="semantic" id="mSemantic" {% if mode == 'semantic' %}checked{% endif %} hidden>
-                  <label for="mSemantic" class="mode-pill {% if mode == 'semantic' %}active{% endif %}">Semantic</label>
-                  
-                  <input type="radio" name="mode" value="keyword" id="mKeyword" {% if mode == 'keyword' %}checked{% endif %} hidden>
-                  <label for="mKeyword" class="mode-pill {% if mode == 'keyword' %}active{% endif %}">Keyword</label>
+                <div class="custom-dropdown" id="modeDropdown">
+                  <button type="button" class="dropdown-trigger" id="modeTrigger">
+                    <span id="currentModeIcon"><i class="bi bi-layers"></i></span>
+                    <span id="currentModeLabel">Hybrid</span>
+                    <i class="bi bi-chevron-down ms-auto" style="font-size: 0.7rem; opacity: 0.5;"></i>
+                  </button>
+                  <div class="dropdown-menu-custom" id="modeMenu">
+                    <div class="dropdown-item-custom {% if mode == 'hybrid' or not mode %}active{% endif %}" data-value="hybrid" data-icon="bi-layers">
+                      <div class="item-header">
+                        <i class="bi bi-layers"></i> <span>Hybrid</span>
+                      </div>
+                      <div class="item-desc">Vector + Keyword scoring</div>
+                    </div>
+                    <div class="dropdown-item-custom {% if mode == 'rrf' %}active{% endif %}" data-value="rrf" data-icon="bi-shuffle">
+                      <div class="item-header">
+                        <i class="bi bi-shuffle"></i> <span>RRF</span>
+                      </div>
+                      <div class="item-desc">Reciprocal Rank Fusion</div>
+                    </div>
+                    <div class="dropdown-item-custom {% if mode == 'semantic' %}active{% endif %}" data-value="semantic" data-icon="bi-cpu">
+                      <div class="item-header">
+                        <i class="bi bi-cpu"></i> <span>Semantic</span>
+                      </div>
+                      <div class="item-desc">Transformer-based meaning</div>
+                    </div>
+                    <div class="dropdown-item-custom {% if mode == 'keyword' %}active{% endif %}" data-value="keyword" data-icon="bi-alphabet">
+                      <div class="item-header">
+                        <i class="bi bi-alphabet"></i> <span>Keyword</span>
+                      </div>
+                      <div class="item-desc">Classic BM25 text search</div>
+                    </div>
+                  </div>
                 </div>
+                <input type="hidden" name="mode" id="activeModeInput" value="{{ mode or 'hybrid' }}">
                 
                 <select name="page_size" class="page-size-select">
                   <option value="10" {% if page_size == 10 %}selected{% endif %}>10</option>
@@ -284,6 +330,7 @@
         </form>
       </div>
     </div>
+    </div>
   </div>
 
   <!-- Command Palette -->
@@ -301,6 +348,9 @@
   <!-- Confirm Modal -->
   {% include 'components/modal_confirm.html' %}
 
+  <!-- Settings Modal -->
+  {% include 'portion/setting_modal.html' %}
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="{{ url_for('static', filename='command_palette.js') }}"></script>
@@ -312,23 +362,19 @@
   <script src="{{ url_for('static', filename='global_chat/logic.js') }}"></script>
   
   <script>
-    // Inject AI preference for JS - Defined BEFORE logic loads
-    window.ENABLE_AI = {{ 'true' if use_ai else 'false' }};
-    
+    // Configuration from data attributes
+    const config = document.body.dataset;
+    window.ENABLE_AI = config.enableAi === 'true';
 
     // Scroll logic
-    {% if query %}
     window.addEventListener('load', function() {
-        if (typeof scrollToBottom === 'function') {
+        if (document.body.classList.contains('is-query-active') && typeof scrollToBottom === 'function') {
             scrollToBottom();
         }
     });
-    {% endif %}
-
-
-
-
   </script>
+
+  <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
 
   <script src="{{ url_for('static', filename='chat_logic.js') }}"></script>
   <script src="{{ url_for('static', filename='deleteRecord.js') }}"></script>

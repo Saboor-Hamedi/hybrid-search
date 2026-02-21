@@ -7,13 +7,15 @@
 
 /* Header */
 .chat-header {
+  height: 60px; /* Unified top bar height */
   background: white;
   border-bottom: 1px solid #e5e7eb;
-  padding: 0.875rem 1.5rem;
+  padding: 0 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
 }
 
 .chat-title {
@@ -42,7 +44,7 @@
 .messages-wrapper {
   max-width: 680px;
   margin: 0 auto;
-  padding-bottom: 200px;
+  padding-bottom: 40px;
 }
 
 /* Message Bubble */
@@ -157,22 +159,40 @@
 
 /* Input Area - Seamless Full Width Container */
 .input-area {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%; /* Full width */
-  background: white; /* Opaque */
-  border-top: 1px solid #e5e7eb;
-  padding: 0.75rem 1rem;
-  z-index: 100;
   display: flex;
   justify-content: center;
+  align-items: center;
+  padding: 1.5rem 1rem; /* More airy floating space */
+  background: transparent; /* No more fragmented bar */
+  border-top: none; 
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+/* ChatGPT Style: Center when empty */
+.is-empty-chat {
+  justify-content: center;
+}
+
+.is-empty-chat .messages-area {
+  display: none;
+}
+
+.is-empty-chat .input-area {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding-bottom: 5vh; 
+  flex-direction: column; /* Allow hero title above input */
+  gap: 2rem;
 }
 
 .input-wrapper {
   width: 100%;
-  max-width: 900px;
+  max-width: 768px; /* Narrower, more focused ChatGPT style */
+  margin: 0 auto;
 }
 
 .search-form {
@@ -180,41 +200,36 @@
   flex-direction: column;
 }
 
-/* Modern Input Container (Unified Block) */
+/* Modern Input Container (Unified Block) - Rock Solid */
 .search-input-container {
   position: relative;
-  background: white;
+  background: white; 
   border: 1px solid #e5e7eb;
-  border-radius: 5px;
-  overflow: hidden;
-  transition: all 0.2s;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  border-radius: 26px;
+  padding: 4px;
+  /* No transitions for hover/focus to keep it 'rock solid' */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
 }
 
-.search-input-container:hover {
-  border-color: #d1d5db; /* Slight hover effect */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.search-input-container:focus-within {
-  border-color: #d1d5db; /* Stay neutral or very subtle */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Slight lift, no blue ring */
-  transform: none;
+.is-empty-chat .search-input-container {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08); /* Only shadow changes for depth */
 }
 
 .search-input {
   width: 100%;
-  padding: 0.75rem 1rem 0.5rem 3rem;
+  padding: 12px 1rem 4px 3rem; /* Room for icon */
   border: none;
-  font-size: 1rem;
+  font-size: 1.05rem;
   resize: none;
-  min-height: 52px;
-  max-height: 150px;
+  min-height: 44px;
+  max-height: 200px;
   outline: none !important;
   box-shadow: none !important;
-  line-height: 1.6; /* Improved spacing */
+  line-height: 1.6;
   color: #111827;
-  caret-color: #111827; /* Dark cursor */
+  caret-color: #2563eb;
   background: transparent;
 }
 
@@ -241,15 +256,15 @@
 /* PDF Upload Button - Clean Minimal Icon */
 .pdf-upload-btn {
   position: absolute;
-  left: 12px; /* Standardize with padding */
-  top: 11px; /* Precise visual alignment with text top */
-  background: transparent; /* No background */
+  left: 14px;
+  top: 10px;
+  background: transparent;
   border: none;
-  color: #9ca3af; /* Subtle grey */
-  font-size: 1.1rem;
+  color: #9ca3af;
+  font-size: 1.15rem;
   cursor: pointer;
   padding: 4px;
-  border-radius: 4px; /* Subtle radius */
+  border-radius: 8px;
   transition: all 0.2s;
   z-index: 10;
   display: flex;
@@ -270,31 +285,29 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
-  padding: 6px 12px;
-  background: white;
-  border-top: none;
-  flex-wrap: wrap;
+  padding: 0 10px 8px; /* Tight integration inside the box */
+  background: transparent; /* No more ugly white background */
+  border: none;
 }
 
 /* Premium Search Button (Rounded Square - ChatGPT style) */
 .search-btn {
-  padding: 5px 12px; /* Flexible padding */
+  padding: 4px 14px;
   width: auto;
-  height: 32px;
+  height: 30px;
   background: #111827;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 20px; /* Pill style to match container */
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   gap: 6px;
   white-space: nowrap;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .search-btn:hover {
@@ -315,36 +328,101 @@
   flex: 1;
 }
 
-.mode-pills {
+/* Custom Search Mode Dropdown */
+.custom-dropdown {
+  position: relative;
+  user-select: none;
+}
+
+.dropdown-trigger {
   display: flex;
-  gap: 0.3rem;
-}
-
-.mode-pill {
-  padding: 4px 10px; /* Adjusted height ~28px */
-  border-radius: 5px;
-  border: 1px solid #e5e7eb;
-  background: white;
-  color: #6b7280;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.75rem;
-  line-height: 1.4;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.04); /* Subtle blend */
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  color: #4b5563;
+  font-size: 0.725rem;
   font-weight: 500;
+  cursor: pointer;
+  height: 26px;
+  min-width: 90px;
+  transition: all 0.2s;
 }
 
-.mode-pill:hover {
-  border-color: #111827;
-  color: #111827;
+.dropdown-trigger:hover {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+}
+
+.dropdown-menu-custom {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  width: 220px;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 1000;
+  animation: slideUp 0.15s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-menu-custom.show {
+  display: flex;
+}
+
+.dropdown-item-custom {
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-bottom: 1px solid #f9fafb;
+}
+
+.dropdown-item-custom:last-child {
+  border-bottom: none;
+}
+
+.dropdown-item-custom:hover {
   background: #f9fafb;
 }
 
-.mode-pill.active {
-  background: #111827; /* Black active like GPT */
-  color: white;
-  border-color: #111827;
-  box-shadow: none;
-  transform: none;
+.dropdown-item-custom.active {
+  background: #f3f4f6;
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #111827;
+  margin-bottom: 2px;
+}
+
+.item-header i {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.dropdown-item-custom.active .item-header i {
+  color: #111827;
+}
+
+.item-desc {
+  font-size: 0.65rem;
+  color: #6b7280;
+  padding-left: 21px;
 }
 
 /* Match CSS for Select Box - Minimal Pill */
@@ -518,6 +596,30 @@
   font-size: 0.75rem;
   font-weight: 600;
   margin-left: 0.5rem;
+}
+
+.chat-hero {
+  text-align: center;
+  animation: fadeInDown 0.8s ease;
+}
+
+.chat-hero h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #111827;
+  letter-spacing: -0.02em;
+  margin-bottom: 0;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Empty State Enhancement */
@@ -759,4 +861,184 @@ html {
   width: 1rem;
   height: 1rem;
   accent-color: #2563eb;
+}
+/* Sidebar Responsive Layout */
+.app-layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: white;
+}
+
+.sidebar {
+  width: 260px;
+  height: 100%;
+  background: #f9fafb;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 100;
+  overflow: hidden; /* Prevent content bleeding when collapsed */
+  flex-shrink: 0;
+}
+
+.app-layout.sidebar-collapsed .sidebar {
+  width: 0;
+  transform: translateX(-100%);
+  border-right: none;
+}
+
+.sidebar-header, .sidebar-content, .sidebar-footer {
+  min-width: 260px; /* Keep content width stable during animation */
+}
+
+.sidebar-header {
+  height: 60px; /* Matching chat-header height */
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.new-chat-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.6rem 0.8rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.new-chat-btn:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 0.75rem;
+}
+
+.sidebar-section h6 {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9ca3af;
+  margin: 1.5rem 0.5rem 0.5rem;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #4b5563;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.history-item span {
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.history-item:hover {
+  background: #f3f4f6;
+}
+
+.history-item.active {
+  background: #f3f4f6;
+  color: #111827;
+  font-weight: 500;
+}
+
+.sidebar-footer {
+  height: 80px; /* Forced height to match input area */
+  padding: 0 1rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.user-profile:hover {
+  background: #f3f4f6;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background: #111827;
+  color: white;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.user-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.btn-icon {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-icon:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.sidebar-toggle {
+  font-size: 1.1rem;
+}
+
+/* Adjust chat-container for sidebar */
+.chat-container {
+  flex: 1;
+  min-width: 0; /* Prevents overflow pushing */
 }

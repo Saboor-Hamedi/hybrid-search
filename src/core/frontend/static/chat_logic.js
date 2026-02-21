@@ -4,16 +4,66 @@
 const textarea = document.querySelector('.search-input');
 textarea?.addEventListener('input', function() {
   this.style.height = 'auto';
-  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+  // Use scrollHeight but ensure it feels aligned with the 32px-52px range
+  this.style.height = (this.scrollHeight) + 'px';
 });
 
-// Mode pill interaction
-document.querySelectorAll('.mode-pill').forEach(pill => {
-  pill.addEventListener('click', function() {
-    document.querySelectorAll('.mode-pill').forEach(p => p.classList.remove('active'));
-    this.classList.add('active');
-    this.previousElementSibling.checked = true;
+// Search Mode Dropdown Logic
+const modeTrigger = document.getElementById('modeTrigger');
+const modeMenu = document.getElementById('modeMenu');
+const modeItems = document.querySelectorAll('.dropdown-item-custom');
+const activeModeInput = document.getElementById('activeModeInput');
+const currentModeLabel = document.getElementById('currentModeLabel');
+const currentModeIcon = document.getElementById('currentModeIcon');
+
+if (modeTrigger && modeMenu) {
+  // Toggle menu
+  modeTrigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    modeMenu.classList.toggle('show');
   });
+
+  // Handle selection
+  modeItems.forEach(item => {
+    item.addEventListener('click', function() {
+      const val = this.dataset.value;
+      const iconClass = this.dataset.icon;
+      const labelText = this.querySelector('.item-header span').textContent;
+
+      // Update UI
+      modeItems.forEach(i => i.classList.remove('active'));
+      this.classList.add('active');
+      
+      // Update Trigger
+      currentModeLabel.textContent = labelText;
+      currentModeIcon.innerHTML = `<i class="bi ${iconClass}"></i>`;
+      
+      // Update hidden input
+      if (activeModeInput) activeModeInput.value = val;
+
+      // Close menu
+      modeMenu.classList.remove('show');
+    });
+  });
+
+  // Close on outside click
+  document.addEventListener('click', () => {
+    modeMenu.classList.remove('show');
+  });
+}
+
+// Set initial state on load based on active input
+window.addEventListener('load', () => {
+    if (activeModeInput) {
+        const val = activeModeInput.value;
+        const activeItem = document.querySelector(`.dropdown-item-custom[data-value="${val}"]`);
+        if (activeItem) {
+            const labelText = activeItem.querySelector('.item-header span').textContent;
+            const iconClass = activeItem.dataset.icon;
+            if (currentModeLabel) currentModeLabel.textContent = labelText;
+            if (currentModeIcon) currentModeIcon.innerHTML = `<i class="bi ${iconClass}"></i>`;
+        }
+    }
 });
 
 // Loading state on form submit
