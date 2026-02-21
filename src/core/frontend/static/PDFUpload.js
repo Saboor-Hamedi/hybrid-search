@@ -3,8 +3,6 @@
 // Wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', function() {
   
-  console.log('PDF Upload script loaded');
-  
   const pdfDropZone = document.getElementById('pdfDropZone');
   const pdfFileInput = document.getElementById('pdfFileInput');
   const pdfUploadForm = document.getElementById('pdfUploadForm');
@@ -16,18 +14,14 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Quick upload from main input area
   const quickPdfInput = document.getElementById('quickPdfInput');
-  console.log('Quick PDF Input found:', quickPdfInput);
   
   if (quickPdfInput) {
     quickPdfInput.addEventListener('change', (e) => {
-      console.log('File selected!', e.target.files);
       const file = e.target.files[0];
       if (file) {
-        console.log('Processing file:', file.name);
         uploadPDFDirectly(file);
       }
     });
-    console.log('Quick PDF upload listener attached');
   } else {
     console.warn('quickPdfInput element not found!');
   }
@@ -115,7 +109,6 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Upload PDF directly (from quick button)
   function uploadPDFDirectly(file) {
-    console.log('uploadPDFDirectly called with:', file.name);
     
     // Use Custom Modal
     const modalEl = document.getElementById('confirmModal');

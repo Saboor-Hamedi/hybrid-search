@@ -8,9 +8,10 @@ from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+import uuid
 
 # Setup path + load model + DB
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
@@ -25,8 +26,11 @@ from core.db.operations.search_flask.rrf_search import search_rrf
 from core.db.operations.search_flask.ltr_search import search_ltr
 from core.utils.text_cleansing import clean_page_content
 
+from core.export.core_logic import run_export_task
+
 # Load model once at startup
 model = None
+export_tasks = {} # Global in-memory task tracker
 try:
     MAX_CANDIDATES = int(os.environ.get("MAX_CANDIDATES", "1000"))
 except Exception:
@@ -52,6 +56,8 @@ app.add_middleware(
         "http://127.0.0.1:8080",
         "http://localhost:8000",
         "http://127.0.0.1:8000",
+        "http://localhost:5000",
+        "http://127.0.0.1:5000",
         "null",
     ],
     allow_credentials=True,
@@ -321,6 +327,42 @@ def search_endpoint(request: SearchRequest):
 @app.get("/")
 def root():
     return RedirectResponse("/docs")
+
+# --------------------------------------------------------------------- #
+# Export Endpoints
+# --------------------------------------------------------------------- #
+@app.post("/export/start")
+def start_export(background_tasks: BackgroundTasks):
+    task_id = str(uuid.uuid4())
+    export_tasks[task_id] = {"progress": 0, "status": "pending"}
+    background_tasks.add_task(run_export_task, task_id, export_tasks)
+    return {"task_id": task_id}
+
+@app.get("/export/status/{task_id}")
+def get_export_status(task_id: str):
+    if task_id not in export_tasks:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return export_tasks[task_id]
+
+@app.get("/export/download/{task_id}")
+def download_export(task_id: str):
+    if task_id not in export_tasks:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    task = export_tasks[task_id]
+    if task["status"] != "completed":
+        raise HTTPException(status_code=400, detail="Export not completed")
+    
+    file_path = task.get("file_path")
+    if not file_path or not os.path.exists(file_path):
+         raise HTTPException(status_code=404, detail="Export file missing")
+    
+    return FileResponse(
+        path=file_path,
+        filename=task.get("file_name", "documents_export.json"),
+        media_type="application/json"
+    )
+
 class UpdateRequest(BaseModel):
     content: str | None = None
     language: str | None = "en"

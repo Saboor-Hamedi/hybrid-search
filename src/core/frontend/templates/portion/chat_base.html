@@ -15,8 +15,9 @@
   <div class="app-layout" id="appLayout">
     <script>
         // Apply sidebar state immediately to prevent flicker
-        if (localStorage.getItem('sidebar-collapsed') === 'true') {
-            document.getElementById('appLayout').classList.add('sidebar-collapsed');
+        const appLayout = document.getElementById('appLayout');
+        if (localStorage.getItem('sidebar-collapsed') === 'true' || window.innerWidth <= 800) {
+            appLayout.classList.add('sidebar-collapsed');
         }
     </script>
     <!-- Sidebar -->
@@ -334,6 +335,7 @@
   </script>
 
   <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
+  <script src="{{ url_for('static', filename='export/logic.js') }}"></script>
 
   <script src="{{ url_for('static', filename='chat_logic.js') }}"></script>
   <script src="{{ url_for('static', filename='deleteRecord.js') }}"></script>

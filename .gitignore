@@ -36,3 +36,6 @@ src/core/utils/model_onnx/
 *.bin
 *.pt
 *.pth
+documents_export.json
+src/core/temp_exports/
+docs/

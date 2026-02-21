@@ -9,3 +9,6 @@ env/
 venv/
 personal_notes.md
 .ipynb_checkpoints/
+*.json
+*.csv
+temp_exports/

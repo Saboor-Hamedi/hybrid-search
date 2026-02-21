@@ -595,11 +595,9 @@
 @keyframes fadeInDown {
   from {
     opacity: 0;
-    transform: translateY(-20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -896,45 +894,59 @@ html {
 }
 
 .sidebar-header {
-  height: 60px; /* Matching chat-header height */
-  padding: 0 1rem;
+  height: 64px; /* Matching polished footer height */
+  padding: 0 0.75rem;
   display: flex;
   align-items: center;
   box-sizing: border-box;
+  border-bottom: 1px solid transparent; /* Ready for scroll-based shadow in future */
 }
 
-.sidebar-header-actions {
-  width: 100%;
-}
-
-.new-chat-btn, .new-doc-btn {
+.new-chat-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0.6rem 0.8rem;
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px; /* Slightly more rounded */
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #374151;
+  justify-content: center;
+  gap: 6px;
+  height: 34px; /* Fixed height for consistency */
+  padding: 0 0.85rem;
+  background: #111827;
+  border: 1px solid #111827;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.new-chat-btn:hover {
+  background: #374151;
+  border-color: #374151;
+  transform: translateY(-1px);
 }
 
 .new-doc-btn {
-  width: 40px;
-  height: 40px;
+  display: flex;
+  align-items: center;
   justify-content: center;
+  width: 34px; /* Matching height */
+  height: 34px; /* Matching height */
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  color: #374151;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
   flex-shrink: 0;
 }
 
-.new-chat-btn:hover, .new-doc-btn:hover {
-  background: #f3f4f6;
+.new-doc-btn:hover {
+  background: #f9fafb;
   border-color: #d1d5db;
   color: #111827;
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 .new-chat-btn:active, .new-doc-btn:active {
@@ -991,8 +1003,8 @@ html {
 }
 
 .sidebar-footer {
-  height: 80px; /* Forced height to match input area */
-  padding: 0 1rem;
+  height: 64px; /* Reduced from 80px for better proportions */
+  padding: 0 0.75rem;
   border-top: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
@@ -1003,11 +1015,12 @@ html {
 .user-profile {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   padding: 0.5rem;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   transition: background 0.2s;
+  width: 100%; /* Stretch to fill */
 }
 
 .user-profile:hover {
@@ -1015,22 +1028,27 @@ html {
 }
 
 .user-avatar {
-  width: 32px;
-  height: 32px;
-  background: #111827;
+  width: 36px; /* Increased from 32px */
+  height: 36px;
+  background: linear-gradient(135deg, #111827 0%, #374151 100%);
   color: white;
-  border-radius: 4px;
+  border-radius: 8px; /* Slightly more rounded */
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 600;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .user-name {
-  font-size: 0.85rem;
-  font-weight: 500;
+  font-size: 0.9rem; /* Slightly larger */
+  font-weight: 600;
   color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
 }
 
 .btn-icon {
@@ -1083,4 +1101,42 @@ html {
 .btn-icon-small:hover {
   background: #f3f4f6; /* Soft grey background */
   color: #111827; /* Darker icon on hover */
+}
+
+/* Sidebar Action Button */
+.sidebar-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.6rem 0.75rem;
+  width: 100%;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.sidebar-action-btn:hover {
+  background: #f3f4f6;
+  color: #111827;
+  border-color: #e5e7eb;
+}
+
+.sidebar-action-btn i {
+  font-size: 1.1rem;
+  color: #6b7280;
+}
+
+.sidebar-action-btn:hover i {
+  color: #111827;
+}
+
+@keyframes toastSlideIn { 
+  from { transform: translateX(120%); opacity: 0; } 
+  to { transform: translateX(0); opacity: 1; } 
 }
