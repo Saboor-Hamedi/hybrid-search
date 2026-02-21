@@ -8,6 +8,20 @@ textarea?.addEventListener('input', function() {
   this.style.height = (this.scrollHeight) + 'px';
 });
 
+// Handle Enter key to submit
+textarea?.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    const form = this.closest('form');
+    if (form) {
+      // Create and dispatch a submit event or call the submit method
+      // Note: form.submit() doesn't fire the 'submit' event listener, 
+      // so we use requestSubmit() or click the button.
+      form.requestSubmit ? form.requestSubmit() : form.querySelector('button[type="submit"]')?.click();
+    }
+  }
+});
+
 // Search Mode Dropdown Logic (Legacy - Only if elements exist)
 const modeTrigger = document.getElementById('modeTrigger');
 const modeMenu = document.getElementById('modeMenu');
@@ -48,17 +62,150 @@ const searchForm = document.querySelector('.search-form');
 const searchBtn = document.querySelector('.search-btn');
 
 if (searchForm && searchBtn) {
-  searchForm.addEventListener('submit', function(e) {
+  // Mode Toggle Logic
+  const typePills = document.querySelectorAll('.type-pill');
+  const activeSearchType = document.getElementById('activeSearchType');
+  const searchInput = document.querySelector('.search-input');
+
+  typePills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      typePills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      const type = pill.dataset.type;
+      activeSearchType.value = type;
+      
+      // Visual feedback
+      if (type === 'assistant') {
+        searchInput.placeholder = "Chat with AI Assistant...";
+        document.body.classList.add('assistant-mode-active');
+      } else {
+        searchInput.placeholder = "Ask me anything...";
+        document.body.classList.remove('assistant-mode-active');
+      }
+    });
+  });
+
+  searchForm.addEventListener('submit', async function(e) {
     const query = textarea.value.trim();
-    // Check for empty query
     if (!query) {
-        e.preventDefault();
-        textarea.focus();
+      e.preventDefault();
+      textarea.focus();
       return;
     }
+
+    // If Assistant mode, intercept and do dynamic chat
+    if (activeSearchType.value === 'assistant') {
+      e.preventDefault();
+      await handleAssistantChat(query);
+      return;
+    }
+
     searchBtn.classList.add('loading');
     searchBtn.disabled = true;
   });
+}
+
+/**
+ * Handle direct AI chat logic (No RAG, just conversation)
+ */
+async function handleAssistantChat(message) {
+  const messagesArea = document.getElementById('messagesArea');
+  const chatContainer = document.querySelector('.chat-container');
+  const textarea = document.querySelector('.search-input');
+  
+  // 1. Ensure UI is ready for messages
+  if (chatContainer.classList.contains('is-empty-chat')) {
+    chatContainer.classList.remove('is-empty-chat');
+    document.body.classList.add('is-query-active'); // Triggers hiding chat-hero and empty-state
+  }
+  
+  // 2. Clear input
+  textarea.value = '';
+  textarea.style.height = 'auto';
+  
+  // 3. Append User Message
+  appendChatMessage('user', message);
+  
+  // 4. Typing Indicator
+  const typingId = 'typing-' + Date.now();
+  appendChatMessage('bot', '...', typingId, true);
+  scrollToBottom();
+
+  try {
+    const response = await fetch('/api/quick-chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: message })
+    });
+
+    const data = await response.json();
+    
+    // Remove typing
+    document.getElementById(typingId)?.remove();
+
+    if (data.reply) {
+      appendChatMessage('bot', data.reply);
+    } else {
+      appendChatMessage('error', data.error || "No response. Is Ollama running?");
+    }
+  } catch (err) {
+    document.getElementById(typingId)?.remove();
+    appendChatMessage('error', "Connection error: Could not reach the AI service.");
+  }
+  
+  scrollToBottom();
+}
+
+/**
+ * Utility to append a message bubble to the messages area
+ */
+function appendChatMessage(sender, text, id = null, isTyping = false) {
+  const wrapper = document.querySelector('.messages-wrapper');
+  if (!wrapper) return;
+
+  const msgDiv = document.createElement('div');
+  msgDiv.className = 'message';
+  if (id) msgDiv.id = id;
+  
+  let contentHtml = '';
+  const polishedText = sender === 'bot' ? polishChatText(text) : text;
+  
+  if (sender === 'user') {
+    contentHtml = `
+      <div class="message-query assistant-chat-user">
+        <strong>You:</strong> ${polishedText}
+      </div>
+    `;
+  } else if (sender === 'bot') {
+    const formatted = polishedText
+        .replace(/\n/g, '<br>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`(.*?)`/g, '<code>$1</code>');
+        
+    contentHtml = `
+      <div class="message-response assistant-chat-bot">
+        <div class="d-flex align-items-center gap-2 mb-2 text-primary small fw-bold">
+          <i class="bi bi-robot"></i> AI Assistant
+        </div>
+        <div class="assistant-content">
+          ${isTyping ? '<div class="typing-indicator"><span></span><span></span><span></span></div>' : formatted}
+        </div>
+      </div>
+    `;
+  } else {
+    contentHtml = `<div class="alert alert-danger py-2 small">${text}</div>`;
+  }
+
+  msgDiv.innerHTML = contentHtml;
+  wrapper.appendChild(msgDiv);
+}
+
+// Reuse polishing from global chat
+function polishChatText(text) {
+    if (!text) return "";
+    let polished = text.replace(/(^\s*\w|[.!?]\s*\w)/g, c => c.toUpperCase());
+    polished = polished.replace(/\b(ai|ml|rrf|api|llm|nlp|db|sql|ui|ux|pdf)\b/gi, match => match.toUpperCase());
+    return polished;
 }
 
 // Keyboard Shortcuts

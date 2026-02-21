@@ -168,20 +168,20 @@
                 </div>
                 {% endfor %}
 
-                <!-- AI Answer Container (Moved to Bottom) -->
-                <div id="aiAnswerContainer" class="card shadow-sm mt-4 mb-4 border-info d-none">
-                    <div class="card-header bg-info-subtle text-info-emphasis d-flex justify-content-between align-items-center">
+                <!-- AI Research Summary (Modernized from Card) -->
+                <div id="aiAnswerContainer" class="ai-research-box d-none">
+                    <div class="ai-research-header">
                         <span class="d-flex align-items-center gap-2">
-                             <i class="bi bi-robot"></i> <strong>AI Research Summary</strong>
+                             <i class="bi bi-robot"></i> <strong>AI Insight</strong>
                         </span>
-                        <div id="aiSpinner" class="spinner-border spinner-border-sm text-info d-none" role="status"></div>
+                        <div id="aiSpinner" class="loading-shimmer d-none"></div>
                     </div>
-                    <div class="card-body bg-light-subtle">
-                        <div id="aiAnswerText" class="card-text text-dark" style="white-space: pre-wrap; font-size: 0.95rem; line-height: 1.6;">
+                    <div class="ai-research-body">
+                        <div id="aiAnswerText" class="ai-answer-text">
                             <!-- Content will be streamed here -->
                         </div>
                     </div>
-                    <div id="aiFooter" class="card-footer bg-secondary-subtle border-top-0 py-2 d-none">
+                    <div id="aiFooter" class="ai-research-footer d-none">
                         <!-- Footer content (source/copy) injected via JS -->
                     </div>
                 </div>
@@ -259,11 +259,21 @@
             
             <div class="input-footer">
               <div class="search-options d-flex align-items-center gap-1">
-                <!-- Hidden state synced from Modal -->
+                <!-- Search Type Hidden State -->
+                <input type="hidden" name="search_type" id="activeSearchType" value="search">
                 <input type="hidden" name="mode" id="activeModeInput" value="{{ mode or 'hybrid' }}">
                 <input type="hidden" name="page_size" value="{{ page_size or 10 }}">
                 <input type="checkbox" name="use_ai" id="aiToggle" value="on" {% if use_ai %}checked{% endif %} style="display: none;">
                 
+                <div class="search-type-toggle d-flex align-items-center gap-1 me-2">
+                  <button type="button" class="type-pill active" data-type="search" title="RAG Search Mode">
+                    <i class="bi bi-search"></i>
+                  </button>
+                  <button type="button" class="type-pill" data-type="assistant" title="Direct AI Chat">
+                    <i class="bi bi-robot"></i>
+                  </button>
+                </div>
+
                 <button type="button" class="btn-icon-small" onclick="document.getElementById('quickPdfInput').click()" title="Quick Upload PDF">
                   <i class="bi bi-paperclip"></i>
                 </button>
@@ -315,11 +325,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="{{ url_for('static', filename='command_palette.js') }}"></script>
   <script src="{{ url_for('static', filename='PDFUpload.js') }}"></script>
-  
-  <!-- Global Chat Widget -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='global_chat/style.css') }}">
-  {% include 'components/global_chat/widget.html' %}
-  <script src="{{ url_for('static', filename='global_chat/logic.js') }}"></script>
   
   <script>
     // Configuration from data attributes
