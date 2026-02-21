@@ -299,7 +299,7 @@
 
 .search-btn:hover {
   background: #374151; /* Lighter grey hover */
-  transform: translateY(-1px);
+  /* transform: translateY(-1px); */
 }
 
 .search-btn:active {
@@ -473,7 +473,7 @@
 }
 
 .result-item:hover {
-  transform: translateX(4px);
+  transform: translateX(0);
   background: #f9fafb;
 }
 

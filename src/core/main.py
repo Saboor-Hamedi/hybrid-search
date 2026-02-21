@@ -156,7 +156,17 @@ def _action_count() -> None:
         cursor.close()
         conn.close()
 
+def _action_help():
 
+    print(f"\n{cs.BOLD}--- Help Guide ---{cs.RESET}")
+    print("Welcome to the Hybrid Search CLI. Use 'u' to upload documents and 'h' for search.")
+    display_menu()
+
+
+def _action_quit():
+    print(f"{cs.YELLOW}Exiting... Goodbye!{cs.RESET}")
+    sys.exit(0)
+    
 # MAIN LOOP
 def main_menu() -> None:
     start_time = time.time()

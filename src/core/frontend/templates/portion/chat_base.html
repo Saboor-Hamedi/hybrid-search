@@ -104,6 +104,7 @@
                     {% endif %}
                   </div>
                   
+                  
                   <div class="result-content mb-2" title="Double click to copy">
                     <a href="{{ base ~ qs }}" class="result-title result-doc-id">#{{ r.doc_id }}</a> • 
                     {{ r.content_highlighted | safe }}
@@ -138,6 +139,9 @@
                                 data-content="{{ r.content[:4000] }}"
                                 title="Copy Content">
                             <i class="bi bi-copy"></i>
+                        </button>
+                        <button class="btn btn-sm btn-link text-secondary p-0 ms-2 text-decoration-none" onclick="deleteRecord('{{ r.doc_id }}')" title="Delete Result">
+                            <i class="bi bi-trash"></i>
                         </button>
                     </div>
                   </div>
@@ -230,7 +234,6 @@
               placeholder="Ask me anything..." 
               rows="1"
               autofocus
-              onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();this.form.submit();}"
             ></textarea>
             
             <div class="input-footer">
@@ -266,10 +269,10 @@
                 </div>
               </div>
 
-              <!-- Chat button here -->
+              <!-- Send button here -->
               
               <button type="submit" class="search-btn">
-                <i class="bi bi-arrow-up"></i> Chat
+                <i class="bi bi-send"></i> 
               </button>
             </div>
           </div>
@@ -291,6 +294,9 @@
 
   <!-- Analysis Modal -->
   {% include 'components/modal_analysis.html' %}
+
+  <!-- Delete Modal -->
+  {% include 'portion/confirm_delete.html' %}
   
   <!-- Confirm Modal -->
   {% include 'components/modal_confirm.html' %}
@@ -308,6 +314,7 @@
   <script>
     // Inject AI preference for JS - Defined BEFORE logic loads
     window.ENABLE_AI = {{ 'true' if use_ai else 'false' }};
+    
 
     // Scroll logic
     {% if query %}
@@ -317,8 +324,13 @@
         }
     });
     {% endif %}
+
+
+
+
   </script>
 
   <script src="{{ url_for('static', filename='chat_logic.js') }}"></script>
+  <script src="{{ url_for('static', filename='deleteRecord.js') }}"></script>
 </body>
 </html>

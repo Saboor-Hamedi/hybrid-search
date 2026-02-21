@@ -22,10 +22,15 @@ const searchBtn = document.querySelector('.search-btn');
 
 if (searchForm && searchBtn) {
   searchForm.addEventListener('submit', function(e) {
-    if (textarea && textarea.value.trim()) {
-      searchBtn.classList.add('loading');
-      searchBtn.disabled = true;
+    const query = textarea.value.trim();
+    // Check for empty query
+    if (!query) {
+        e.preventDefault();
+        textarea.focus();
+      return;
     }
+    searchBtn.classList.add('loading');
+    searchBtn.disabled = true;
   });
 }
 
