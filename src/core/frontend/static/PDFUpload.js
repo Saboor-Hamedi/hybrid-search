@@ -161,46 +161,54 @@ document.addEventListener('DOMContentLoaded', function() {
           return name.substring(0, maxLength) + '...';
       }
 
-      // Persistent Toast Logic
+      // Persistent Toast Logic (Improved UI & Alignment)
       function updateToast(id, msg, type='info', isLoading=false) {
           let container = document.getElementById('toast-container');
           if (!container) {
               container = document.createElement('div');
               container.id = 'toast-container';
-              container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px;';
-              document.body.appendChild(container); // Moved to TOP right as requested by "under the header" hint
+              container.style.cssText = 'position: fixed; top: 80px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 12px;';
+              document.body.appendChild(container);
           }
           
           let toast = document.getElementById(id);
           
-          // Icon Selection
-          let icon = '<i class="bi bi-info-circle me-2"></i>';
-          if (isLoading) icon = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>';
-          if (type === 'success') icon = '<i class="bi bi-check-circle-fill text-success me-2"></i>';
-          if (type === 'danger') icon = '<i class="bi bi-x-circle-fill text-danger me-2"></i>';
+          // Icon Selection with Fixed-Width Wrapper for Balance
+          let iconContent = '<i class="bi bi-info-circle"></i>';
+          if (isLoading) {
+              iconContent = '<div class="spinner-border" style="width: 14px; height: 14px; border-width: 2px;" role="status"></div>';
+          } else if (type === 'success') {
+              iconContent = '<i class="bi bi-check-circle-fill text-success"></i>';
+          } else if (type === 'danger') {
+              iconContent = '<i class="bi bi-x-circle-fill text-danger"></i>';
+          }
+
+          const iconHtml = `<div class="d-flex align-items-center justify-content-center" style="width: 28px; height: 28px; background: #f8fafc; border-radius: 50%; color: #64748b; font-size: 1.1rem; flex-shrink: 0;">${iconContent}</div>`;
 
           const contentHtml = `
-            <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center">
-                    ${icon}
-                    <span class="fw-medium">${msg}</span>
+            <div class="d-flex align-items-center">
+                ${iconHtml}
+                <div class="ms-3 flex-grow-1">
+                    <div class="fw-semibold text-dark" style="font-size: 0.85rem; line-height: 1.2;">${type === 'danger' ? 'Error' : 'Upload Status'}</div>
+                    <div class="text-muted" style="font-size: 0.75rem; line-height: 1.2;">${msg}</div>
                 </div>
-                <button type="button" class="btn-close btn-close-sm ms-3" onclick="document.getElementById('${id}').remove()" aria-label="Close"></button>
+                <button type="button" class="btn-close ms-2" style="font-size: 0.6rem;" onclick="document.getElementById('${id}').remove()"></button>
             </div>
           `;
 
           if (!toast) {
-              // Create New
               toast = document.createElement('div');
               toast.id = id;
-              toast.className = `alert alert-light shadow-sm border border-${type} mb-0 p-2`;
-              toast.style.cssText = 'min-width: 200px; max-width: 300px; animation: slideInRight 0.3s ease-out; background: white; font-size: 0.9rem;';
+              toast.className = `alert-custom shadow-lg border-0 mb-0 p-3`;
+              toast.style.cssText = 'min-width: 240px; max-width: 320px; animation: toastSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); background: white; border-left: 4px solid #2563eb; border-radius: 12px;';
+              if (type === 'success') toast.style.borderLeftColor = '#10b981';
+              if (type === 'danger') toast.style.borderLeftColor = '#ef4444';
               toast.innerHTML = contentHtml;
               container.appendChild(toast);
           } else {
-              // Update Existing
-              toast.className = `alert alert-light shadow-sm border border-${type} mb-0 p-2`;
               toast.innerHTML = contentHtml;
+              if (type === 'success') toast.style.borderLeftColor = '#10b981';
+              if (type === 'danger') toast.style.borderLeftColor = '#ef4444';
           }
       }
       
@@ -208,7 +216,10 @@ document.addEventListener('DOMContentLoaded', function() {
       if (!document.getElementById('toast-styles')) {
            const style = document.createElement('style');
            style.id = 'toast-styles';
-           style.innerHTML = `@keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`;
+           style.innerHTML = `
+             @keyframes toastSlideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+             .alert-custom { transition: all 0.3s ease; }
+           `;
            document.head.appendChild(style);
       }
 

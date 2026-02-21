@@ -337,6 +337,8 @@ def update_post(doc_id: int):
     back_mode = request.form.get("mode", "hybrid")
     content = request.form.get("content", "")
     language = request.form.get("language", "en")
+    redirect_to = request.form.get("redirect_to", "document")
+    
     try:
         r = requests.post(
             f"{API_URL}/documents/{doc_id}/update",
@@ -346,6 +348,9 @@ def update_post(doc_id: int):
         r.raise_for_status()
     except requests.RequestException as e:
         print("Update post error:", e)
+    
+    if redirect_to == "home":
+        return redirect(f"/?query={back_query}&mode={back_mode}")
     return redirect(f"/document/{doc_id}?q={back_query}&mode={back_mode}")
 
 @app.post("/document/new_post")

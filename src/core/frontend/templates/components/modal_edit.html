@@ -1,0 +1,57 @@
+<!-- Generic Edit Modal -->
+<div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
+  <div style="background: white; border-radius: 12px; padding: 1.5rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
+    <h5 class="mb-3" id="editModalTitle">Edit Document</h5>
+    <form id="editModalForm" method="POST">
+      <input type="hidden" name="q" id="editModalQ">
+      <input type="hidden" name="mode" id="editModalMode">
+      <input type="hidden" name="language" id="editModalLang">
+      <input type="hidden" name="redirect_to" id="editModalRedirect">
+      <textarea id="editModalContent" class="form-control mb-3" name="content" rows="12" required></textarea>
+      <div class="d-flex gap-2 justify-content-end">
+        <button type="button" class="btn btn-secondary" onclick="document.getElementById('editModal').style.display='none'">Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+/**
+ * Opens the edit modal and populates it with dynamic content
+ */
+function openEditModal(docId, content, query, mode, lang) {
+    const modal = document.getElementById('editModal');
+    const form = document.getElementById('editModalForm');
+    const title = document.getElementById('editModalTitle');
+    const textarea = document.getElementById('editModalContent');
+    const qInput = document.getElementById('editModalQ');
+    const modeInput = document.getElementById('editModalMode');
+    const langInput = document.getElementById('editModalLang');
+    const redirectInput = document.getElementById('editModalRedirect');
+    
+    // Set content and values
+    title.innerText = `Edit Document #${docId}`;
+    form.action = `/document/${docId}/update_post`; // Correct Flask route
+    textarea.value = content;
+    qInput.value = query || "";
+    modeInput.value = mode || "hybrid";
+    langInput.value = lang || "en";
+    
+    // Determine redirect target: if on home (/), stay on home; else go to document view
+    redirectInput.value = window.location.pathname === "/" ? "home" : "document";
+    
+    // Display
+    modal.style.display = 'flex';
+    
+    // Auto-focus textarea
+    setTimeout(() => textarea.focus(), 100);
+}
+
+// Close on backdrop click
+document.getElementById('editModal').onclick = function(e) {
+    if (e.target === this) {
+        this.style.display = 'none';
+    }
+};
+</script>

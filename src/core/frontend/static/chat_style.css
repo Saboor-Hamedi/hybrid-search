@@ -206,11 +206,10 @@
   background: white; 
   border: 1px solid #e5e7eb;
   border-radius: 26px;
-  padding: 4px;
+  padding: 0; /* Fully managed by internal paddings */
   /* No transitions for hover/focus to keep it 'rock solid' */
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  display: flex;
-  flex-direction: column;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
 }
 
 .is-empty-chat .search-input-container {
@@ -219,18 +218,19 @@
 
 .search-input {
   width: 100%;
-  padding: 12px 1rem 4px 3rem; /* Room for icon */
+  padding: 14px 1rem 44px 1rem; /* Reduced left padding (was 3.25rem) */
   border: none;
   font-size: 1.05rem;
   resize: none;
-  min-height: 44px;
-  max-height: 200px;
+  min-height: 48px;
+  max-height: 250px;
   outline: none !important;
   box-shadow: none !important;
   line-height: 1.6;
   color: #111827;
   caret-color: #2563eb;
   background: transparent;
+  display: block;
 }
 
 .search-input::placeholder {
@@ -253,61 +253,42 @@
   background-color: #d1d5db;
 }
 
-/* PDF Upload Button - Clean Minimal Icon */
+/* Legacy PDF Upload Button styles (mostly merged into .btn-icon-small) */
 .pdf-upload-btn {
-  position: absolute;
-  left: 14px;
-  top: 10px;
-  background: transparent;
-  border: none;
-  color: #9ca3af;
-  font-size: 1.15rem;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 8px;
-  transition: all 0.2s;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: auto;
-  height: auto;
+  display: none; /* Removed from top-left layout */
 }
 
-.pdf-upload-btn:hover {
-  background: rgba(0, 0, 0, 0.05); /* Slight hover only */
-  color: #111827; /* Darker on hover */
-}
-
-/* Footer layout */
+/* Floating Footer tools layered ON the input */
 .input-footer {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0 10px 8px; /* Tight integration inside the box */
-  background: transparent; /* No more ugly white background */
-  border: none;
+  pointer-events: none; /* Let clicks pass through to textarea if not on a button */
+  z-index: 10;
+}
+
+.input-footer > * {
+  pointer-events: auto; /* Enable clicks for tools */
 }
 
 /* Premium Search Button (Rounded Square - ChatGPT style) */
 .search-btn {
-  padding: 4px 14px;
-  width: auto;
-  height: 30px;
+  width: 32px;
+  height: 32px;
   background: #111827;
   color: white;
   border: none;
-  border-radius: 20px; /* Pill style to match container */
-  font-weight: 500;
+  border-radius: 50%;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
-  gap: 6px;
-  white-space: nowrap;
+  font-size: 1rem;
 }
 
 .search-btn:hover {
@@ -622,6 +603,14 @@
   }
 }
 
+/* Base styles for footer info if it exists */
+.footer-info {
+  text-align: center;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  padding: 1rem 0;
+}
+
 /* Empty State Enhancement */
 .empty-state {
   text-align: center;
@@ -703,22 +692,25 @@ kbd {
 @media (max-width: 768px) {
   .messages-area {
     padding: 1rem 0.5rem;
-    padding-bottom: 220px; /* Increased buffer for stacked input */
+    padding-bottom: 1.5rem; /* Balanced buffer */
   }
 
   /* Compact Input Area */
   .input-area {
-    padding: 0.5rem 0.75rem;
+    padding: 0.75rem;
   }
 
   .search-input-container {
-    border-radius: 5px; /* Consistent 5px */
+    border-radius: 18px; /* Slightly softer for mobile */
+    display: flex;
+    flex-direction: column;
   }
 
   .search-input {
-    font-size: 16px; /* Prevents zoom on iOS */
-    padding: 0.75rem 0.75rem 0.75rem 2.5rem; /* Tighter padding */
-    min-height: 44px;
+    font-size: 16px; /* Prevents auto-zoom on iOS */
+    padding: 12px 14px; /* Standard internal padding */
+    min-height: 48px;
+    padding-bottom: 10px; /* Less bottom padding since footer is now flow-based */
   }
 
   .pdf-upload-btn {
@@ -727,13 +719,16 @@ kbd {
     padding: 0.25rem;
   }
 
-  /* Compact Footer Row */
+  /* Flow-based Footer Row for reliability on small screens */
   .input-footer {
-    padding: 0.75rem; /* Increased padding */
-    gap: 0.75rem;
-    display: grid;
-    grid-template-columns: 1fr auto; /* Options take space, Button takes minimal */
+    position: static; /* Switch from absolute to flow */
+    padding: 8px 12px 12px;
+    background: #fdfdfd;
+    border-top: 1px solid #f3f4f6;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    pointer-events: auto;
   }
 
   .search-options {
@@ -803,12 +798,18 @@ kbd {
     min-width: auto;
   }
 
-  .result-title {
-    font-size: 0.95rem;
-  }
-
   .result-content {
     font-size: 0.9rem;
+  }
+
+  .chat-hero h1 {
+    font-size: 1.5rem;
+    padding: 0 1rem;
+  }
+
+  .footer-info {
+    font-size: 0.7rem;
+    padding: 0.5rem 0;
   }
 }
 
@@ -902,25 +903,42 @@ html {
   box-sizing: border-box;
 }
 
-.new-chat-btn {
+.sidebar-header-actions {
   width: 100%;
+}
+
+.new-chat-btn, .new-doc-btn {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 0.6rem 0.8rem;
   background: white;
   border: 1px solid #e5e7eb;
-  border-radius: 6px;
+  border-radius: 8px; /* Slightly more rounded */
   font-size: 0.875rem;
   font-weight: 500;
   color: #374151;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
 }
 
-.new-chat-btn:hover {
+.new-doc-btn {
+  width: 40px;
+  height: 40px;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.new-chat-btn:hover, .new-doc-btn:hover {
   background: #f3f4f6;
   border-color: #d1d5db;
+  color: #111827;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.new-chat-btn:active, .new-doc-btn:active {
+  transform: translateY(0);
 }
 
 .sidebar-content {
@@ -1041,4 +1059,28 @@ html {
 .chat-container {
   flex: 1;
   min-width: 0; /* Prevents overflow pushing */
+}
+
+.btn-icon-small {
+  background: transparent;
+  border: none;
+  color: #6b7280;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-icon-small i {
+  font-size: 1.15rem;
+}
+
+.btn-icon-small:hover {
+  background: #f3f4f6; /* Soft grey background */
+  color: #111827; /* Darker icon on hover */
 }

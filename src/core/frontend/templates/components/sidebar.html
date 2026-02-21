@@ -1,9 +1,13 @@
-<!-- Sidebar -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
-    <button class="new-chat-btn" onclick="window.location.href='/'">
-      <i class="bi bi-plus-lg"></i> New Search
-    </button>
+    <div class="sidebar-header-actions d-flex gap-2 w-100">
+      <button class="new-chat-btn flex-grow-1" onclick="window.location.href='/'">
+        <i class="bi bi-plus-lg"></i> New Search
+      </button>
+      <button class="new-doc-btn" onclick="document.getElementById('createModal').style.display='flex'" title="Create New Document">
+        <i class="bi bi-file-earmark-plus"></i>
+      </button>
+    </div>
   </div>
   
   <div class="sidebar-content">

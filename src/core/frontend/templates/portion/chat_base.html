@@ -29,17 +29,9 @@
           <button class="btn-icon sidebar-toggle" id="sidebarToggle" title="Toggle Sidebar">
             <i class="bi bi-layout-sidebar-inset"></i>
           </button>
-          <div class="chat-title">
+          <!-- <div class="chat-title">
              <a href="/" class="text-decoration-none">Hybrid Search</a>
-          </div>
-        </div>
-      <div class="d-flex gap-2">
-        <button class="btn btn-sm btn-outline-secondary" onclick="document.getElementById('createModal').style.display='flex'">
-          <i class="bi bi-plus-lg"></i> New Doc
-        </button>
-        <a href="http://127.0.0.1:8000/docs" target="_blank" class="btn btn-sm btn-outline-secondary">
-          API
-        </a>
+          </div> -->
       </div>
     </div>
 
@@ -157,6 +149,13 @@
                                 title="Copy Content">
                             <i class="bi bi-copy"></i>
                         </button>
+                        <button class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
+                          style="width: 28px; height: 24px; border-radius: 4px; padding: 0;"
+                          onclick="openEditModal('{{ r.doc_id }}', this.dataset.content, '{{ query }}', '{{ mode }}', '{{ r.language }}')"
+                          data-content="{{ r.content }}"
+                          title="Edit Result">
+                            <i class="bi bi-pencil" style="font-size: 0.75rem;"></i>
+                        </button>
                         <button class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center"
                           style="width: 28px; height: 24px; border-radius: 4px; padding: 0;"
                           onclick="deleteRecord('{{ r.doc_id }}')" 
@@ -249,10 +248,6 @@
           <div class="search-input-container">
             <!-- PDF Upload Trigger -->
             <input type="file" id="quickPdfInput" accept=".pdf" multiple style="display: none;">
-            <button type="button" class="pdf-upload-btn" onclick="document.getElementById('quickPdfInput').click()" title="Quick Upload PDF">
-              <i class="bi bi-paperclip"></i>
-            </button>
-            
             <textarea 
               name="query" 
               class="search-input" 
@@ -262,63 +257,24 @@
             ></textarea>
             
             <div class="input-footer">
-              <div class="search-options">
-                <div class="custom-dropdown" id="modeDropdown">
-                  <button type="button" class="dropdown-trigger" id="modeTrigger">
-                    <span id="currentModeIcon"><i class="bi bi-layers"></i></span>
-                    <span id="currentModeLabel">Hybrid</span>
-                    <i class="bi bi-chevron-down ms-auto" style="font-size: 0.7rem; opacity: 0.5;"></i>
-                  </button>
-                  <div class="dropdown-menu-custom" id="modeMenu">
-                    <div class="dropdown-item-custom {% if mode == 'hybrid' or not mode %}active{% endif %}" data-value="hybrid" data-icon="bi-layers">
-                      <div class="item-header">
-                        <i class="bi bi-layers"></i> <span>Hybrid</span>
-                      </div>
-                      <div class="item-desc">Vector + Keyword scoring</div>
-                    </div>
-                    <div class="dropdown-item-custom {% if mode == 'rrf' %}active{% endif %}" data-value="rrf" data-icon="bi-shuffle">
-                      <div class="item-header">
-                        <i class="bi bi-shuffle"></i> <span>RRF</span>
-                      </div>
-                      <div class="item-desc">Reciprocal Rank Fusion</div>
-                    </div>
-                    <div class="dropdown-item-custom {% if mode == 'semantic' %}active{% endif %}" data-value="semantic" data-icon="bi-cpu">
-                      <div class="item-header">
-                        <i class="bi bi-cpu"></i> <span>Semantic</span>
-                      </div>
-                      <div class="item-desc">Transformer-based meaning</div>
-                    </div>
-                    <div class="dropdown-item-custom {% if mode == 'keyword' %}active{% endif %}" data-value="keyword" data-icon="bi-alphabet">
-                      <div class="item-header">
-                        <i class="bi bi-alphabet"></i> <span>Keyword</span>
-                      </div>
-                      <div class="item-desc">Classic BM25 text search</div>
-                    </div>
-                  </div>
-                </div>
+              <div class="search-options d-flex align-items-center gap-1">
+                <!-- Hidden state synced from Modal -->
                 <input type="hidden" name="mode" id="activeModeInput" value="{{ mode or 'hybrid' }}">
+                <input type="hidden" name="page_size" value="{{ page_size or 10 }}">
+                <input type="checkbox" name="use_ai" id="aiToggle" value="on" {% if use_ai %}checked{% endif %} style="display: none;">
                 
-                <select name="page_size" class="page-size-select">
-                  <option value="10" {% if page_size == 10 %}selected{% endif %}>10</option>
-                  <option value="25" {% if page_size == 25 %}selected{% endif %}>25</option>
-                  <option value="50" {% if page_size == 50 %}selected{% endif %}>50</option>
-                  <option value="100" {% if page_size == 100 %}selected{% endif %}>100</option>
-                  <option value="250" {% if page_size == 250 %}selected{% endif %}>250</option>
-                  <option value="500" {% if page_size == 500 %}selected{% endif %}>500</option>
-                  <option value="1000" {% if page_size == 1000 %}selected{% endif %}>1000</option>
-                </select>
+                <button type="button" class="btn-icon-small" onclick="document.getElementById('quickPdfInput').click()" title="Quick Upload PDF">
+                  <i class="bi bi-paperclip"></i>
+                </button>
 
-                <!-- AI Toggle -->
-                <div class="form-check form-switch ms-2">
-                    <input class="form-check-input" type="checkbox" name="use_ai" id="aiToggle" value="on" {% if use_ai %}checked{% endif %}>
-                    <label class="form-check-label text-muted small" for="aiToggle">AI</label>
-                </div>
+                <button type="button" class="btn-icon-small" onclick="document.getElementById('settingModal').style.display='flex'" title="Search Preferences">
+                  <i class="bi bi-sliders"></i>
+                </button>
               </div>
 
-              <!-- Send button here -->
-              
+              <!-- Send button -->
               <button type="submit" class="search-btn">
-                <i class="bi bi-send"></i> 
+                <i class="bi bi-arrow-up-short"></i> 
               </button>
             </div>
           </div>
@@ -350,6 +306,9 @@
 
   <!-- Settings Modal -->
   {% include 'portion/setting_modal.html' %}
+
+  <!-- Edit Modal -->
+  {% include 'components/modal_edit.html' %}
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

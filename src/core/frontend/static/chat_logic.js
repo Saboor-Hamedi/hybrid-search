@@ -8,7 +8,7 @@ textarea?.addEventListener('input', function() {
   this.style.height = (this.scrollHeight) + 'px';
 });
 
-// Search Mode Dropdown Logic
+// Search Mode Dropdown Logic (Legacy - Only if elements exist)
 const modeTrigger = document.getElementById('modeTrigger');
 const modeMenu = document.getElementById('modeMenu');
 const modeItems = document.querySelectorAll('.dropdown-item-custom');
@@ -17,54 +17,31 @@ const currentModeLabel = document.getElementById('currentModeLabel');
 const currentModeIcon = document.getElementById('currentModeIcon');
 
 if (modeTrigger && modeMenu) {
-  // Toggle menu
   modeTrigger.addEventListener('click', (e) => {
     e.stopPropagation();
     modeMenu.classList.toggle('show');
   });
 
-  // Handle selection
   modeItems.forEach(item => {
     item.addEventListener('click', function() {
       const val = this.dataset.value;
       const iconClass = this.dataset.icon;
       const labelText = this.querySelector('.item-header span').textContent;
 
-      // Update UI
       modeItems.forEach(i => i.classList.remove('active'));
       this.classList.add('active');
       
-      // Update Trigger
-      currentModeLabel.textContent = labelText;
-      currentModeIcon.innerHTML = `<i class="bi ${iconClass}"></i>`;
-      
-      // Update hidden input
+      if (currentModeLabel) currentModeLabel.textContent = labelText;
+      if (currentModeIcon) currentModeIcon.innerHTML = `<i class="bi ${iconClass}"></i>`;
       if (activeModeInput) activeModeInput.value = val;
-
-      // Close menu
       modeMenu.classList.remove('show');
     });
   });
 
-  // Close on outside click
   document.addEventListener('click', () => {
     modeMenu.classList.remove('show');
   });
 }
-
-// Set initial state on load based on active input
-window.addEventListener('load', () => {
-    if (activeModeInput) {
-        const val = activeModeInput.value;
-        const activeItem = document.querySelector(`.dropdown-item-custom[data-value="${val}"]`);
-        if (activeItem) {
-            const labelText = activeItem.querySelector('.item-header span').textContent;
-            const iconClass = activeItem.dataset.icon;
-            if (currentModeLabel) currentModeLabel.textContent = labelText;
-            if (currentModeIcon) currentModeIcon.innerHTML = `<i class="bi ${iconClass}"></i>`;
-        }
-    }
-});
 
 // Loading state on form submit
 const searchForm = document.querySelector('.search-form');

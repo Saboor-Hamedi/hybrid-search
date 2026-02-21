@@ -1,37 +1,92 @@
-<!-- Settings Modal -->
 <div class="modal-backdrop-custom" id="settingModal" style="display: none;">
     <div class="modal-content-custom">
         <div class="modal-header-custom">
-            <h5 class="m-0"><i class="bi bi-gear me-2"></i>Settings</h5>
-            <button class="btn-close-custom" onclick="document.getElementById('settingModal').style.display='none'">&times;</button>
+            <h5 class="m-0">
+                <i class="bi bi-sliders2 me-2"></i>
+                Preferences
+            </h5>
+            <button class="btn-close-custom" onclick="document.getElementById('settingModal').style.display='none'">
+                <i class="bi bi-x-lg"></i>
+            </button>
         </div>
+        
         <div class="modal-body-custom">
+            <!-- Search Mode Section -->
             <div class="settings-section">
-                <h6>Appearance</h6>
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="small text-muted">Theme</span>
-                    <select class="form-select form-select-sm w-auto">
-                        <option value="light">Light</option>
-                        <option value="dark">Dark (Coming soon)</option>
+                <div class="section-label">
+                    <i class="bi bi-search-heart"></i>
+                    <span>Search Mode</span>
+                </div>
+                <div class="mode-grid">
+                    <div class="mode-option {% if mode == 'hybrid' or not mode %}active{% endif %}" data-mode="hybrid" role="button" tabindex="0">
+                        <i class="bi bi-layers-fill mode-icon"></i>
+                        <div class="mode-info">
+                            <span class="mode-title">Hybrid</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mode-option {% if mode == 'rrf' %}active{% endif %}" data-mode="rrf" role="button" tabindex="0">
+                        <i class="bi bi-arrow-left-right mode-icon"></i>
+                        <div class="mode-info">
+                            <span class="mode-title">RRF</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mode-option {% if mode == 'semantic' %}active{% endif %}" data-mode="semantic" role="button" tabindex="0">
+                        <i class="bi bi-stars mode-icon"></i>
+                        <div class="mode-info">
+                            <span class="mode-title">Semantic</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mode-option {% if mode == 'keyword' %}active{% endif %}" data-mode="keyword" role="button" tabindex="0">
+                        <i class="bi bi-fonts mode-icon"></i>
+                        <div class="mode-info">
+                            <span class="mode-title">Keyword</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuration Section -->
+            <div class="settings-section">
+                <div class="parameter-item">
+                    <div class="parameter-label">
+                        <i class="bi bi-list-ul"></i>
+                        <span>Results per page</span>
+                    </div>
+                    <select id="modalPageSize" class="parameter-select">
+                        <option value="10" {% if page_size == 10 %}selected{% endif %}>10</option>
+                        <option value="25" {% if page_size == 25 %}selected{% endif %}>25</option>
+                        <option value="50" {% if page_size == 50 %}selected{% endif %}>50</option>
+                        <option value="100" {% if page_size == 100 %}selected{% endif %}>100</option>
                     </select>
                 </div>
+
+                <div class="parameter-item">
+                    <div class="parameter-label">
+                        <i class="bi bi-robot"></i>
+                        <span>AI Summarization</span>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="modalAiToggle" {% if use_ai %}checked{% endif %}>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
             </div>
-            
-            <div class="settings-section mt-4">
-                <h6>Search Preferences</h6>
-                <div class="form-check form-switch mb-2">
-                    <input class="form-check-input" type="checkbox" id="pref_ai_suggest" checked>
-                    <label class="form-check-label small" for="pref_ai_suggest">Show AI Suggestions</label>
-                </div>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="pref_history_save" checked>
-                    <label class="form-check-label small" for="pref_history_save">Save Search History</label>
-                </div>
+
+            <!-- Quick Access -->
+            <div class="settings-section mb-0">
+                <a href="http://127.0.0.1:8000/docs" target="_blank" class="access-link-inline">
+                    <i class="bi bi-code-square me-1"></i> API Documentation <i class="bi bi-box-arrow-up-right ms-1" style="font-size: 0.7rem;"></i>
+                </a>
             </div>
         </div>
-        <div class="modal-footer-custom justify-content-end">
-            <button class="btn btn-sm btn-secondary me-2" onclick="document.getElementById('settingModal').style.display='none'">Cancel</button>
-            <button class="btn btn-sm btn-dark" onclick="document.getElementById('settingModal').style.display='none'">Save Changes</button>
+
+        <div class="modal-footer-custom">
+            <button class="apply-button" onclick="saveModalSettings()">
+                Apply Changes
+            </button>
         </div>
     </div>
 </div>
@@ -43,60 +98,329 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0,0,0,0.4);
-    backdrop-filter: blur(4px);
-    z-index: 1000;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .modal-content-custom {
-    background: white;
-    width: 100%;
-    max-width: 450px;
-    border-radius: 12px;
-    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    background: #ffffff;
+    width: 560px; /* Average width - not too wide, not too narrow */
+    max-width: 90vw; /* Responsive fallback for smaller screens */
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     overflow: hidden;
+    animation: modalPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalPop {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }
 
 .modal-header-custom {
-    padding: 1.25rem;
-    border-bottom: 1px solid #f3f4f6;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f0f2f5;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.modal-body-custom {
-    padding: 1.5rem;
+.modal-header-custom h5 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1a1f2e;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
 }
 
-.modal-footer-custom {
-    padding: 1.25rem;
-    background: #f9fafb;
-    display: flex;
-    border-top: 1px solid #f3f4f6;
+.modal-header-custom h5 i {
+    color: #4f5af5;
 }
 
 .btn-close-custom {
     background: transparent;
     border: none;
-    font-size: 1.5rem;
-    line-height: 1;
-    color: #9ca3af;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #7e8497;
     cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1.2rem;
 }
 
 .btn-close-custom:hover {
-    color: #111827;
+    background: #f5f6fa;
+    color: #1a1f2e;
 }
 
-.settings-section h6 {
-    font-size: 0.75rem;
+.modal-body-custom {
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
+}
+
+.settings-section {
+    margin-bottom: 1.5rem;
+}
+
+.section-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.section-label i {
+    font-size: 1rem;
+    color: #4f5af5;
+}
+
+.section-label span {
+    font-size: 0.8rem;
+    font-weight: 700;
     text-transform: uppercase;
+    color: #5a6275;
     letter-spacing: 0.05em;
-    color: #6b7280;
-    margin-bottom: 1rem;
+}
+
+.mode-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+}
+
+.mode-option {
+    padding: 0.75rem 0.5rem;
+    background: #f9fafc;
+    border: 1.5px solid #eef0f4;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.mode-option:hover {
+    border-color: #d0d5e0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.mode-option.active {
+    background: #4f5af5;
+    border-color: #4f5af5;
+    color: white;
+}
+
+.mode-option.active .mode-icon {
+    color: white;
+}
+
+.mode-icon {
+    font-size: 1.3rem;
+    color: #4f5af5;
+    margin-bottom: 0.1rem;
+}
+
+.mode-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.parameter-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #f0f2f5;
+}
+
+.parameter-item:last-of-type {
+    border-bottom: none;
+}
+
+.parameter-label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.parameter-label i {
+    color: #7e8497;
+    font-size: 1rem;
+    width: 20px;
+}
+
+.parameter-label span {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #2a3142;
+}
+
+.parameter-select {
+    padding: 0.4rem 2rem 0.4rem 1rem;
+    border-radius: 30px;
+    border: 1px solid #e2e6ed;
+    background: #f5f7fa;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1a1f2e;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a6275' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    cursor: pointer;
+}
+
+.parameter-select:hover {
+    background-color: #f0f2f8;
+    border-color: #cbd0dc;
+}
+
+.parameter-select:focus {
+    outline: none;
+    border-color: #4f5af5;
+    box-shadow: 0 0 0 3px rgba(79, 90, 245, 0.1);
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 22px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #e2e6ed;
+    transition: .3s;
+    border-radius: 34px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 2px;
+    bottom: 2px;
+    background: white;
+    transition: .3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+input:checked + .toggle-slider {
+    background: #4f5af5;
+}
+
+input:checked + .toggle-slider:before {
+    transform: translateX(22px);
+}
+
+.access-link-inline {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #4f5af5;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.25rem 0;
+}
+
+.access-link-inline:hover {
+    text-decoration: underline;
+}
+
+.modal-footer-custom {
+    padding: 1rem 1.5rem 1.25rem 1.5rem;
+    background: #fafbff;
+    border-top: 1px solid #f0f2f5;
+}
+
+.apply-button {
+    width: 100%;
+    padding: 0.75rem;
+    background: #1a1f2e;
+    border: none;
+    border-radius: 40px;
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.apply-button:hover {
+    background: #2c3447;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px -8px rgba(0,0,0,0.2);
+}
+
+.apply-button:active {
+    transform: translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .modal-content-custom {
+        width: 95vw;
+    }
+    
+    .mode-grid {
+        gap: 0.5rem;
+    }
+    
+    .mode-title {
+        font-size: 0.8rem;
+    }
+    
+    .modal-body-custom {
+        padding: 1.25rem;
+    }
 }
 </style>
+<script>
+    document.querySelectorAll('.mode-option').forEach(opt => {
+        opt.addEventListener('click', function() {
+            document.querySelectorAll('.mode-option').forEach(o => o.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+
+    function saveModalSettings() {
+        const activeMode = document.querySelector('.mode-option.active').dataset.mode;
+        const pageSize = document.getElementById('modalPageSize').value;
+        const aiEnabled = document.getElementById('modalAiToggle').checked;
+        const modeInput = document.getElementById('activeModeInput');
+        const pageSizeInput = document.getElementsByName('page_size')[0];
+        const aiToggleInput = document.getElementById('aiToggle');
+        if (modeInput) modeInput.value = activeMode;
+        if (pageSizeInput) pageSizeInput.value = pageSize;
+        if (aiToggleInput) aiToggleInput.checked = aiEnabled;
+        window.ENABLE_AI = aiEnabled;
+        document.getElementById('settingModal').style.display = 'none';
+    }
+</script>

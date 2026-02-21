@@ -23,7 +23,10 @@
             class="btn btn-sm btn-outline-secondary" title="Copy">
             <i class="bi bi-clipboard"></i>
           </button>
-        <button onclick="document.getElementById('editModal').style.display='flex'" class="btn btn-sm btn-outline-primary">
+        <button onclick="openEditModal('{{ doc.doc_id }}', this.dataset.content, '{{ back_query }}', '{{ back_mode }}', '{{ doc.language }}')" 
+          class="btn btn-sm btn-outline-primary" 
+          data-content="{{ doc.content }}"
+          title="Edit">
           <i class="bi bi-pencil"></i>
         </button>
         <button onclick="deleteRecord('{{ doc.doc_id }}')" class="btn btn-sm btn-outline-danger">
@@ -48,21 +51,7 @@
   </div>
 </div>
 
-<!-- Edit Modal -->
-<div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
-  <div style="background: white; border-radius: 12px; padding: 1.5rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;">
-    <h5 class="mb-3">Edit Document #{{ doc.doc_id }}</h5>
-    <form method="POST" action="{{ url_for('update_post', doc_id=doc.doc_id) }}">
-      <input type="hidden" name="q" value="{{ back_query or '' }}">
-      <input type="hidden" name="mode" value="{{ back_mode or 'hybrid' }}">
-      <textarea class="form-control mb-3" name="content" rows="12" required>{{ doc.content }}</textarea>
-      <div class="d-flex gap-2 justify-content-end">
-        <button type="button" class="btn btn-secondary" onclick="document.getElementById('editModal').style.display='none'">Cancel</button>
-        <button type="submit" class="btn btn-primary">Save Changes</button>
-      </div>
-    </form>
-  </div>
-</div>
+{% include 'components/modal_edit.html' %}
 
 
 {% include 'portion/confirm_delete.html' %}
