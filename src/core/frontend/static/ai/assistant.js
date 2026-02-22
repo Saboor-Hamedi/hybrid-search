@@ -106,8 +106,21 @@ function appendChatMessage(sender, text, id = null, isTyping = false) {
       </div>
     `;
   } else if (sender === 'bot') {
-    const formatted = polishedText
+    let formatted = polishedText
+        .replace(/\r\n/g, '\n')
         .replace(/\n/g, '<br>')
+        .replace(/```(\w*)\n?([\s\S]*?)```/g, (match, lang, code) => {
+            return `
+            <div class="code-block-container">
+                <div class="code-block-header">
+                    <span>${lang || 'code'}</span>
+                    <button class="copy-code-btn" onclick="copyCode(this)">
+                        <i class="bi bi-clipboard"></i> Copy
+                    </button>
+                </div>
+                <pre><code>${code.trim()}</code></pre>
+            </div>`;
+        })
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/`(.*?)`/g, '<code>$1</code>')
         .replace(/\[Doc\s*(\d+)\]/g, '<strong class="text-primary small mx-1">#$1</strong>');

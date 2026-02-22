@@ -85,3 +85,18 @@ function showCopySuccess(btn) {
         btn.classList.remove('copy-success');
     }, 2000);
 }
+
+window.copyCode = function(btn) {
+    const container = btn.closest('.code-block-container');
+    const code = container.querySelector('code').innerText;
+    
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(code).then(() => {
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check2"></i> Copied!';
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+            }, 2000);
+        });
+    }
+}

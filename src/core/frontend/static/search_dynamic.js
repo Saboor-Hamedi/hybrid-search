@@ -204,7 +204,7 @@ function renderSearchResults(data, turnId) {
                             Relevant?
                         </label>
                     </span>
-                    <div class="result-actions d-flex justify-content-end align-items-center gap-2 mt-2">
+                    <div class="result-actions d-flex justify-content-end align-items-center gap-2">
                         <button class="btn btn-sm btn-outline-info d-flex align-items-center px-2" 
                             style="font-size: 0.75rem; height: 24px; border-radius: 4px;"
                             onclick="showAnalysis(this)"

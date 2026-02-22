@@ -72,8 +72,20 @@ async function triggerAIAnswer(turnId = null) {
             answerText = answerText.replace(/\b(ai|ml|rrf|api|llm|nlp|db|sql|ui|ux|pdf)\b/gi, match => match.toUpperCase());
 
             function parseMarkdown(text) {
+                text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, (match, lang, code) => {
+                    return `
+                    <div class="code-block-container">
+                        <div class="code-block-header">
+                            <span>${lang || 'code'}</span>
+                            <button class="copy-code-btn" onclick="copyCode(this)">
+                                <i class="bi bi-clipboard"></i> Copy
+                            </button>
+                        </div>
+                        <pre><code>${code.trim()}</code></pre>
+                    </div>`;
+                });
                 text = text.replace(/^### (.*$)/gim, '<h5 class="fw-bold mt-2">$1</h5>');
-                text = text.replace(/^## (.*$)/gim, '<h4 class="fw-bold mt-2">$1</h4>');
+                text = text.replace(/^## (.*$)/gim, '<h4 class="fw-bold mt-2">$4</h4>');
                 text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                 text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
                 text = text.replace(/`(.*?)`/g, '<code class="bg-light px-1 rounded">$1</code>');

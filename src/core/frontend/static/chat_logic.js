@@ -219,12 +219,11 @@ document.querySelectorAll('.result-content').forEach(result => {
       // Copy content on double-click
       const text = this.textContent.trim();
       navigator.clipboard.writeText(text).then(() => {
-        // Show brief feedback
-        const original = this.style.background;
-        this.style.background = '#dbeafe';
+        // Subtle visual feedback
+        this.classList.add('copy-success-highlight');
         setTimeout(() => {
-          this.style.background = original;
-        }, 200);
+          this.classList.remove('copy-success-highlight');
+        }, 400);
       });
       clickCount = 0;
     }
@@ -370,7 +369,7 @@ function preloadStrategyChart() {
 }
 
 
-function copyAnalysisData() {
+function copyAnalysisData(btn) {
     let textSummary = "";
     
     // Determine mode based on Focus
@@ -453,14 +452,18 @@ function copyAnalysisData() {
     textSummary += `ROUTER ACC: ${metricsData.router.accuracy}`;
 
     navigator.clipboard.writeText(textSummary).then(() => {
-        // Visual Feedback
-        const btn = document.querySelector('button[onclick="copyAnalysisData()"] i');
-        if(btn) {
-            const originalClass = btn.className;
-            btn.className = 'bi bi-check2 text-success';
+        // Use Global Style Feedback
+        if (btn) {
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check2"></i> Copied!';
+            btn.classList.add('btn-success');
+            btn.classList.remove('btn-primary');
+            
             setTimeout(() => {
-                btn.className = originalClass;
-            }, 1500);
+                btn.innerHTML = originalHtml;
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-primary');
+            }, 2000);
         }
     });
 }
