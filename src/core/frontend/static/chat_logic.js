@@ -85,7 +85,7 @@ if (searchForm && searchBtn) {
     });
   });
 
-  searchForm.addEventListener('submit', async function(e) {
+    searchForm.addEventListener('submit', async function(e) {
     const query = textarea.value.trim();
     if (!query) {
       e.preventDefault();
@@ -93,119 +93,30 @@ if (searchForm && searchBtn) {
       return;
     }
 
-    // If Assistant mode, intercept and do dynamic chat
+    // 1. Intercept for SPA behavior
+    e.preventDefault();
+
+    // Check if we need to transition from welcome state
+    const chatContainer = document.querySelector('.chat-container');
+    if (chatContainer && chatContainer.classList.contains('is-empty-chat')) {
+        chatContainer.classList.remove('is-empty-chat');
+        document.body.classList.add('is-query-active');
+    }
+
+    // 2. Handle Assistant mode (Existing)
     if (activeSearchType.value === 'assistant') {
-      e.preventDefault();
       await handleAssistantChat(query);
-      return;
-    }
-
-    searchBtn.classList.add('loading');
-    searchBtn.disabled = true;
-  });
-}
-
-/**
- * Handle direct AI chat logic (No RAG, just conversation)
- */
-async function handleAssistantChat(message) {
-  const messagesArea = document.getElementById('messagesArea');
-  const chatContainer = document.querySelector('.chat-container');
-  const textarea = document.querySelector('.search-input');
-  
-  // 1. Ensure UI is ready for messages
-  if (chatContainer.classList.contains('is-empty-chat')) {
-    chatContainer.classList.remove('is-empty-chat');
-    document.body.classList.add('is-query-active'); // Triggers hiding chat-hero and empty-state
-  }
-  
-  // 2. Clear input
-  textarea.value = '';
-  textarea.style.height = 'auto';
-  
-  // 3. Append User Message
-  appendChatMessage('user', message);
-  
-  // 4. Typing Indicator
-  const typingId = 'typing-' + Date.now();
-  appendChatMessage('bot', '...', typingId, true);
-  scrollToBottom();
-
-  try {
-    const response = await fetch('/api/quick-chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: message })
-    });
-
-    const data = await response.json();
-    
-    // Remove typing
-    document.getElementById(typingId)?.remove();
-
-    if (data.reply) {
-      appendChatMessage('bot', data.reply);
+    } 
+    // 3. Handle Normal/Hybrid Search dynamically
+    else if (typeof handleDynamicSearch === 'function') {
+      const modeInput = document.getElementById('activeModeInput');
+      await handleDynamicSearch(query, modeInput?.value || 'hybrid');
     } else {
-      appendChatMessage('error', data.error || "No response. Is Ollama running?");
+      // Fallback if script not loaded (should not happen)
+      searchForm.submit();
+      return; 
     }
-  } catch (err) {
-    document.getElementById(typingId)?.remove();
-    appendChatMessage('error', "Connection error: Could not reach the AI service.");
-  }
-  
-  scrollToBottom();
-}
-
-/**
- * Utility to append a message bubble to the messages area
- */
-function appendChatMessage(sender, text, id = null, isTyping = false) {
-  const wrapper = document.querySelector('.messages-wrapper');
-  if (!wrapper) return;
-
-  const msgDiv = document.createElement('div');
-  msgDiv.className = 'message';
-  if (id) msgDiv.id = id;
-  
-  let contentHtml = '';
-  const polishedText = sender === 'bot' ? polishChatText(text) : text;
-  
-  if (sender === 'user') {
-    contentHtml = `
-      <div class="message-query assistant-chat-user">
-        <strong>You:</strong> ${polishedText}
-      </div>
-    `;
-  } else if (sender === 'bot') {
-    const formatted = polishedText
-        .replace(/\n/g, '<br>')
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/`(.*?)`/g, '<code>$1</code>');
-        
-    contentHtml = `
-      <div class="message-response assistant-chat-bot">
-        <div class="d-flex align-items-center gap-2 mb-2 text-primary small fw-bold">
-          <i class="bi bi-robot"></i> AI Assistant
-        </div>
-        <div class="assistant-content">
-          ${isTyping ? '<div class="typing-indicator"><span></span><span></span><span></span></div>' : formatted}
-        </div>
-      </div>
-    `;
-  } else {
-    contentHtml = `<div class="alert alert-danger py-2 small">${text}</div>`;
-  }
-
-  msgDiv.innerHTML = contentHtml;
-  wrapper.appendChild(msgDiv);
-}
-
-// Reuse polishing from global chat
-function polishChatText(text) {
-    if (!text) return "";
-    let polished = text.replace(/(^\s*\w|[.!?]\s*\w)/g, c => c.toUpperCase());
-    polished = polished.replace(/\b(ai|ml|rrf|api|llm|nlp|db|sql|ui|ux|pdf)\b/gi, match => match.toUpperCase());
-    return polished;
+  });
 }
 
 // Keyboard Shortcuts
@@ -744,175 +655,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// --- RAG Logic ---
-async function triggerAIAnswer() {
-    const container = document.getElementById('aiAnswerContainer');
-    const spinner = document.getElementById('aiSpinner');
-    const textBox = document.getElementById('aiAnswerText');
-    const query = document.querySelector('textarea[name="query"]').value || document.querySelector('.message-query')?.textContent.replace('Searching for: "', '').slice(0, -1);
-    
-    if (!container || !query) return;
 
-    // Show Container & Spinner
-    container.classList.remove('d-none');
-    spinner.classList.remove('d-none');
-    textBox.innerHTML = '<i class="text-muted">Consulting local research documents...</i>';
-
-    // Collect Top 5 Contexts from DOM
-    const contexts = [];
-    const items = document.querySelectorAll('.result-item');
-    for (let i = 0; i < Math.min(items.length, 5); i++) {
-        const item = items[i];
-        // Extract ID robustly using the specific class
-        let docId = "Unknown";
-        const idEl = item.querySelector('.result-doc-id');
-        if (idEl) {
-             docId = idEl.textContent.trim().replace('#', '');
-        } else {
-             // Fallback (risky but better than title) - try to find element starting with #
-             const links = item.querySelectorAll('a');
-             for(let l of links) {
-                 if (l.textContent.trim().startsWith('#')) {
-                     docId = l.textContent.trim().replace('#', '');
-                     break;
-                 }
-             }
-        }
-
-        // Content is in .result-content, but mixed with ID link. 
-        // We can get the data-content from the analysis button for clean text!
-        const btn = item.querySelector('button[onclick="showAnalysis(this)"]');
-        if (btn && btn.dataset.content) {
-            contexts.push({
-                doc_id: docId,
-                content: btn.dataset.content
-            });
-        }
-    }
-
-    if (contexts.length === 0) {
-         textBox.textContent = "Could not extract context for AI generation.";
-         spinner.classList.add('d-none');
-         return;
-    }
-
-    try {
-        const response = await fetch('/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: query.trim(), contexts: contexts })
-        });
-
-        const data = await response.json();
-        spinner.classList.add('d-none');
-        
-        if (data.answer) {
-            let answerText = data.answer;
-            let bestSourceId = null;
-
-            // 1. Extract BEST_SOURCE_ID (Relaxed Regex)
-            // Catches: "BEST_SOURCE_ID", "Best-Source_ID", "Source: 123", etc.
-            const sourceMatch = answerText.match(/(?:\*\*|)?(?:BEST[-_ ]?SOURCE[-_ ]?ID|Best[-_ ]?Source[-_ ]?ID|Source[-_ ]?ID|Source|Best[-_ ]?Source)(?:\*\*|)?:\s*(\d+)/i);
-            if (sourceMatch) {
-                bestSourceId = sourceMatch[1];
-                // Remove the tag from the visible text (replace the whole match)
-                answerText = answerText.replace(sourceMatch[0], '').trim();
-            }
-
-            // 2. Polish Text (Capitalization & Acronyms)
-            // Helper to capitalize sentences
-            answerText = answerText.replace(/(^\s*\w|[.!?]\s*\w)/g, c => c.toUpperCase());
-            // Helper to uppercase common tech acronyms
-            answerText = answerText.replace(/\b(ai|ml|rrf|api|llm|nlp|db|sql|ui|ux|pdf)\b/gi, match => match.toUpperCase());
-
-            // 3. Robust Markdown Parsing
-            function parseMarkdown(text) {
-                // Headers (### )
-                text = text.replace(/^### (.*$)/gim, '<h5 class="fw-bold mt-2">$1</h5>');
-                text = text.replace(/^## (.*$)/gim, '<h4 class="fw-bold mt-2">$1</h4>');
-                
-                // Bold (**text**)
-                text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                
-                // Italic (*text*)
-                text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                
-                // Monospace (`text`)
-                text = text.replace(/`(.*?)`/g, '<code class="bg-light px-1 rounded">$1</code>');
-                
-                // Custom List Handling (Flexbox for alignment)
-                // Capture bullet lines
-                text = text.replace(/^\s*-\s+(.*)$/gm, '<div class="d-flex align-items-start mb-1"><span class="me-2 text-muted">•</span><span>$1</span></div>');
-                // Capture numbered lines (1. )
-                text = text.replace(/^\s*(\d+)\.\s+(.*)$/gm, '<div class="d-flex align-items-start mb-1"><span class="me-2 fw-bold text-muted">$1.</span><span>$2</span></div>');
-                
-                // Newlines: Only double newlines become BR if not in list? 
-                // Simple approach: Replace remaining newlines with BR
-                text = text.replace(/\n/g, '<br>');
-                
-                return text;
-            }
-
-            // Remove trailing source lists like "Sources: 1, 2" or ", 123, 456."
-            answerText = answerText.replace(/,\s*\d{3,}(,\s*\d{3,})*[.]?\s*$/i, ''); // Tail comma list
-            answerText = answerText.replace(/(?:Sources?|References?):\s*[\d,\s]{3,}[.]?\s*$/i, ''); // "Sources: 123, 456"
-
-            let formatted = parseMarkdown(answerText);
-            
-            // 4. Highlight Docs (Styled Links)
-            formatted = formatted.replace(/\[Doc\s*(\d+)\]/g, '<a href="/document/$1" target="_blank" class="fw-semibold text-primary text-decoration-none small mx-1">[Doc $1]</a>');
-            
-            // 5. Render Answer
-            textBox.innerHTML = formatted;
-
-            // 5. Render Footer (Best Match + Copy Button)
-            const copyBtnId = `copy-btn-${Date.now()}`;
-            const footerEl = document.getElementById('aiFooter');
-            
-            if (footerEl) {
-                footerEl.classList.remove('d-none');
-                footerEl.innerHTML = `
-                <div class="d-flex align-items-center justify-content-between" style="font-size: 0.8rem;">
-                    <div>
-                        ${bestSourceId ? `
-                        <span class="d-flex align-items-center text-muted">
-                            <i class="bi bi-star-fill text-warning me-1"></i>
-                            <span class="fw-semibold text-secondary">Source:</span>
-                            <a href="/document/${bestSourceId}" target="_blank" class="ms-1 text-primary text-decoration-none fw-bold">#${bestSourceId}</a>
-                        </span>
-                        ` : '<span class="text-muted fst-italic small">Generated from context</span>'}
-                    </div>
-
-                    <button id="${copyBtnId}" class="btn btn-sm text-secondary border-0 d-flex align-items-center bg-transparent p-0" style="min-width: 65px; justify-content: end;" title="Copy to clipboard">
-                        <i class="bi bi-copy me-1"></i> Copy
-                    </button>
-                </div>
-                `;
-            }
-
-            // Attach Copy Listener
-            setTimeout(() => {
-                const btn = document.getElementById(copyBtnId);
-                if(btn) {
-                    btn.onclick = () => {
-                        navigator.clipboard.writeText(answerText).then(() => {
-                            btn.innerHTML = '<i class="bi bi-check2 me-1"></i> Copied';
-                            setTimeout(() => btn.innerHTML = '<i class="bi bi-copy me-1"></i> Copy', 2000);
-                        });
-                    };
-                }
-            }, 0);
-
-        } else {
-            textBox.textContent = "No answer generated.";
-        }
-
-    } catch (e) {
-        console.error("AI Generation failed", e);
-        spinner.classList.add('d-none');
-        textBox.textContent = "Error: Could not contact local AI service. Ensure Ollama is running.";
-    }
-}
+// --- Chart.js Globals ---
 
 // --- Chart.js Globals ---
 let radarChart = null;

@@ -17,9 +17,9 @@ except Exception:
     BASE_THRESHOLD = 0.15
 
 try:
-    TOP_K = int(os.environ.get("TOP_K", "1000"))
+    TOP_K = int(os.environ.get("TOP_K", "10"))
 except Exception:
-    TOP_K = 1000
+    TOP_K = 10
 def search_hybrid(
     query: str, conn, cursor, model, top_k=TOP_K, threshold=BASE_THRESHOLD, fusion_strategy="linear"
 ):

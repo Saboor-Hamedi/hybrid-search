@@ -98,16 +98,8 @@ def home():
             total_pages = pagination.get("total_pages", 0)
             total_results = pagination.get("total_results", 0)
 
-            # we calculate a test value to ensure the buttons render.
-            if total_results > 0 and total_pages <= 1 and page_size > 0:
-                # Calculate the correct total pages based on the results count
-
-                test_total_pages = (total_results // page_size) + (1 if total_results % page_size != 0 else 0)
-
-                # Use the calculated value if it's greater than 1
-                if test_total_pages > 1:
-                    total_pages = test_total_pages
-                    print(f"DEBUG: Forcing total_pages to {total_pages} for front-end rendering test.")
+            total_pages = 1
+            total_results = len(results)
             # ---------------------------------------------
 
 
@@ -125,7 +117,9 @@ def home():
                 "ndcg_score": raw.get("metrics", {}).get("ndcg", "N/A"),
                 "qpms": raw.get("metrics", {}).get("qpms", "N/A"),
                 "router_accuracy": raw.get("metrics", {}).get("router_acc", "N/A"),
-                "router_choice": raw.get("metrics", {}).get("router_choice", "Hybrid")
+                "router_choice": raw.get("metrics", {}).get("router_choice", "Hybrid"),
+                "rank_debug": raw.get("rank_debug", {}),
+                "latency_stats": raw.get("latency_stats", {})
             }
             graph_img = generate_query_graph(
                 mode=mode,
@@ -135,15 +129,37 @@ def home():
                 bm25_count=stats.get('bm25_count', 0)
             )
 
-
-        except requests.RequestException as e:
+        except Exception as e:
             results = []
-            stats = {"error": str(e)}
+            stats = {"error": str(e), "returned": 0, "query_time_ms": 0}
             print("Backend error:", e)
+            total_pages = 0
+            total_results = 0
 
     # pagination helpers
     prev_page = page - 1 if page > 1 else None
     next_page = page + 1 if page < total_pages else None
+
+    # Detect AJAX request (Header or URL Param)
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or \
+              request.args.get('ajax') == '1' or \
+              request.form.get('ajax') == '1'
+
+    if is_ajax:
+        return {
+            "results": results,
+            "stats": stats,
+            "query": query,
+            "mode": mode,
+            "page": page,
+            "prev_page": prev_page,
+            "next_page": next_page,
+            "total_pages": total_pages,
+            "total_results": total_results,
+            "use_ai": use_ai,
+            "fusion_strategy": fusion_strategy,
+            "page_size": page_size
+        }
 
     return render_template(
         "index.html",
@@ -164,9 +180,28 @@ def home():
     )
 
 
-# ------------------------------------------------------------------ #
-#  /document/<id> – Wikipedia-style page
-# ------------------------------------------------------------------ #
+#  /document/<id> – JSON API for Preview Modal
+@app.route("/api/document/<int:doc_id>")
+def get_document_api(doc_id: int):
+    conn, cursor = _db()
+    try:
+        cursor.execute("SELECT id, content, language, created_at FROM document WHERE id = %s", (doc_id,))
+        row = cursor.fetchone()
+        if not row:
+            return {"error": "Document not found"}, 404
+        
+        return {
+            "doc_id": row[0],
+            "content": row[1] or "",
+            "language": (row[2] or "en").upper(),
+            "created_at": row[3].strftime("%Y-%m-%d %H:%M") if row[3] else "unknown"
+        }
+    except Exception as e:
+        return {"error": str(e)}, 500
+    finally:
+        cursor.close()
+
+
 def _db():
 
     conn = db_connection()
@@ -175,151 +210,9 @@ def _db():
     return conn, conn.cursor()
 
 
-@app.route("/document/<int:doc_id>")
-def document_page(doc_id: int):
-    conn, cursor = _db()
-
-    # Retrieve back-link parameters from URL arguments
-    back_query = request.args.get("q", "")
-    back_mode = request.args.get("mode", "hybrid")
-
-    try:
-        # 1. Fetch document (include score if you have it)
-        cursor.execute(
-            """
-            SELECT id, content, language, created_at
-            FROM document
-            WHERE id = %s
-            """,
-            (doc_id,),
-        )
-        row = cursor.fetchone()
-        if not row:
-            return render_template(
-                "404.html",
-                doc_id=doc_id,
-                error=f"Document {doc_id} not found in the database."
-            ), 404
-
-        # 2. Build doc dict (safe defaults)
-        doc = {
-            "doc_id": row[0],
-            "content": row[1] or "",
-            "language": row[2] or "en",
-            "created_at": row[3].strftime("%Y-%m-%d %H:%M") if row[3] else "unknown",
-            "score": 0.0,
-        }
-
-        try:
-            score = float(request.args.get("score", 0))
-            doc["score"] = round(score, 4)
-        except Exception as e:
-            print("DB error:", e)
-        # Optional component scores passed from search results
-        def _get_float_arg(name, default=None):
-            v = request.args.get(name)
-            if v is None:
-                return default
-            try:
-                return round(float(v), 4)
-            except Exception:
-                return default
-
-        doc["semantic_score"] = _get_float_arg("semantic_score", None)
-        doc["bm25_score"] = _get_float_arg("bm25_score", None)
-        doc["semantic_weight"] = _get_float_arg("semantic_weight", None)
-        doc["bm25_weight"] = _get_float_arg("bm25_weight", None)
-
-        # If both component weights are present and > 0, this visit most likely
-        # originated from a hybrid search — override the back_mode for display.
-        try:
-            sw = doc.get("semantic_weight")
-            bw = doc.get("bm25_weight")
-            if sw is not None and bw is not None:
-                # treat small floats as truthy only if greater than 0
-                if float(sw) > 0.0 and float(bw) > 0.0:
-                    back_mode = "hybrid"
-        except Exception:
-            # Leave back_mode as-is on any parse error
-            pass
-
-
-        # 3. Related docs: prefer fetching similarity+component scores from backend
-        related = []
-        try:
-            # Use a trimmed excerpt of the document as the query to find similar docs
-            excerpt = (doc.get("content") or "").strip()[:512]
-            payload = {"query": excerpt, "mode": back_mode or "hybrid", "page": 1, "page_size": 6}
-            resp = requests.post(f"{API_URL}/search", json=payload, timeout=10)
-            resp.raise_for_status()
-            data = resp.json()
-            results = data.get("results", [])
-            for r in results:
-                # skip the same document if present in results
-                if int(r.get("doc_id") or 0) == int(doc_id):
-                    continue
-                related.append(
-                    {
-                        "doc_id": r.get("doc_id"),
-                        "title": (r.get("content")[:60] + "...") if r.get("content") and len(r.get("content")) > 60 else (r.get("title") or r.get("content") or f"Document #{r.get('doc_id')}") ,
-                        "language": r.get("language") or "en",
-                        "created_at": (r.get("created_at") or "")[:8],
-                        "score": r.get("score", 0.0),
-                        "semantic_score": r.get("semantic_score"),
-                        "bm25_score": r.get("bm25_score"),
-                        "semantic_weight": r.get("semantic_weight"),
-                        "bm25_weight": r.get("bm25_weight"),
-                    }
-                )
-                if len(related) >= 5:
-                    break
-        except requests.RequestException:
-            # fallback: simple DB-backed recent-same-language list (no scores)
-            cursor.execute(
-                """
-                SELECT id, content, language, created_at
-                FROM document
-                WHERE language = %s AND id != %s
-                ORDER BY created_at DESC
-                LIMIT 5
-                """,
-                (doc["language"], doc_id),
-            )
-            related = [
-                {
-                    "doc_id": r[0],
-                    "title": (r[1][:60] + "...") if len(r[1]) > 60 else r[1],
-                    "language": r[2] or "en",
-                    "created_at": r[3].strftime("%y-%m-%d") if r[3] else "unknown",
-                    "score": 0.0 # placeholder score
-                }
-                for r in cursor.fetchall()
-            ]
-
-
-        # Display graphs
-
-        return render_template(
-            "document.html",
-            doc=doc,
-            related=related,
-            back_query = back_query,
-            back_mode = back_mode,
-            query=back_query,  # For header search bar
-            mode=back_mode     # For header mode selector
-        )
-
-    except Exception as e:
-        print("DB error:", e)
-        return render_template(
-            "404.html",
-            doc_id=doc_id,
-            error=f"Database error: {str(e)}"
-        ), 500
-    finally:
-        cursor.close()
-        conn.close()
-
+# ------------------------------------------------------------------ #
+#  /search_debug – debug page for RAG/Scores
+# ------------------------------------------------------------------ #
 @app.post("/document/<int:doc_id>/reembed")
 def reembed_document(doc_id: int):
     back_query = request.form.get("q", "")

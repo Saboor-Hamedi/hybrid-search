@@ -11,7 +11,7 @@ from core.utils.rich_console import display_in_table
 cs = ColorScheme()
 
 def search_rrf(
-    query: str, conn, cursor, model, top_k=100, k=60
+    query: str, conn, cursor, model, top_k=10, k=60
 ) -> Tuple[List[Tuple], Dict[str, Any]]:
     """
     Executes a hybrid search using Reciprocal Rank Fusion (RRF).

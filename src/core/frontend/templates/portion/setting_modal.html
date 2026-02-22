@@ -50,18 +50,6 @@
 
             <!-- Configuration Section -->
             <div class="settings-section">
-                <div class="parameter-item">
-                    <div class="parameter-label">
-                        <i class="bi bi-list-ul"></i>
-                        <span>Results per page</span>
-                    </div>
-                    <select id="modalPageSize" class="parameter-select">
-                        <option value="10" {% if page_size == 10 %}selected{% endif %}>10</option>
-                        <option value="25" {% if page_size == 25 %}selected{% endif %}>25</option>
-                        <option value="50" {% if page_size == 50 %}selected{% endif %}>50</option>
-                        <option value="100" {% if page_size == 100 %}selected{% endif %}>100</option>
-                    </select>
-                </div>
 
                 <div class="parameter-item">
                     <div class="parameter-label">
@@ -412,15 +400,18 @@ input:checked + .toggle-slider:before {
 
     function saveModalSettings() {
         const activeMode = document.querySelector('.mode-option.active').dataset.mode;
-        const pageSize = document.getElementById('modalPageSize').value;
         const aiEnabled = document.getElementById('modalAiToggle').checked;
         const modeInput = document.getElementById('activeModeInput');
         const pageSizeInput = document.getElementsByName('page_size')[0];
         const aiToggleInput = document.getElementById('aiToggle');
+
         if (modeInput) modeInput.value = activeMode;
-        if (pageSizeInput) pageSizeInput.value = pageSize;
         if (aiToggleInput) aiToggleInput.checked = aiEnabled;
+        
+        // Persist to localStorage
+        localStorage.setItem('ai-summarization-enabled', aiEnabled);
         window.ENABLE_AI = aiEnabled;
+        
         document.getElementById('settingModal').style.display = 'none';
     }
 </script>

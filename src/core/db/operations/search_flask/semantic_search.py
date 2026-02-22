@@ -16,9 +16,9 @@ except Exception:
     BASE_THRESHOLD = 0.35
 
 try:
-    TOP_K = int(os.environ.get("TOP_K", "1000"))
+    TOP_K = int(os.environ.get("TOP_K", "10"))
 except Exception:
-    TOP_K = 1000
+    TOP_K = 10
 
 def _dynamic_threshold(q: str) -> float:
     tokens = [t for t in q.strip().split() if t]
@@ -39,7 +39,7 @@ def search_semantic(query: str, conn, cursor, model, top_k=TOP_K, threshold: flo
     results = execute_vector_query(query, conn, cursor, model, top_k, thr)
     if not results:
         thr_fallback = max(thr - 0.1, 0.1)
-        results = execute_vector_query(query, conn, cursor, model, top_k * 2, thr_fallback)
+        results = execute_vector_query(query, conn, cursor, model, top_k, thr_fallback)
 
     filtered = []
     q_tokens = re.findall(r"\w+", query.lower())

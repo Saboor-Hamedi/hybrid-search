@@ -39,31 +39,40 @@
     <!-- Messages/Results Area -->
     <div class="messages-area" id="messagesArea">
       <div class="messages-wrapper">
+        <div id="historyArea">
         {% block content %}
         {% if query %}
           <!-- User Query Message -->
-          <div class="message">
-            <div class="message-query">
-              <strong>User:</strong> {{ query }}
-              {% if use_ai %}
-              <span class="badge bg-info text-dark ms-2" style="font-size: 0.7em; vertical-align: middle;">
-                  <i class="bi bi-robot"></i> AI Auto-Summary
-              </span>
-              {% endif %}
-              
-              <button class="btn btn-sm btn-link text-secondary p-0 ms-2 text-decoration-none" 
-                      onclick="navigator.clipboard.writeText(this.dataset.query); this.innerHTML='<i class=\'bi bi-check\'></i>'" 
-                      onmouseleave="this.innerHTML='<i class=\'bi bi-copy\'></i>'"
-                      data-query="{{ query }}"
-                      title="Copy Prompt">
-                  <i class="bi bi-copy"></i>
-              </button>
+          <div class="message message-user-turn d-flex gap-3">
+            <div class="chat-avatar user-avatar">
+              <i class="bi bi-person-fill"></i>
+            </div>
+            <div class="query-container">
+              <div class="message-query">
+                {{ query }}
+                {% if use_ai %}
+                <span class="badge bg-info text-dark ms-2" style="font-size: 0.7em; vertical-align: middle;">
+                    <i class="bi bi-robot"></i> AI Auto-Summary
+                </span>
+                {% endif %}
+              </div>
+              <div class="user-actions">
+                  <button class="user-action-btn" 
+                          onclick="copyToClipboard(this, this.dataset.query)" 
+                          data-query="{{ query }}"
+                          title="Copy Prompt">
+                      <i class="bi bi-copy"></i>
+                  </button>
+              </div>
             </div>
           </div>
           
           <!-- Search Results Response -->
-          <div class="message">
-            <div class="message-response">
+          <div class="message message-ai-turn d-flex gap-3">
+            <div class="chat-avatar ai-avatar">
+              <i class="bi bi-robot"></i>
+            </div>
+            <div class="message-response flex-grow-1">
               {% if results %}
                 <div class="response-header d-flex justify-content-between align-items-center mb-3">
                     <span class="text-muted small">{{ stats.returned }} results found in {{ stats.query_time_ms }}ms</span>
@@ -88,33 +97,23 @@
 
                 {% for r in results %}
                 <div class="result-item">
-                  <div class="d-flex justify-content-between align-items-start mb-1">
-                    <h6 class="mb-0">
-                      {% set base = url_for('document_page', doc_id=r.doc_id) %}
-                      {% set use_mode = r.origin_mode if r.origin_mode is not none else mode %}
-                      {% set qs = '?q=' ~ (query|urlencode) ~ '&mode=' ~ (use_mode|urlencode) ~ '&score=' ~ (r.score|string) %}
-                      {% if r.semantic_score is not none %}{% set qs = qs ~ '&semantic_score=' ~ (r.semantic_score|string) %}{% endif %}
-                      {% if r.bm25_score is not none %}{% set qs = qs ~ '&bm25_score=' ~ (r.bm25_score|string) %}{% endif %}
-                      
-                      <a href="{{ base ~ qs }}" class="result-title">
-                        {{ r.content[:80] }}...
-                      </a>
-                    </h6>
-                    
-                    {% if mode == 'ltr' or use_mode == 'ltr' or use_ltr %}
-                    <span class="score-badge bg-primary text-white" style="background: linear-gradient(45deg, #4f46e5, #9333ea);">
-                        <i class="bi bi-stars"></i> AI: {{ "%.4f"|format(r.score) }}
-                    </span>
-                    {% else %}
-                    <span class="score-badge {% if r.score >= 0.7 %}score-high{% elif r.score >= 0.4 %}score-medium{% else %}score-low{% endif %}">
-                        {{ "%.3f"|format(r.score) }}
-                    </span>
-                    {% endif %}
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="result-doc-id fw-bold text-primary">#{{ r.doc_id }}</span>
+                    <div class="d-flex align-items-center gap-2">
+                        {% if mode == 'ltr' or use_mode == 'ltr' or use_ltr %}
+                        <span class="score-badge bg-primary text-white" style="background: linear-gradient(45deg, #4f46e5, #9333ea);">
+                            <i class="bi bi-stars"></i> AI: {{ "%.4f"|format(r.score) }}
+                        </span>
+                        {% else %}
+                        <span class="score-badge {% if r.score >= 0.7 %}score-high{% elif r.score >= 0.4 %}score-medium{% else %}score-low{% endif %}">
+                            {{ "%.3f"|format(r.score) }}
+                        </span>
+                        {% endif %}
+                    </div>
                   </div>
                   
                   
                   <div class="result-content mb-2" title="Double click to copy">
-                    <a href="{{ base ~ qs }}" class="result-title result-doc-id">#{{ r.doc_id }}</a> • 
                     {{ r.content_highlighted | safe }}
                   </div>
                   <div class="result-meta d-flex justify-content-between align-items-center">
@@ -144,8 +143,7 @@
                         </button>
                         <button class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center" 
                         style="width: 28px; height: 24px; border-radius: 4px; padding: 0;"
-                                onclick="navigator.clipboard.writeText(this.dataset.content); this.innerHTML='<i class=\'bi bi-check\'></i>'" 
-                                onmouseleave="this.innerHTML='<i class=\'bi bi-copy\'></i>'"
+                                onclick="copyToClipboard(this, this.dataset.content)" 
                                 data-content="{{ r.content[:4000] }}"
                                 title="Copy Content">
                             <i class="bi bi-copy"></i>
@@ -168,49 +166,33 @@
                 </div>
                 {% endfor %}
 
-                <!-- AI Research Summary (Modernized from Card) -->
-                <div id="aiAnswerContainer" class="ai-research-box d-none">
+                <!-- AI Research Summary -->
+                <div class="ai-research-box d-none mt-4">
                     <div class="ai-research-header">
                         <span class="d-flex align-items-center gap-2">
                              <i class="bi bi-robot"></i> <strong>AI Insight</strong>
                         </span>
-                        <div id="aiSpinner" class="loading-shimmer d-none"></div>
+                        <div class="loading-shimmer d-none spinner-ai"></div>
                     </div>
                     <div class="ai-research-body">
-                        <div id="aiAnswerText" class="ai-answer-text">
+                        <div class="ai-answer-text">
                             <!-- Content will be streamed here -->
                         </div>
                     </div>
-                    <div id="aiFooter" class="ai-research-footer d-none">
-                        <!-- Footer content (source/copy) injected via JS -->
+                    <div class="ai-research-footer d-none pt-3 mt-3 border-top">
+                        <!-- Footer content -->
                     </div>
                 </div>
                 
-                <div class="pagination-btns">
-                    <form method="POST" action="{{ url_for('home') }}">
-                        <input type="hidden" name="query" value="{{ query }}">
-                        <input type="hidden" name="mode" value="{{ mode }}">
-                        <input type="hidden" name="page" value="{{ prev_page }}">
-                        <input type="hidden" name="page_size" value="{{ page_size }}">
-                        <button class="page-btn" {% if not prev_page %}disabled{% endif %}>Previous</button>
-                    </form>
-                    <span class="d-flex align-items-center text-muted small px-2">
-                        Page {{ page }} of {{ total_pages }}
-                    </span>
-                    <form method="POST" action="{{ url_for('home') }}">
-                        <input type="hidden" name="query" value="{{ query }}">
-                        <input type="hidden" name="mode" value="{{ mode }}">
-                        <input type="hidden" name="page" value="{{ next_page }}">
-                        <input type="hidden" name="page_size" value="{{ page_size }}">
-                        <input type="hidden" name="use_ai" value="{{ 'on' if use_ai else '' }}">
-                        <button class="page-btn" {% if not next_page %}disabled{% endif %}>Next</button>
-                    </form>
-                </div>
 
               {% else %}
-                <div class="no-results">
-                  <i class="bi bi-search" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
-                  No results found for "{{ query }}"
+                <div class="result-item py-2 border-bottom-0">
+                    <div class="d-flex align-items-baseline gap-2 mb-2 text-muted small">
+                         <strong>Search Assistant</strong>
+                    </div>
+                    <div class="result-content mb-0" style="font-size: 0.9rem; color: #6b7280; text-align: left;">
+                        No results found for "{{ query }}". Try adjusting your keywords or switching to <strong>Semantic</strong> mode.
+                    </div>
                 </div>
               {% endif %}
             </div>
@@ -234,6 +216,7 @@
           </div>
         {% endif %}
         {% endblock %}
+        </div>
       </div>
     </div>
 
@@ -262,7 +245,7 @@
                 <!-- Search Type Hidden State -->
                 <input type="hidden" name="search_type" id="activeSearchType" value="search">
                 <input type="hidden" name="mode" id="activeModeInput" value="{{ mode or 'hybrid' }}">
-                <input type="hidden" name="page_size" value="{{ page_size or 10 }}">
+                <input type="hidden" name="page_size" value="10">
                 <input type="checkbox" name="use_ai" id="aiToggle" value="on" {% if use_ai %}checked{% endif %} style="display: none;">
                 
                 <div class="search-type-toggle d-flex align-items-center gap-1 me-2">
@@ -321,8 +304,10 @@
   <!-- Edit Modal -->
   {% include 'components/modal_edit.html' %}
 
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{{ url_for('static', filename='utils/copy_utils.js') }}"></script>
   <script src="{{ url_for('static', filename='command_palette.js') }}"></script>
   <script src="{{ url_for('static', filename='PDFUpload.js') }}"></script>
   
@@ -330,6 +315,19 @@
     // Configuration from data attributes
     const config = document.body.dataset;
     window.ENABLE_AI = config.enableAi === 'true';
+
+    // PERSISTENCE: Restore AI toggle from localStorage if present
+    const savedAiState = localStorage.getItem('ai-summarization-enabled');
+    if (savedAiState !== null) {
+        const isEnabled = savedAiState === 'true';
+        window.ENABLE_AI = isEnabled;
+        
+        // Update both the hidden form toggle and the modal toggle UI
+        const aiToggle = document.getElementById('aiToggle');
+        const modalAiToggle = document.getElementById('modalAiToggle');
+        if (aiToggle) aiToggle.checked = isEnabled;
+        if (modalAiToggle) modalAiToggle.checked = isEnabled;
+    }
 
     // Scroll logic
     window.addEventListener('load', function() {
@@ -341,6 +339,11 @@
 
   <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
   <script src="{{ url_for('static', filename='export/logic.js') }}"></script>
+
+  <!-- AI Modules -->
+  <script src="{{ url_for('static', filename='ai/assistant.js') }}"></script>
+  <script src="{{ url_for('static', filename='ai/rag.js') }}"></script>
+  <script src="{{ url_for('static', filename='search_dynamic.js') }}"></script>
 
   <script src="{{ url_for('static', filename='chat_logic.js') }}"></script>
   <script src="{{ url_for('static', filename='deleteRecord.js') }}"></script>

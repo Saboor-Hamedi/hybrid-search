@@ -16,11 +16,3 @@
     {% endif %}
 </div>
 
-<script>
-    function updatePageSize(size) {
-        const urlParams = new URLSearchParams(window.location.search);
-        urlParams.set('page_size', size);
-        urlParams.set('page', 1); // Reset to page 1
-        window.location.search = urlParams.toString();
-    }
-</script>

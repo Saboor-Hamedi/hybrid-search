@@ -50,7 +50,7 @@ class HybridScorer:
         self,
         sem_results: List[Tuple[int, str, float, Any, Any]],
         bm25_results: List[Tuple[int, str, float]],
-        top_k: int = 100,
+        top_k: int = 10,
         strategy: str = "linear"
     ):
         """

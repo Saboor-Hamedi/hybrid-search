@@ -149,15 +149,6 @@
             </div>
           </div>
           
-          <div class="col-auto ms-auto">
-            <select name="page_size" class="form-select form-select-sm">
-              <option value="10" {% if page_size == 10 %}selected{% endif %}>10 results</option>
-              <option value="25" {% if page_size == 25 %}selected{% endif %}>25 results</option>
-              <option value="50" {% if page_size == 50 %}selected{% endif %}>50 results</option>
-              <option value="100" {% if page_size == 100 %}selected{% endif %}>100 results</option>
-            </select>
-          </div>
-          
           <div class="col-auto">
             <input type="hidden" name="page" value="1">
             <button type="submit" class="btn btn-primary">
@@ -197,9 +188,8 @@
     <!-- Results -->
     <div class="results-container">
       {% if results %}
-        <div class="mb-3 d-flex justify-content-between align-items-center">
-          <h6 class="mb-0">Page {{ page }} of {{ total_pages }}</h6>
-          <span class="badge bg-secondary">{{ results|length }} results</span>
+        <div class="mb-3">
+          <span class="badge bg-secondary">Top 10 results</span>
         </div>
         
         {% for r in results %}
@@ -278,41 +268,21 @@
         </div>
         {% endfor %}
 
-        <!-- Pagination -->
-        <nav>
-          <ul class="pagination justify-content-center">
-            <li class="page-item {% if not prev_page %}disabled{% endif %}">
-              <form method="POST" action="{{ url_for('home') }}" class="d-inline">
-                <input type="hidden" name="query" value="{{ query }}">
-                <input type="hidden" name="mode" value="{{ mode }}">
-                <input type="hidden" name="fusion_strategy" value="{{ fusion_strategy }}">
-                <input type="hidden" name="use_ltr" value="{{ use_ltr }}">
-                <input type="hidden" name="page_size" value="{{ page_size }}">
-                <input type="hidden" name="page" value="{{ prev_page }}">
-                <button class="page-link" {% if not prev_page %}disabled{% endif %}>Previous</button>
-              </form>
-            </li>
-            <li class="page-item disabled">
-              <span class="page-link">Page {{ page }} of {{ total_pages }}</span>
-            </li>
-            <li class="page-item {% if not next_page %}disabled{% endif %}">
-              <form method="POST" action="{{ url_for('home') }}" class="d-inline">
-                <input type="hidden" name="query" value="{{ query }}">
-                <input type="hidden" name="mode" value="{{ mode }}">
-                <input type="hidden" name="fusion_strategy" value="{{ fusion_strategy }}">
-                <input type="hidden" name="use_ltr" value="{{ use_ltr }}">
-                <input type="hidden" name="page_size" value="{{ page_size }}">
-                <input type="hidden" name="page" value="{{ next_page }}">
-                <button class="page-link" {% if not next_page %}disabled{% endif %}>Next</button>
-              </form>
-            </li>
-          </ul>
-        </nav>
       {% elif query %}
-        <div class="text-center py-5">
-          <i class="bi bi-search display-1 text-muted"></i>
-          <h5 class="mt-3">No results found</h5>
-          <p class="text-muted">Try different search terms or change the search mode</p>
+        <div class="py-5">
+            <div class="d-flex align-items-center gap-2 mb-3 text-muted">
+                <i class="bi bi-robot" style="font-size: 1.5rem;"></i>
+                <span class="fw-bold">Search Assistant</span>
+            </div>
+            <div class="ps-4 border-start">
+                <p class="text-secondary">I've scanned the database, but I couldn't find any documents that match <em>"{{ query }}"</em> in <strong>{{ mode }}</strong> mode.</p>
+                <p class="text-muted small"><strong>How to find more results:</strong></p>
+                <ul class="text-muted small">
+                    <li>Try broader search terms or synonyms.</li>
+                    <li>Check for typos in your query.</li>
+                    <li>Try switching the search mode to <strong>Semantic</strong> for a conceptual search.</li>
+                </ul>
+            </div>
         </div>
       {% endif %}
     </div>

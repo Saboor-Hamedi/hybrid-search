@@ -6,7 +6,7 @@ from core.utils.console_stats import display_search_stats
 from core.utils.rich_console import display_in_table
 
 cs = ColorScheme()
-def search_keyword(query: str, cursor, top_k: int=1000):
+def search_keyword(query: str, cursor, top_k: int=10):
     if not query.strip():
         print(f"{cs.RED}Query cannot be empty.{cs.RESET}")
         return [], {}

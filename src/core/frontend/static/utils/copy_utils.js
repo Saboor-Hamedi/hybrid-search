@@ -1,0 +1,87 @@
+/**
+ * Utility to handle clipboard copying across the application
+ */
+
+window.copyToClipboard = function(btn, contentOrId, type = 'text') {
+    let content = '';
+
+    if (type === 'element') {
+        const el = document.getElementById(contentOrId);
+        content = el ? el.innerText : '';
+    } else if (type === 'selector') {
+        const parent = btn.closest(contentOrId.parent);
+        const el = parent ? parent.querySelector(contentOrId.child) : null;
+        content = el ? el.innerText : '';
+    } else {
+        content = contentOrId;
+    }
+
+    if (!content) {
+        console.warn('Nothing to copy');
+        return;
+    }
+
+    // Modern clipboard API
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(content).then(() => {
+            showCopySuccess(btn);
+        }).catch(err => {
+            console.error('Failed to copy using navigator.clipboard: ', err);
+            fallbackCopyToClipboard(btn, content);
+        });
+    } else {
+        fallbackCopyToClipboard(btn, content);
+    }
+};
+
+/**
+ * Fallback for older browsers or non-secure contexts
+ */
+function fallbackCopyToClipboard(btn, text) {
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    
+    // Ensure the textarea is off-screen
+    textArea.style.position = "fixed";
+    textArea.style.left = "-9999px";
+    textArea.style.top = "0";
+    document.body.appendChild(textArea);
+    
+    textArea.focus();
+    textArea.select();
+    
+    try {
+        const successful = document.execCommand('copy');
+        if (successful) showCopySuccess(btn);
+    } catch (err) {
+        console.error('Fallback copy failed: ', err);
+    }
+    
+    document.body.removeChild(textArea);
+}
+
+/**
+ * Visual feedback for copy success
+ */
+function showCopySuccess(btn) {
+    const originalText = btn.innerHTML;
+    const isSmallBtn = btn.classList.contains('btn-icon-small') || btn.classList.contains('user-action-btn') || btn.style.width === '28px';
+    
+    if (isSmallBtn) {
+        btn.innerHTML = '<i class="bi bi-check2 text-success"></i>';
+    } else {
+        // Buttons with labels like "Copy"
+        if (originalText.includes('Copy')) {
+            btn.innerHTML = originalText.replace('Copy', 'Copied!').replace('bi-copy', 'bi-check2');
+        } else {
+            btn.innerHTML = '<i class="bi bi-check2"></i> Copied';
+        }
+    }
+    
+    btn.classList.add('copy-success');
+    
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.classList.remove('copy-success');
+    }, 2000);
+}

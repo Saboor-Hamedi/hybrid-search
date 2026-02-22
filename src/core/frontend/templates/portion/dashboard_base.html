@@ -98,19 +98,6 @@
             
             <span style="margin-left: 1rem;">|</span>
             
-            <form method="POST" action="{{ url_for('home') }}" style="display: inline-flex; gap: 0.5rem; align-items: center;">
-              <input type="hidden" name="query" value="{{ query }}">
-              <input type="hidden" name="mode" value="{{ mode }}">
-              <input type="hidden" name="page" value="1">
-              
-              <span>Results:</span>
-              <select name="page_size" class="search-input" onchange="this.form.submit()" style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.8rem;">
-                <option value="10" {% if page_size == 10 %}selected{% endif %}>10</option>
-                <option value="25" {% if page_size == 25 %}selected{% endif %}>25</option>
-                <option value="50" {% if page_size == 50 %}selected{% endif %}>50</option>
-                <option value="100" {% if page_size == 100 %}selected{% endif %}>100</option>
-              </select>
-            </form>
           </div>
         </div>
 
@@ -175,11 +162,9 @@
                 Ready to Search
               {% endif %}
             </h2>
-            {% if results %}
             <div class="results-count">
-              Page {{ page }} of {{ total_pages }}
+              Showing top 10 results
             </div>
-            {% endif %}
           </div>
 
           <!-- Results List -->
@@ -220,50 +205,19 @@
             </div>
             {% endfor %}
 
-            <!-- Pagination -->
-            <div class="pagination-wrapper">
-              <form method="POST" action="{{ url_for('home') }}" style="display: inline;">
-                <input type="hidden" name="query" value="{{ query }}">
-                <input type="hidden" name="mode" value="{{ mode }}">
-                <input type="hidden" name="page_size" value="{{ page_size }}">
-                <input type="hidden" name="page" value="{{ prev_page }}">
-                <button type="submit" class="page-btn" {% if not prev_page %}disabled{% endif %}>
-                  <i class="bi bi-chevron-left"></i> Previous
-                </button>
-              </form>
-              
-              <span class="page-info">Page {{ page }} of {{ total_pages }}</span>
-              
-              <form method="POST" action="{{ url_for('home') }}" style="display: inline;">
-                <input type="hidden" name="query" value="{{ query }}">
-                <input type="hidden" name="mode" value="{{ mode }}">
-                <input type="hidden" name="page_size" value="{{ page_size }}">
-                <input type="hidden" name="page" value="{{ next_page }}">
-                <button type="submit" class="page-btn" {% if not next_page %}disabled{% endif %}>
-                  Next <i class="bi bi-chevron-right"></i>
-                </button>
-              </form>
-            </div>
           {% else %}
             <!-- Empty State -->
-            <div class="empty-state">
-              <div class="empty-icon">
-                <i class="bi bi-search"></i>
-              </div>
-              <h3 class="empty-title">
-                {% if query %}
-                  No results found
-                {% else %}
-                  Start Your Search
-                {% endif %}
-              </h3>
-              <p class="empty-text">
-                {% if query %}
-                  Try adjusting your search terms or changing the search mode
-                {% else %}
-                  Enter your search query above to find documents
-                {% endif %}
-              </p>
+            <div class="result-card p-3 border-0 shadow-none bg-transparent" style="margin-bottom: 0;">
+                <div class="d-flex align-items-center gap-2 mb-2 text-muted small">
+                    <i class="bi bi-robot"></i> <strong>Search Assistant</strong>
+                </div>
+                <div class="result-content" style="font-size: 0.9rem; color: var(--text-muted); opacity: 0.8;">
+                  {% if query %}
+                    No documents found matching "{{ query }}". Try broader terms or check your search mode.
+                  {% else %}
+                    Ready to help you find what you're looking for. Please enter a search query.
+                  {% endif %}
+                </div>
             </div>
           {% endif %}
         </div>

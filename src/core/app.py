@@ -32,9 +32,9 @@ from core.export.core_logic import run_export_task
 model = None
 export_tasks = {} # Global in-memory task tracker
 try:
-    MAX_CANDIDATES = int(os.environ.get("MAX_CANDIDATES", "1000"))
+    MAX_CANDIDATES = int(os.environ.get("MAX_CANDIDATES", "10"))
 except Exception:
-    MAX_CANDIDATES = 1000
+    MAX_CANDIDATES = 10
 app = FastAPI(title="Hybrid Search API")
 # app.mount("/static", StaticFiles(directory="static"), name="static")
 
@@ -146,16 +146,10 @@ def search_endpoint(request: SearchRequest):
 
     try:
         stats = {}
-        page = max(1, request.page)
-        try:
-            PAGE_SIZE_MAX = int(os.environ.get("PAGE_SIZE_MAX", "200"))
-        except Exception:
-            PAGE_SIZE_MAX = 200
-        # allow page_size up to PAGE_SIZE_MAX (default 200)
-        page_size = min(PAGE_SIZE_MAX, max(1, request.page_size))
-        offset = (page - 1) * page_size
-        # Always retrieve up to max candidates, regardless of page
-        top_k = MAX_CANDIDATES
+        page = 1
+        page_size = 10
+        offset = 0
+        top_k = 10
         # Run the correct search
         # Run the correct search
         if request.mode == "semantic":
@@ -167,7 +161,7 @@ def search_endpoint(request: SearchRequest):
 
         elif request.mode == "keyword":
             all_results, _ = search_keyword(
-                request.query, cursor, top_k=top_k *2)
+                request.query, cursor, top_k=top_k)
             sem_count = 0
             bm25_count = len(all_results)
             search_type = "keyword"
@@ -189,9 +183,9 @@ def search_endpoint(request: SearchRequest):
             search_type = "rrf"
 
         elif request.mode == "ltr":
-            candidate_k = max(50, page_size * 2)
+            candidate_k = 20
             all_results, stats = search_ltr(
-                request.query, conn, cursor, model, top_k=candidate_k, candidate_k=candidate_k)
+                request.query, conn, cursor, model, top_k=top_k, candidate_k=candidate_k)
             search_type = "ltr"
             sem_count = 0
             bm25_count = 0
