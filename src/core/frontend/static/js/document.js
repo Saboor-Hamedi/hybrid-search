@@ -3,7 +3,7 @@ function copyContent(button) {
   const content = document.querySelector('.document-content').innerText;
   navigator.clipboard.writeText(content).then(() => {
     const originalHtml = button.innerHTML;
-    button.innerHTML = '<i class="bi bi-check-lg me-2"></i>Copied!';
+    button.innerHTML = '<i class="bi bi-check-lg"></i>';
     button.classList.remove('btn-outline-secondary');
     button.classList.add('btn-success');
     setTimeout(() => {

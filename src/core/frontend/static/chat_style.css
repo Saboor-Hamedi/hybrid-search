@@ -1008,6 +1008,20 @@ body.modal-open {
   animation: shimmerMove 1.5s infinite linear;
 }
 /* AI Research Box (Modern Replacement for Cards) */
+.result-card {
+      background: white;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      border-radius: 12px;
+      border: 1px solid #edf2f7;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    
+    .result-card:hover {
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      border-color: #cbd5e1;
+    }
 .ai-research-box {
   margin-top: 2rem;
   margin-bottom: 2rem;
@@ -1585,4 +1599,164 @@ html {
 @keyframes toastSlideIn { 
   from { transform: translateX(120%); opacity: 0; } 
   to { transform: translateX(0); opacity: 1; } 
+}
+
+/* === Thesis Insight Styles (Small & Clean) === */
+.rank-badges {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+}
+
+.rank-badge-s {
+  background: rgba(37, 99, 235, 0.05);
+  color: #3b82f6;
+  border: 1px solid rgba(37, 99, 235, 0.15);
+}
+
+.rank-badge-k {
+  background: rgba(245, 158, 11, 0.05);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+.alpha-slider-container {
+  padding: 12px 0;
+  border-top: 1px solid #f3f4f6;
+  margin-top: 10px;
+}
+
+.benchmark-table-wrapper {
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: white;
+}
+
+.benchmark-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.benchmark-table th {
+  background: #f9fafb;
+  padding: 10px;
+  text-align: center;
+  border-bottom: 2px solid #e5e7eb;
+  color: #4b5563;
+  font-weight: 600;
+}
+
+.benchmark-table td {
+  padding: 10px;
+  border-bottom: 1px solid #f3f4f6;
+  text-align: center;
+}
+
+.benchmark-table td:last-child {
+  text-align: left;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.rank-best {
+  color: #10b981;
+  font-weight: bold;
+}
+
+.dropdown-item {
+  transition: all 0.2s ease;
+  padding: 8px 16px;
+}
+
+.dropdown-item:hover {
+  background-color: #f3f4f6;
+  transform: translateX(2px);
+}
+
+.dropdown-item.text-danger:hover {
+  background-color: #fef2f2;
+}
+
+.btn-link:hover {
+  background-color: #f3f4f6;
+  border-radius: 50%;
+}
+
+/* Result Item Enhancements */
+.result-item {
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    border: 1px solid #f3f4f6;
+    margin-bottom: 0.75rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.result-item:hover {
+    border-color: #e5e7eb;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    transform: translateY(-1px);
+}
+
+.result-doc-id {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.relevance-toggle {
+    cursor: pointer;
+    user-select: none;
+    color: #6b7280;
+    transition: color 0.2s;
+}
+
+.relevance-toggle:hover {
+    color: #111827;
+}
+
+.relevance-toggle input {
+    cursor: pointer;
+    margin-right: 4px;
+}
+
+/* Actions Dropdown Styling */
+.dropdown .btn-link {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.dropdown .btn-link:hover {
+    background-color: #f3f4f6;
+    color: #111827 !important;
+}
+
+.dropdown-menu {
+    padding: 0.5rem;
+    min-width: 160px;
+    z-index: 1050;
+}
+
+.dropdown-item {
+    border-radius: 6px;
+    padding: 0.4rem 0.8rem;
+    font-weight: 500;
 }

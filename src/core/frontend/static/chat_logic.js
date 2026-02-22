@@ -455,7 +455,7 @@ function copyAnalysisData(btn) {
         // Use Global Style Feedback
         if (btn) {
             const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="bi bi-check2"></i> Copied!';
+            btn.innerHTML = '<i class="bi bi-check2"></i>';
             btn.classList.add('btn-success');
             btn.classList.remove('btn-primary');
             

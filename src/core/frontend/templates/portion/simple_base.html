@@ -134,7 +134,7 @@
               </div>
 
               <!-- Advanced Options (Hybrid Only) -->
-              <div id="advancedControls" class="d-flex align-items-center gap-2" style="display: none !important;">
+              <div id="advancedControls" class="d-flex align-items-center gap-2" style="{% if mode != 'hybrid' and mode != 'rrf' %}display: none !important;{% endif %}">
                 <select name="fusion_strategy" class="form-select form-select-sm" style="width: auto;">
                   <option value="linear" {% if fusion_strategy == 'linear' %}selected{% endif %}>Linear</option>
                   <option value="combsum" {% if fusion_strategy == 'combsum' %}selected{% endif %}>CombSUM</option>
@@ -146,14 +146,30 @@
                   <label class="form-check-label small text-muted" for="ltrCheck">AI Re-Rank</label>
                 </div>
               </div>
+
+              <!-- Alpha Slider (Hybrid Only) -->
+              <div id="alphaContainer" class="d-flex align-items-center gap-2" style="{% if mode != 'hybrid' %}display: none !important;{% endif %}">
+                <label class="small text-muted mb-0">Weight:</label>
+                <div class="d-flex align-items-center gap-1">
+                  <span class="text-xs">K</span>
+                  <input type="range" class="form-range" name="alpha" id="alphaSlider" min="0" max="100" value="{{ (alpha|default(0.5) * 100)|int }}" style="width: 80px;">
+                  <span class="text-xs">S</span>
+                </div>
+                <span id="alphaValue" class="small text-muted fw-bold">{{ (alpha|default(0.5) * 100)|int }}%</span>
+              </div>
             </div>
           </div>
           
           <div class="col-auto">
             <input type="hidden" name="page" value="1">
-            <button type="submit" class="btn btn-primary">
-              <i class="bi bi-search"></i> Search
-            </button>
+            <div class="btn-group">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i> Search
+              </button>
+              <button type="button" class="btn btn-outline-primary" onclick="runBenchmark()">
+                <i class="bi bi-speedometer2"></i> Benchmark
+              </button>
+            </div>
           </div>
         </div>
       </form>
@@ -203,65 +219,97 @@
             {% if r.semantic_weight is not none %}{% set qs = qs ~ '&semantic_weight=' ~ (r.semantic_weight|string) %}{% endif %}
             {% if r.bm25_weight is not none %}{% set qs = qs ~ '&bm25_weight=' ~ (r.bm25_weight|string) %}{% endif %}
             
-            <h6 class="mb-0">
-              <a href="{{ base ~ qs }}" class="text-decoration-none">
-                Document #{{ r.doc_id }}
-              </a>
+            <h6 class="mb-0 fw-bold text-muted x-small" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+              Document #{{ r.doc_id }}
             </h6>
-            {% if mode == 'ltr' or use_mode == 'ltr' or use_ltr %}
-            <span class="score-badge bg-primary text-white" style="background: linear-gradient(45deg, #4f46e5, #9333ea);">
-              <i class="bi bi-stars"></i> AI: {{ "%.4f"|format(r.score) }}
-            </span>
-            {% else %}
-            <span class="score-badge {% if r.score >= 0.7 %}bg-success{% elif r.score >= 0.5 %}bg-warning{% else %}bg-secondary{% endif %} text-white">
-              {{ "%.4f"|format(r.score) }}
-            </span>
-            {% endif %}
+            
+            <div class="d-flex align-items-center gap-2">
+                {% if mode == 'ltr' or use_mode == 'ltr' or use_ltr %}
+                <span class="score-badge bg-primary text-white" style="background: linear-gradient(45deg, #4f46e5, #9333ea); padding: 2px 8px; font-size: 0.75rem;">
+                  <i class="bi bi-stars"></i> AI: {{ "%.4f"|format(r.score) }}
+                </span>
+                {% endif %}
+                
+                <!-- Analysis Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-link text-muted p-0" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3" style="font-size: 0.8rem;">
+                        <li>
+                            <button class="dropdown-item d-flex align-items-center gap-2" onclick="showAnalysis(this)"
+                                data-doc-id="{{ r.doc_id }}"
+                                data-score="{{ r.score }}"
+                                data-sem="{{ r.semantic_score if r.semantic_score is not none else 'N/A' }}"
+                                data-key="{{ r.bm25_score if r.bm25_score is not none else 'N/A' }}"
+                                data-sem-w="{{ r.semantic_weight if r.semantic_weight is not none else 'N/A' }}"
+                                data-key-w="{{ r.bm25_weight if r.bm25_weight is not none else 'N/A' }}"
+                                data-strategy="{{ r.strategy|default('Linear') }}"
+                                data-mode="{{ r.origin_mode|default(mode) }}"
+                                data-content="{{ r.content[:200] }}...">
+                                <i class="bi bi-graph-up text-info"></i> Full Analysis
+                            </button>
+                        </li>
+                        <li>
+                             <button class="dropdown-item d-flex align-items-center gap-2" 
+                                onclick="openEditModal('{{ r.doc_id }}', this.dataset.content, '{{ query }}', '{{ mode }}', '{{ r.language }}')"
+                                data-content="{{ r.content }}">
+                                <i class="bi bi-pencil text-primary"></i> Edit Entry
+                            </button>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <button class="dropdown-item d-flex align-items-center gap-2 text-danger" onclick="deleteRecord('{{ r.doc_id }}')">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
           </div>
           
           <p class="mb-2">{{ r.content_highlighted | safe }}</p>
           
-          <div class="d-flex gap-3 align-items-center mt-2 small text-muted">
-            <span><i class="bi bi-translate"></i> {{ r.language|upper }}</span>
-            <span><i class="bi bi-calendar"></i> {{ r.created_at }}</span>
-            
-            <!-- Detailed Scoring Breakdown (Thesis Style) -->
-            {% if r.semantic_score is not none or r.bm25_score is not none %}
-            <div class="d-flex align-items-center gap-2 border-start ps-3 ms-2">
-                {% if r.semantic_score is not none %}
-                <span class="badge bg-light text-dark border">
-                    <i class="bi bi-brain text-info"></i> Sem: {{ "%.3f"|format(r.semantic_score) }}
-                </span>
-                {% endif %}
+          <div class="d-flex justify-content-between align-items-end mt-2">
+            <div class="d-flex flex-column gap-1">
+                <div class="d-flex align-items-center gap-2 text-muted x-small" style="font-size: 0.7rem;">
+                    <span><i class="bi bi-translate"></i> {{ r.language|upper }}</span>
+                    <span class="opacity-50">•</span>
+                    <span><i class="bi bi-calendar"></i> {{ r.created_at }}</span>
+                </div>
                 
-                {% if r.bm25_score is not none %}
-                <span class="badge bg-light text-dark border">
-                    <i class="bi bi-key text-warning"></i> Key: {{ "%.3f"|format(r.bm25_score) }}
-                </span>
-                {% endif %}
-                
-                {% if r.origin_mode and 'hybrid' in r.origin_mode %}
-                 <span class="text-xs text-muted" title="Fusion Strategy">
-                    ({{ r.strategy|default('linear')|upper }})
-                 </span>
+                <!-- Detailed Scoring Breakdown (Thesis Style) -->
+                {% if r.semantic_score is not none or r.bm25_score is not none or r.semantic_rank or r.bm25_rank %}
+                <div class="rank-badges">
+                    {% if r.semantic_score is not none or r.semantic_rank %}
+                    <span class="rank-badge rank-badge-s" title="Semantic Info">
+                        <i class="bi bi-brain"></i> 
+                        {{ 'S:#' ~ r.semantic_rank if r.semantic_rank else 'S' }}
+                        {% if r.semantic_score is not none %}({{ "%.3f"|format(r.semantic_score) }}){% endif %}
+                    </span>
+                    {% endif %}
+                    
+                    {% if r.bm25_score is not none or r.bm25_rank %}
+                    <span class="rank-badge rank-badge-k" title="Keyword Info">
+                        <i class="bi bi-key"></i> 
+                        {{ 'K:#' ~ r.bm25_rank if r.bm25_rank else 'K' }}
+                        {% if r.bm25_score is not none %}({{ "%.3f"|format(r.bm25_score) }}){% endif %}
+                    </span>
+                    {% endif %}
+                </div>
                 {% endif %}
             </div>
-            {% endif %}
 
-            <!-- Analysis Button -->
-            <div class="ms-auto">
-                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3" 
-                        onclick="showAnalysis(this)"
-                        data-doc-id="{{ r.doc_id }}"
-                        data-score="{{ r.score }}"
-                        data-sem="{{ r.semantic_score if r.semantic_score is not none else 'N/A' }}"
-                        data-key="{{ r.bm25_score if r.bm25_score is not none else 'N/A' }}"
-                        data-sem-w="{{ r.semantic_weight if r.semantic_weight is not none else 'N/A' }}"
-                        data-key-w="{{ r.bm25_weight if r.bm25_weight is not none else 'N/A' }}"
-                        data-strategy="{{ r.strategy|default('Linear') }}"
-                        data-mode="{{ r.origin_mode|default(mode) }}"
-                        data-content="{{ r.content[:200] }}...">
-                    <i class="bi bi-graph-up"></i> Analysis
+            <div class="d-flex align-items-center gap-2">
+                <label class="relevance-toggle mb-0" style="font-size: 0.7rem;" title="Mark as Relevant">
+                    <input type="checkbox" onchange="toggleRelevance(this)" data-doc-id="{{ r.doc_id }}">
+                    Relevant?
+                </label>
+                <button class="btn btn-sm btn-outline-secondary rounded-3" style="height: 24px; width: 24px; padding:0; display: flex; align-items:center; justify-content:center; border-color: #e2e8f0;" 
+                        onclick="copyToClipboard(this, this.dataset.content)"
+                        data-content="{{ r.content }}"
+                        title="Copy text">
+                    <i class="bi bi-copy" style="font-size: 0.7rem;"></i>
                 </button>
             </div>
           </div>
@@ -285,6 +333,20 @@
             </div>
         </div>
       {% endif %}
+    </div>
+
+    <!-- Benchmark Matrix View (Hidden by default) -->
+    <div id="benchmarkContainer" class="results-container mt-4" style="display: none;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 mx-auto fw-bold"><i class="bi bi-table"></i> Algorithm Benchmarking Matrix</h5>
+            <button class="btn btn-close" onclick="document.getElementById('benchmarkContainer').style.display='none'"></button>
+        </div>
+        <div id="benchmarkMatrix" class="benchmark-table-wrapper">
+            <!-- Dynamic Content -->
+        </div>
+        <div class="mt-3 text-center small text-muted">
+            <p><i class="bi bi-info-circle"></i> This matrix compares the Top 5 results across all primary algorithms for the current query.</p>
+        </div>
     </div>
     {% endblock %}
   </div>
@@ -312,14 +374,41 @@
     });
 
     function toggleAdvanced() {
-      const isHybrid = document.getElementById('modeHybrid').checked;
+      const modeHybrid = document.getElementById('modeHybrid')?.checked;
+      const modeRRF = document.getElementById('modeRRF')?.checked;
       const controls = document.getElementById('advancedControls');
-      if (isHybrid) {
-        controls.style.setProperty('display', 'flex', 'important');
-      } else {
-        controls.style.setProperty('display', 'none', 'important');
+      const alphaCont = document.getElementById('alphaContainer');
+      
+      if (controls) {
+        if (modeHybrid || modeRRF) {
+          controls.classList.remove('d-none');
+          controls.style.display = 'flex';
+        } else {
+          controls.classList.add('d-none');
+          controls.style.display = 'none';
+        }
+      }
+
+      if (alphaCont) {
+        if (modeHybrid) {
+          alphaCont.classList.remove('d-none');
+          alphaCont.style.display = 'flex';
+        } else {
+          alphaCont.classList.add('d-none');
+          alphaCont.style.display = 'none';
+        }
       }
     }
+
+    // Alpha slider live value
+    const alphaSlider = document.getElementById('alphaSlider');
+    const alphaValue = document.getElementById('alphaValue');
+    if (alphaSlider && alphaValue) {
+        alphaSlider.addEventListener('input', function() {
+            alphaValue.textContent = this.value + '%';
+        });
+    }
+
     // Run on load
     toggleAdvanced();
   </script>

@@ -85,6 +85,7 @@ class SearchRequest(BaseModel):
     page_size: int = 10
     mode: str = "hybrid"  # semantic | keyword | hybrid | rrf | ltr
     fusion_strategy: Optional[str] = "linear" # linear | combsum | combmnz
+    alpha: Optional[float] = None
 
 
 class SearchResult(BaseModel):
@@ -95,9 +96,12 @@ class SearchResult(BaseModel):
     created_at: str
     semantic_score: Optional[float] = None
     bm25_score: Optional[float] = None
+    semantic_rank: Optional[int] = None
+    bm25_rank: Optional[int] = None
     semantic_weight: Optional[float] = None
     bm25_weight: Optional[float] = None
     origin_mode: Optional[str] = None
+    strategy: Optional[str] = None
 
 
 class SearchResponse(BaseModel):
@@ -170,7 +174,7 @@ def search_endpoint(request: SearchRequest):
             strategy = request.fusion_strategy or "linear"
             search_type = f"hybrid-{strategy}"
             all_results, stats = search_hybrid(
-                request.query, conn, cursor, model, top_k=top_k, fusion_strategy=strategy)
+                request.query, conn, cursor, model, top_k=top_k, fusion_strategy=strategy, alpha=request.alpha)
             
             sem_count = len(stats.get("sem_results") or [])
             bm25_count = len(stats.get("bm25_results") or [])
@@ -203,7 +207,7 @@ def search_endpoint(request: SearchRequest):
         formatted = []
         # If hybrid, we may have per-doc component scores in stats
         components_map = {}
-        if request.mode == "hybrid":
+        if request.mode in ["hybrid", "rrf", "ltr"]:
             components_map = stats.get("components", {}) if isinstance(stats, dict) else {}
 
         for r in paginated:
@@ -217,6 +221,8 @@ def search_endpoint(request: SearchRequest):
             # Default component values (may be filled below)
             semantic_score = None
             bm25_score = None
+            semantic_rank = None
+            bm25_rank = None
             semantic_weight = None
             bm25_weight = None
 
@@ -225,16 +231,28 @@ def search_endpoint(request: SearchRequest):
                 comp = components_map.get(r[0], {})
                 semantic_score = comp.get("semantic_score")
                 bm25_score = comp.get("bm25_score")
+                semantic_rank = comp.get("semantic_rank")
+                bm25_rank = comp.get("bm25_rank")
                 semantic_weight = comp.get("semantic_weight")
                 bm25_weight = comp.get("bm25_weight")
 
             # 2) Semantic-only: the main score IS the semantic score
             if request.mode == "semantic":
                 semantic_score = float(r[2])
+                # Find rank in all_results
+                try:
+                    semantic_rank = [res[0] for res in all_results].index(r[0]) + 1
+                except:
+                    pass
 
             # 3) Keyword-only: the main score IS the bm25 score
             if request.mode == "keyword":
                 bm25_score = float(r[2])
+                # Find rank in all_results
+                try:
+                    bm25_rank = [res[0] for res in all_results].index(r[0]) + 1
+                except:
+                    pass
 
             formatted.append(
                 SearchResult(
@@ -245,6 +263,8 @@ def search_endpoint(request: SearchRequest):
                     created_at=created_at_str,
                     semantic_score=semantic_score,
                     bm25_score=bm25_score,
+                    semantic_rank=semantic_rank,
+                    bm25_rank=bm25_rank,
                     semantic_weight=semantic_weight,
                     bm25_weight=bm25_weight,
                     origin_mode=search_type,

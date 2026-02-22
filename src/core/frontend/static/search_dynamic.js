@@ -185,61 +185,93 @@ function renderSearchResults(data, turnId) {
         
         resultsHtml += `
             <div class="result-item">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="result-doc-id fw-bold text-primary">#${r.doc_id}</span>
-                    <span class="score-badge ${scoreClass}">
-                        ${formattedScore}
-                    </span>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="result-doc-id fw-bold text-muted small" style="letter-spacing: 0.5px;">#${r.doc_id}</span>
+                    
+                    <div class="d-flex align-items-center gap-2">
+                        ${(mode === 'ltr' || r.origin_mode === 'ltr') ? `
+                        <span class="score-badge bg-primary text-white" style="background: linear-gradient(45deg, #4f46e5, #9333ea); padding: 2px 8px; font-size: 0.75rem;">
+                            <i class="bi bi-stars"></i> AI: ${r.score.toFixed(4)}
+                        </span>` : ''}
+                        
+                        <!-- Actions Dropdown -->
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-link text-muted p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3" style="font-size: 0.8rem;">
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center gap-2" onclick="showAnalysis(this)"
+                                        data-doc-id="${r.doc_id}"
+                                        data-score="${r.score}"
+                                        data-sem="${r.semantic_score || 'N/A'}"
+                                        data-key="${r.bm25_score || 'N/A'}"
+                                        data-sem-w="${r.semantic_weight || 'N/A'}"
+                                        data-key-w="${r.bm25_weight || 'N/A'}"
+                                        data-strategy="${r.strategy || 'Linear'}"
+                                        data-mode="${r.origin_mode || mode}"
+                                        data-prompt="${query.replace(/'/g, "&apos;")}"
+                                        data-content="${r.content.substring(0, 4000).replace(/'/g, "&apos;")}"
+                                        data-latency="${stats.query_time_ms}">
+                                        <i class="bi bi-graph-up text-info"></i> Full Analysis
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center gap-2" onclick="openEditModal('${r.doc_id}', this.dataset.content, '${query.replace(/'/g, "\\'")}', '${mode}', '${r.language}')"
+                                        data-content="${escapeHTML(r.content)}">
+                                        <i class="bi bi-pencil text-primary"></i> Edit Entry
+                                    </button>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center gap-2 text-danger" onclick="deleteRecord('${r.doc_id}')">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="result-content mb-2" title="Double click to copy">
                     ${r.content_highlighted || r.content}
                 </div>
                 
-                <div class="result-meta d-flex justify-content-between align-items-center">
-                    <span class="d-flex align-items-center">
-                        Score: ${formattedScore} • ${r.language.toUpperCase()} • ${r.created_at}
-                        <label class="relevance-toggle" title="Mark as Relevant (Ground Truth)">
-                            <input type="checkbox" onchange="toggleRelevance(this)" data-doc-id="${r.doc_id}">
-                            Relevant?
-                        </label>
-                    </span>
-                    <div class="result-actions d-flex justify-content-end align-items-center gap-2">
-                        <button class="btn btn-sm btn-outline-info d-flex align-items-center px-2" 
-                            style="font-size: 0.75rem; height: 24px; border-radius: 4px;"
-                            onclick="showAnalysis(this)"
-                            data-doc-id="${r.doc_id}"
-                            data-score="${r.score}"
-                            data-sem="${r.semantic_score || 'N/A'}"
-                            data-key="${r.bm25_score || 'N/A'}"
-                            data-sem-w="${r.semantic_weight || 'N/A'}"
-                            data-key-w="${r.bm25_weight || 'N/A'}"
-                            data-strategy="${r.strategy || 'Linear'}"
-                            data-mode="${r.origin_mode || mode}"
-                            data-prompt="${query.replace(/'/g, "&apos;")}"
-                            data-content="${r.content.substring(0, 4000).replace(/'/g, "&apos;")}"
-                            data-latency="${stats.query_time_ms}">
-                            <i class="bi bi-graph-up me-1"></i> Analysis
-                        </button>
+                <div class="result-meta d-flex justify-content-between align-items-end">
+                    <div class="d-flex flex-column gap-1">
+                        <div class="d-flex align-items-center gap-2 text-muted x-small" style="font-size: 0.7rem;">
+                            <span>${r.language.toUpperCase()}</span>
+                            <span class="text-secondary opacity-50">•</span>
+                            <span>${r.created_at}</span>
+                            <label class="relevance-toggle ms-2 mb-0" style="font-size: 0.7rem;" title="Mark as Relevant">
+                                <input type="checkbox" onchange="toggleRelevance(this)" data-doc-id="${r.doc_id}">
+                                Relevant?
+                            </label>
+                        </div>
+                        
+                        <div class="rank-badges">
+                            ${(r.semantic_rank || r.semantic_score !== null) ? `
+                                <span class="rank-badge rank-badge-s" title="Semantic Info">
+                                    <i class="bi bi-brain"></i> 
+                                    ${r.semantic_rank ? `S:#${r.semantic_rank}` : 'S'} 
+                                    ${r.semantic_score !== null ? `(${r.semantic_score.toFixed(3)})` : ''}
+                                </span>` : ''}
+                            ${(r.bm25_rank || r.bm25_score !== null) ? `
+                                <span class="rank-badge rank-badge-k" title="Keyword Info">
+                                    <i class="bi bi-key"></i> 
+                                    ${r.bm25_rank ? `K:#${r.bm25_rank}` : 'K'} 
+                                    ${r.bm25_score !== null ? `(${r.bm25_score.toFixed(3)})` : ''}
+                                </span>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
                         <button class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center" 
-                            style="width: 28px; height: 24px; border-radius: 4px; padding: 0;"
+                            style="width: 24px; height: 24px; border-radius: 6px; padding: 0; border-color: #e2e8f0;"
                             onclick="copyToClipboard(this, this.dataset.content)"
                             data-content="${escapeHTML(r.content.substring(0, 4000))}"
-                            title="Copy Content">
-                            <i class="bi bi-copy"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
-                            style="width: 28px; height: 24px; border-radius: 4px; padding: 0;"
-                            onclick="openEditModal('${r.doc_id}', this.dataset.content, '${query.replace(/'/g, "\\'")}', '${mode}', '${r.language}')"
-                            data-content="${escapeHTML(r.content)}"
-                            title="Edit Result">
-                            <i class="bi bi-pencil" style="font-size: 0.75rem;"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center"
-                            style="width: 28px; height: 24px; border-radius: 4px; padding: 0;"
-                            onclick="deleteRecord('${r.doc_id}')" 
-                            title="Delete Result">
-                            <i class="bi bi-trash" style="font-size: 0.75rem;"></i>
+                            title="Copy text">
+                            <i class="bi bi-copy" style="font-size: 0.7rem;"></i>
                         </button>
                     </div>
                 </div>
@@ -269,6 +301,102 @@ function renderSearchResults(data, turnId) {
     </div>`;
 
     resultsArea.innerHTML = resultsHtml;
+}
+
+/**
+ * runBenchmark
+ * Runs parallel searches across all primary algorithms and renders a comparison matrix
+ */
+async function runBenchmark() {
+    const query = document.querySelector('input[name="query"]')?.value || document.querySelector('.search-input')?.value;
+    if (!query) {
+        alert("Please enter a query first.");
+        return;
+    }
+
+    const container = document.getElementById('benchmarkContainer');
+    const matrix = document.getElementById('benchmarkMatrix');
+    if (!container || !matrix) return;
+
+    // Show container with loading state
+    container.style.display = 'block';
+    matrix.innerHTML = '<div class="p-5 text-center"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">Running benchmark across all algorithms...</p></div>';
+    container.scrollIntoView({ behavior: 'smooth' });
+
+    const modes = ['semantic', 'keyword', 'rrf', 'hybrid'];
+    const fusionStrategy = document.querySelector('select[name="fusion_strategy"]')?.value || 'linear';
+    const alphaValue = (document.getElementById('alphaSlider')?.value || 50) / 100;
+
+    try {
+        const fetchPromises = modes.map(mode => {
+            const params = new URLSearchParams({
+                query: query,
+                mode: mode,
+                fusion_strategy: fusionStrategy,
+                alpha: alphaValue,
+                ajax: '1'
+            });
+            return fetch(`/?${params.toString()}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+            }).then(res => res.json());
+        });
+
+        const allData = await Promise.all(fetchPromises);
+        
+        // Consolidate Results (Map of doc_id -> {ranks})
+        const comparisonMap = {};
+        const allDocIds = new Set();
+
+        allData.forEach((data, index) => {
+            const mode = modes[index];
+            (data.results || []).slice(0, 5).forEach((res, rank) => {
+                const docId = res.doc_id;
+                allDocIds.add(docId);
+                if (!comparisonMap[docId]) {
+                    comparisonMap[docId] = { content: res.content.substring(0, 100) + '...', modes: {} };
+                }
+                comparisonMap[docId].modes[mode] = rank + 1;
+            });
+        });
+
+        // Build Table
+        let tableHtml = `
+            <table class="benchmark-table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">Doc ID</th>
+                        <th class="text-info">Semantic</th>
+                        <th class="text-warning">Keyword</th>
+                        <th class="text-success">RRF</th>
+                        <th class="text-primary">Hybrid</th>
+                        <th>Snippet</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+        // Sort Doc IDs by their "average" performance or just presence
+        const sortedDocIds = Array.from(allDocIds).sort((a, b) => b - a);
+
+        sortedDocIds.forEach(id => {
+            const data = comparisonMap[id];
+            tableHtml += `
+                <tr>
+                    <td class="fw-bold">#${id}</td>
+                    <td class="${data.modes.semantic === 1 ? 'rank-best' : ''}">${data.modes.semantic || '-'}</td>
+                    <td class="${data.modes.keyword === 1 ? 'rank-best' : ''}">${data.modes.keyword || '-'}</td>
+                    <td class="${data.modes.rrf === 1 ? 'rank-best' : ''}">${data.modes.rrf || '-'}</td>
+                    <td class="${data.modes.hybrid === 1 ? 'rank-best' : ''}">${data.modes.hybrid || '-'}</td>
+                    <td>${data.content}</td>
+                </tr>`;
+        });
+
+        tableHtml += `</tbody></table>`;
+        matrix.innerHTML = tableHtml;
+
+    } catch (err) {
+        console.error("Benchmarking failed", err);
+        matrix.innerHTML = `<div class="alert alert-danger m-3">Benchmarking failed: ${err.message}</div>`;
+    }
 }
 
 function escapeHTML(str) {

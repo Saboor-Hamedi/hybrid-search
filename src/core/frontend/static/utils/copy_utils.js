@@ -70,11 +70,11 @@ function showCopySuccess(btn) {
     if (isSmallBtn) {
         btn.innerHTML = '<i class="bi bi-check2 text-success"></i>';
     } else {
-        // Buttons with labels like "Copy"
-        if (originalText.includes('Copy')) {
-            btn.innerHTML = originalText.replace('Copy', 'Copied!').replace('bi-copy', 'bi-check2');
+        // Buttons with labels like "Copy" - keep icon only
+        if (originalText.includes('bi-copy')) {
+            btn.innerHTML = originalText.replace('bi-copy', 'bi-check2 text-success').replace('Copy', '');
         } else {
-            btn.innerHTML = '<i class="bi bi-check2"></i> Copied';
+            btn.innerHTML = '<i class="bi bi-check2 text-success"></i>';
         }
     }
     
@@ -93,7 +93,7 @@ window.copyCode = function(btn) {
     if (navigator.clipboard) {
         navigator.clipboard.writeText(code).then(() => {
             const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="bi bi-check2"></i> Copied!';
+            btn.innerHTML = '<i class="bi bi-check2 text-success"></i>';
             setTimeout(() => {
                 btn.innerHTML = originalHtml;
             }, 2000);

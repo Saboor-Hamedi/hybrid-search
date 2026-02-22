@@ -43,7 +43,7 @@ def search_ltr(
     
     # 3. Hybrid Merge (Linear 0.5 default)
     scorer = HybridScorer(alpha=0.5)
-    candidates, _ = scorer.combine(sem_results, bm25_results, top_k=candidate_k, strategy="linear")
+    candidates, components = scorer.combine(sem_results, bm25_results, top_k=candidate_k, strategy="linear")
     
     stage1_time = (measure_time() - get_elapsed) * 1000 # Rough estimate
 
@@ -61,7 +61,8 @@ def search_ltr(
     stats = {
         "search_type": "ltr",
         "candidates_count": len(candidates),
-        "stage1_time_ms": stage1_time
+        "stage1_time_ms": stage1_time,
+        "components": components
     }
 
     return final_results, stats

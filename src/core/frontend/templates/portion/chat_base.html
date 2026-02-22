@@ -92,18 +92,52 @@
 
                 {% for r in results %}
                 <div class="result-item">
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="result-doc-id fw-bold text-primary">#{{ r.doc_id }}</span>
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="result-doc-id fw-bold text-muted small" style="letter-spacing: 0.5px;">#{{ r.doc_id }}</span>
+                    
                     <div class="d-flex align-items-center gap-2">
                         {% if mode == 'ltr' or use_mode == 'ltr' or use_ltr %}
-                        <span class="score-badge bg-primary text-white" style="background: linear-gradient(45deg, #4f46e5, #9333ea);">
+                        <span class="score-badge bg-primary text-white" style="background: linear-gradient(45deg, #4f46e5, #9333ea); padding: 2px 8px; font-size: 0.75rem;">
                             <i class="bi bi-stars"></i> AI: {{ "%.4f"|format(r.score) }}
                         </span>
-                        {% else %}
-                        <span class="score-badge {% if r.score >= 0.7 %}score-high{% elif r.score >= 0.4 %}score-medium{% else %}score-low{% endif %}">
-                            {{ "%.3f"|format(r.score) }}
-                        </span>
                         {% endif %}
+
+                        <!-- Actions Dropdown -->
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-link text-muted p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3" style="font-size: 0.8rem;">
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center gap-2" onclick="showAnalysis(this)"
+                                        data-doc-id="{{ r.doc_id }}"
+                                        data-score="{{ r.score }}"
+                                        data-sem="{{ r.semantic_score if r.semantic_score is not none else 'N/A' }}"
+                                        data-key="{{ r.bm25_score if r.bm25_score is not none else 'N/A' }}"
+                                        data-sem-w="{{ r.semantic_weight if r.semantic_weight is not none else 'N/A' }}"
+                                        data-key-w="{{ r.bm25_weight if r.bm25_weight is not none else 'N/A' }}"
+                                        data-strategy="{{ r.strategy|default('Linear') }}"
+                                        data-mode="{{ r.origin_mode|default(mode) }}"
+                                        data-prompt="{{ query }}"
+                                        data-content="{{ r.content[:4000] }}"
+                                        data-latency="{{ stats.query_time_ms }}">
+                                        <i class="bi bi-graph-up text-info"></i> Full Analysis
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center gap-2" onclick="openEditModal('{{ r.doc_id }}', this.dataset.content, '{{ query }}', '{{ mode }}', '{{ r.language }}')"
+                                        data-content="{{ r.content }}">
+                                        <i class="bi bi-pencil text-primary"></i> Edit Entry
+                                    </button>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center gap-2 text-danger" onclick="deleteRecord('{{ r.doc_id }}')">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                   </div>
                   
@@ -111,50 +145,42 @@
                   <div class="result-content mb-2" title="Double click to copy">
                     {{ r.content_highlighted | safe }}
                   </div>
-                  <div class="result-meta d-flex justify-content-between align-items-center">
-                    <span class="d-flex align-items-center">
-                        Score: {{ "%.3f"|format(r.score) }} • {{ r.language|upper }} • {{ r.created_at }}
-                        <label class="relevance-toggle" title="Mark as Relevant (Ground Truth)">
-                            <input type="checkbox" onchange="toggleRelevance(this)" data-doc-id="{{ r.doc_id }}">
-                            Relevant?
-                        </label>
-                    </span>
-                    <div class="result-actions d-flex justify-content-end align-items-center gap-2">
-                        <button class="btn btn-sm btn-outline-info d-flex align-items-center px-2" 
-                        style="font-size: 0.75rem; height: 24px; border-radius: 4px;"
-                            onclick="showAnalysis(this)"
-                            data-doc-id="{{ r.doc_id }}"
-                            data-score="{{ r.score }}"
-                            data-sem="{{ r.semantic_score if r.semantic_score is not none else 'N/A' }}"
-                            data-key="{{ r.bm25_score if r.bm25_score is not none else 'N/A' }}"
-                            data-sem-w="{{ r.semantic_weight if r.semantic_weight is not none else 'N/A' }}"
-                            data-key-w="{{ r.bm25_weight if r.bm25_weight is not none else 'N/A' }}"
-                            data-strategy="{{ r.strategy|default('Linear') }}"
-                            data-mode="{{ r.origin_mode|default(mode) }}"
-                            data-prompt="{{ query }}"
-                            data-content="{{ r.content[:4000] }}"
-                            data-latency="{{ stats.query_time_ms }}">
-                            <i class="bi bi-graph-up me-1"></i> Analysis
-                        </button>
+                  <div class="result-meta d-flex justify-content-between align-items-end">
+                    <div class="d-flex flex-column gap-1">
+                        <div class="d-flex align-items-center gap-2 text-muted x-small" style="font-size: 0.7rem;">
+                            <span>{{ "%.3f"|format(r.score) }} • {{ r.language|upper }} • {{ r.created_at }}</span>
+                            <label class="relevance-toggle ms-1" title="Mark as Relevant (Ground Truth)">
+                                <input type="checkbox" onchange="toggleRelevance(this)" data-doc-id="{{ r.doc_id }}">
+                                Relevant?
+                            </label>
+                        </div>
+                        
+                        <div class="rank-badges">
+                            {% if r.semantic_score is not none or r.semantic_rank %}
+                            <span class="rank-badge rank-badge-s" title="Semantic Info">
+                                <i class="bi bi-brain"></i> 
+                                {{ 'S:#' ~ r.semantic_rank if r.semantic_rank else 'S' }}
+                                {% if r.semantic_score is not none %}({{ "%.3f"|format(r.semantic_score) }}){% endif %}
+                            </span>
+                            {% endif %}
+                            
+                            {% if r.bm25_score is not none or r.bm25_rank %}
+                            <span class="rank-badge rank-badge-k" title="Keyword Info">
+                                <i class="bi bi-key"></i> 
+                                {{ 'K:#' ~ r.bm25_rank if r.bm25_rank else 'K' }}
+                                {% if r.bm25_score is not none %}({{ "%.3f"|format(r.bm25_score) }}){% endif %}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2">
                         <button class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center" 
-                        style="width: 28px; height: 24px; border-radius: 4px; padding: 0;"
-                                onclick="copyToClipboard(this, this.dataset.content)" 
-                                data-content="{{ r.content[:4000] }}"
-                                title="Copy Content">
-                            <i class="bi bi-copy"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center"
-                          style="width: 28px; height: 24px; border-radius: 4px; padding: 0;"
-                          onclick="openEditModal('{{ r.doc_id }}', this.dataset.content, '{{ query }}', '{{ mode }}', '{{ r.language }}')"
-                          data-content="{{ r.content }}"
-                          title="Edit Result">
-                            <i class="bi bi-pencil" style="font-size: 0.75rem;"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center"
-                          style="width: 28px; height: 24px; border-radius: 4px; padding: 0;"
-                          onclick="deleteRecord('{{ r.doc_id }}')" 
-                          title="Delete Result">
-                            <i class="bi bi-trash" style="font-size: 0.75rem;"></i>
+                            style="width: 24px; height: 24px; border-radius: 6px; padding: 0; border-color: #e2e8f0;"
+                            onclick="copyToClipboard(this, this.dataset.content)"
+                            data-content="{{ r.content[:4000] }}"
+                            title="Copy text">
+                            <i class="bi bi-copy" style="font-size: 0.7rem;"></i>
                         </button>
                     </div>
                   </div>

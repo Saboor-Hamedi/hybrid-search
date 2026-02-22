@@ -60,6 +60,12 @@ def home():
     fusion_strategy = input_source.get("fusion_strategy", "linear")
     use_ltr = input_source.get("use_ltr") == "true" or input_source.get("use_ltr") == "on"
     use_ai = input_source.get("use_ai") == "true" or input_source.get("use_ai") == "on"  # AI Toggle
+    alpha = input_source.get("alpha")
+    if alpha:
+        try:
+            alpha = float(alpha) / 100.0  # Slider is 0-100, backend wants 0.0-1.0
+        except:
+            alpha = None
     try:
         page = int(input_source.get("page", 1))
     except (TypeError, ValueError):
@@ -81,7 +87,8 @@ def home():
             "page": page,
             "page_size": page_size,
             "mode": api_mode,
-            "fusion_strategy": fusion_strategy
+            "fusion_strategy": fusion_strategy,
+            "alpha": alpha
         }
 
         try:
@@ -176,7 +183,8 @@ def home():
         prev_page=prev_page,
         next_page=next_page,
         graph_img=graph_img,
-        use_ai=use_ai  # Pass to template
+        use_ai=use_ai,
+        alpha=alpha if alpha is not None else 0.5
     )
 
 

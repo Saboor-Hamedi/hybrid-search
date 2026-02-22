@@ -78,6 +78,10 @@ class HybridScorer:
         # Using 'max' normalization preserves their distribution better than minmax.
         sem_scores_norm = self._normalize_values(sem_scores_raw, "max")
         sem_map = {r[0]: s for r, s in zip(sem_results, sem_scores_norm)}
+        
+        # 2b. Map raw ranks for debugging
+        sem_ranks = {r[0]: i+1 for i, r in enumerate(sem_results)}
+        bm25_ranks = {r[0]: i+1 for i, r in enumerate(bm25_results)}
 
         # 3. Merge candidates
         all_ids = set(bm25_map.keys()) | set(sem_map.keys())
@@ -132,6 +136,8 @@ class HybridScorer:
             components[doc_id] = {
                 "semantic_score": v["semantic_score"],
                 "bm25_score": v["bm25_score"],
+                "semantic_rank": sem_ranks.get(doc_id),
+                "bm25_rank": bm25_ranks.get(doc_id),
                 "semantic_weight": 1 - self.alpha if strategy == "linear" else 1.0,
                 "bm25_weight": self.alpha if strategy == "linear" else 1.0,
                 "strategy": strategy

@@ -21,7 +21,7 @@ try:
 except Exception:
     TOP_K = 10
 def search_hybrid(
-    query: str, conn, cursor, model, top_k=TOP_K, threshold=BASE_THRESHOLD, fusion_strategy="linear"
+    query: str, conn, cursor, model, top_k=TOP_K, threshold=BASE_THRESHOLD, fusion_strategy="linear", alpha=None
 ):
     if check_if_empty_input(query):
         print(f"{cs.RED}Input cannot be empty.{cs.RESET}")
@@ -40,20 +40,25 @@ def search_hybrid(
     bm25_results = execute_bm25_query(query, cursor, top_k)
     t_key = time.time()
 
-    # Determine alpha (BM25 weight) from environment if provided.
-    # Priority: BM25_WEIGHT -> 1 - SEMANTIC_WEIGHT -> default 0.5
-    try:
-        alpha_val = os.environ.get("BM25_WEIGHT")
-        if alpha_val is not None and alpha_val.strip() != "":
-            ALPHA = float(alpha_val)
-        else:
-            sem_w = os.environ.get("SEMANTIC_WEIGHT")
-            if sem_w is not None and sem_w.strip() != "":
-                ALPHA = max(0.0, min(1.0, 1.0 - float(sem_w)))
+    # Determine alpha (BM25 weight)
+    if alpha is not None:
+        try:
+            ALPHA = float(alpha)
+        except (ValueError, TypeError):
+            ALPHA = 0.5
+    else:
+        try:
+            alpha_val = os.environ.get("BM25_WEIGHT")
+            if alpha_val is not None and alpha_val.strip() != "":
+                ALPHA = float(alpha_val)
             else:
-                ALPHA = 0.5
-    except Exception:
-        ALPHA = 0.5
+                sem_w = os.environ.get("SEMANTIC_WEIGHT")
+                if sem_w is not None and sem_w.strip() != "":
+                    ALPHA = max(0.0, min(1.0, 1.0 - float(sem_w)))
+                else:
+                    ALPHA = 0.5
+        except Exception:
+            ALPHA = 0.5
 
     scorer = HybridScorer(alpha=ALPHA)
     final, components = scorer.combine(sem_results, bm25_results, top_k=top_k, strategy=fusion_strategy)
