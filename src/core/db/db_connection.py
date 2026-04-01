@@ -20,8 +20,7 @@ try:
         print("No src/.env found; loaded default .env if present")
 except Exception as e:
     print("Error loading .env:", e)
-# Cache the model to avoid reloading it every time
-_cached_model=None
+# Cache the model in models.ai_model now
 # source C:/ProgramData/miniconda3/Scripts/activate base
 def db_connection():
     try:
@@ -43,35 +42,13 @@ def db_connection():
 def get_db_cursor(conn):
     return conn.cursor() if conn else None
 
+from core.models.ai_model import get_embedder
+
 def get_model():
     """
-    Loads the Sentence Transformer model only once (Lazy Singleton)
-    using the model name from the environment variable 'EMBEDDER_MODEL'.
+    Delegates to the centralized get_embedder singleton.
+    Uses 'EMBEDDER_MODEL' env var if available.
     """
-    global _cached_model
-
-    # 2. Check if the model is already loaded (Cache Hit)
-    if _cached_model is not None:
-        return _cached_model
-
-    # 3. Get the model name from the environment variable
-    # It will fetch 'paraphrase-multilingual-MiniLM-L12-v2'
-    MODEL_NAME = os.getenv("EMBEDDER_MODEL")
-
-    if not MODEL_NAME:
-        print("❌ Error: EMBEDDER_MODEL environment variable not set.")
-        return None
-
-    print(f"⏳ Loading Sentence Transformer model from ENV: **{MODEL_NAME}**...")
-
-    try:
-        # 4. Load the model for the first time (Cache Miss)
-        _cached_model = SentenceTransformer(MODEL_NAME)
-        print(f"✅ Model **{MODEL_NAME}** loaded and cached successfully.")
-        return _cached_model
-
-    except Exception as e:
-        print(f"❌ Error loading model '{MODEL_NAME}': {e}")
-        # This often happens if the model name is incorrect or network access is an issue
-        return None
+    model_name = os.getenv("EMBEDDER_MODEL", "paraphrase-multilingual-MiniLM-L12-v2")
+    return get_embedder(model_name)
 

@@ -6,12 +6,14 @@ import time
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks
+from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse, FileResponse
+from fastapi.responses import RedirectResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import uuid
+import shutil
+import tempfile
 
 # Setup path + load model + DB
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
@@ -25,6 +27,7 @@ from core.db.operations.search_flask.semantic_search import search_semantic
 from core.db.operations.search_flask.rrf_search import search_rrf
 from core.db.operations.search_flask.ltr_search import search_ltr
 from core.utils.text_cleansing import clean_page_content
+from core.ingestion.insert_pdf_chunks import insert_pdf
 
 from core.export.core_logic import run_export_task
 
@@ -451,3 +454,43 @@ def delete_document_endpoint(doc_id: int):
     finally:
         cursor.close()
         conn.close()
+
+# --------------------------------------------------------------------- #
+# PDF Ingestion Endpoint (Offloaded from Flask)
+# --------------------------------------------------------------------- #
+@app.post("/upload-pdf")
+async def upload_pdf_endpoint(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
+    """Handles PDF upload and starts background ingestion."""
+    if not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+
+    try:
+        # Create a temp file to store uploaded PDF
+        temp_dir = tempfile.gettempdir()
+        temp_path = os.path.join(temp_dir, f"fastapi_upload_{uuid.uuid4()}_{file.filename}")
+        
+        with open(temp_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+        # Define background processing
+        def run_ingestion(path, filename):
+            print(f"🚀 Starting background ingestion for: {filename}")
+            conn = None
+            try:
+                conn, cursor = get_db()
+                success = insert_pdf(path, conn, cursor)
+                print(f"✅ Ingestion for {filename} finished. Status: {success}")
+            except Exception as e:
+                print(f"❌ Background ingestion crashed for {filename}: {e}")
+            finally:
+                if os.path.exists(path):
+                    os.remove(path)
+                if conn:
+                    cursor.close()
+                    conn.close()
+
+        background_tasks.add_task(run_ingestion, temp_path, file.filename)
+        return {"success": True, "message": "Background ingestion started", "filename": file.filename}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"PDF upload failed: {str(e)}")

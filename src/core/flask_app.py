@@ -288,12 +288,7 @@ def delete_post(doc_id: int):
     
 @app.route("/upload-pdf", methods=["POST"])
 def UploadPDF():
-    """Handle PDF file upload and process it into chunks (Background Thread)"""
-    import tempfile
-    import threading
-    from werkzeug.utils import secure_filename
-    from ingestion.insert_pdf_chunks import insert_pdf
-    
+    """Proxy PDF upload to FastAPI for processing"""
     if 'pdfFile' not in request.files:
         return {"success": False, "error": "No file provided"}, 400
     
@@ -302,65 +297,20 @@ def UploadPDF():
     if file.filename == '':
         return {"success": False, "error": "No file selected"}, 400
     
-    if not file.filename.lower().endswith('.pdf'):
-        return {"success": False, "error": "Only PDF files are allowed"}, 400
-    
     try:
-        # Create a temporary file to save the PDF
-        secure_name = secure_filename(file.filename)
-        temp_dir = tempfile.gettempdir()
-        temp_path = os.path.join(temp_dir, f"upload_{secure_name}")
+        # Prepare file for requests forwarding
+        files = {'file': (file.filename, file.stream, 'application/pdf')}
         
-        # Save the uploaded file synchronously so the thread has access to it
-        file.save(temp_path)
+        # Forward to FastAPI
+        resp = requests.post(f"{API_URL}/upload-pdf", files=files, timeout=60)
         
-        # Define background task
-        def process_background(path, filename):
-            conn = None
-            try:
-                # New DB connection for this thread
-                conn, cursor = _db()
-                print(f"Starting background processing for {filename}...")
-                success = insert_pdf(path, conn, cursor)
-                
-                # Cleanup
-                if os.path.exists(path):
-                    os.remove(path)
-                
-                cursor.close()
-                conn.close()
-                
-                status = "SUCCESS" if success else "FAILED"
-                print(f"Background processing finished for {filename}: {status}")
-                
-                # In a real app, we'd update a DB status here so the frontend can poll:
-                # UPDATE uploads SET status='done' WHERE filename=...
-                
-            except Exception as e:
-                import traceback
-                print(f"❌ Background thread error for {filename}: {e}")
-                traceback.print_exc()
-                
-                if os.path.exists(path):
-                    try:
-                        os.remove(path)
-                    except:
-                        pass
-                if conn:
-                    try:
-                        conn.close()
-                    except:
-                        pass
-
-        # Start Thread
-        thread = threading.Thread(target=process_background, args=(temp_path, secure_name))
-        thread.daemon = True # ensure thread doesn't block shutdown
-        thread.start()
-        
-        # Return immediately
-        return {"success": True, "message": "PDF processing started in background"}, 202
+        if resp.status_code == 200:
+            return resp.json(), 202 # 202 Accepted
+        else:
+            return {"success": False, "error": f"Backend Error: {resp.text}"}, resp.status_code
             
     except Exception as e:
+        print(f"Flask Upload Proxy Error: {e}")
         return {"success": False, "error": str(e)}, 500
 
 @app.route("/generate", methods=["POST"])
