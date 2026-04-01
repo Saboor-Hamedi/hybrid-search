@@ -23,6 +23,7 @@ app = Flask(__name__, template_folder=TEMPLATE_DIR, static_folder=STATIC_DIR)
 API_URL = "http://127.0.0.1:8000"  # FastAPI backend
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024 # 100MB limit for PDFs
 
 
 #  Helper: highlight query words
@@ -337,17 +338,17 @@ def UploadPDF():
     try:
         # Prepare file for requests forwarding
         files = {'file': (file.filename, file.stream, 'application/pdf')}
+        # Using longer timeout for batch uploads to avoid connection drops
+        resp = requests.post(f"{API_URL}/upload-pdf", files=files, timeout=300)
         
-        # Forward to FastAPI
-        resp = requests.post(f"{API_URL}/upload-pdf", files=files, timeout=60)
-        
-        if resp.status_code == 200:
-            return resp.json(), 202 # 202 Accepted
+        if resp.status_code == 200 or resp.status_code == 201 or resp.status_code == 202:
+            return resp.json(), 200
         else:
-            return {"success": False, "error": f"Backend Error: {resp.text}"}, resp.status_code
+            return {"success": False, "error": f"Backend Error: {resp.status_code}"}, 500
             
+    except requests.exceptions.ConnectionError:
+        return {"success": False, "error": "FastAPI Server unreachable (Connection Reset)"}, 500
     except Exception as e:
-        print(f"Flask Upload Proxy Error: {e}")
         return {"success": False, "error": str(e)}, 500
 
 # --------------------------------------------------------------------- #
@@ -357,6 +358,14 @@ def UploadPDF():
 def proxy_stats():
     try:
         resp = requests.get(f"{API_URL}/api/system/stats", timeout=10)
+        return resp.json(), resp.status_code
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+@app.post("/api/stop-indexing")
+def proxy_stop_indexing():
+    try:
+        resp = requests.post(f"{API_URL}/api/system/stop-indexing", timeout=10)
         return resp.json(), resp.status_code
     except Exception as e:
         return {"error": str(e)}, 500

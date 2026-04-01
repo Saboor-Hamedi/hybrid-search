@@ -846,12 +846,13 @@ pre code {
   clear: both;
 }
 
-/* Global Modal Backdrop Blur */
+/* Global Modal Backdrop (Light Blur Style) */
 .modal-backdrop.show {
-  backdrop-filter: blur(10px) !important;
-  -webkit-backdrop-filter: blur(10px) !important;
-  background-color: rgba(15, 23, 42, 0.4) !important;
+  backdrop-filter: blur(5px) !important;
+  -webkit-backdrop-filter: blur(5px) !important;
+  background-color: rgba(0, 0, 0, 0.3) !important;
   opacity: 1 !important;
+  z-index: 5000 !important; /* Always above results layer (100) and sidebar */
 }
 
 /* Prevent Bootstrap Jump */
@@ -1808,15 +1809,50 @@ html {
 }
 
 /* Neutralizing Primary Buttons (Active/Checked States) */
-.btn-primary {
-    background-color: #111827 !important;
-    border-color: #111827 !important;
-    color: white !important;
+/* Global Industrial Button Standard */
+.btn {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  font-family: inherit !important;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 8px 16px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  border-radius: 8px !important;
 }
 
+.btn-primary {
+  background-color: #111827 !important;
+  border-color: #111827 !important;
+  color: white !important;
+}
 .btn-primary:hover {
-    background-color: #374151 !important;
-    border-color: #374151 !important;
+  background-color: #374151 !important;
+  border-color: #374151 !important;
+  transform: translateY(-1px);
+}
+
+.btn-danger {
+  background-color: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: white !important;
+}
+.btn-danger:hover {
+  background-color: #dc2626 !important;
+  border-color: #dc2626 !important;
+  transform: translateY(-1px);
+}
+
+.btn-light {
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    color: #374151 !important;
+}
+.btn-light:hover {
+    background: #f9fafb !important;
+    border-color: #d1d5db !important;
+    color: #111827 !important;
+    transform: translateY(-1px);
 }
 
 .btn-check:checked + .btn-outline-primary,
@@ -1844,4 +1880,22 @@ html {
 select option:checked {
     background-color: #f3f4f6 !important;
     color: #111827 !important;
+}
+
+/* Windows-style Close Button Header Control */
+.btn-close-win {
+    width: 44px;
+    height: 100%;
+    border-radius: 0 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%236b7280'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") !important;
+    background-size: 8px !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    opacity: 1 !important;
+}
+
+.btn-close-win:hover {
+    background-color: #ef4444 !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") !important;
 }

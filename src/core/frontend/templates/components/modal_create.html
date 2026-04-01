@@ -1,71 +1,173 @@
-<!-- Create Modal -->
-<div id="createModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
-  <div style="background: white; border-radius: 12px; padding: 1.5rem; max-width: 600px; width: 90%;">
-    <h5 class="mb-3">Create New Document</h5>
+<div id="createModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 5000; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+  <style>
+    .modal-content-main {
+      background: white; border-radius: 8px; max-width: 620px; width: 90%; height: 520px; 
+      display: flex; flex-direction: column; box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.25); 
+      overflow: hidden; border: 1px solid #e5e7eb;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+    /* YouTube Style Minimized State */
+    #createModal.is-minimized {
+      background: transparent !important;
+      backdrop-filter: none !important;
+      pointer-events: none;
+    }
+    #createModal.is-minimized .modal-content-main {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 320px;
+      height: 60px !important;
+      pointer-events: auto;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      z-index: 10000;
+    }
+    #createModal.is-minimized .modal-body-custom,
+    #createModal.is-minimized .border-top {
+      display: none !important;
+    }
+    #createModal.is-minimized #pdfBulkStatus {
+        margin: 0 !important;
+        height: 60px;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        background: #2563eb !important;
+        color: white !important;
+        border-radius: 12px;
+    }
+    #createModal.is-minimized #bulkUploadText {
+        font-size: 0.75rem;
+        padding: 0 16px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .btn-min-win:hover {
+        background-color: #e5e7eb !important;
+    }
+    .file-list-container {
+      max-height: 280px;
+      overflow-y: auto;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #ffffff;
+      margin-top: 1rem;
+    }
+    .file-item {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+    .file-item:last-child { border-bottom: none; }
+    .file-item:hover { background: #f3f4f6; }
+    .file-status-icon { width: 24px; text-align: center; margin-right: 8px; }
+    .file-info { flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file-progress-mini { width: 60px; margin-left: 10px; height: 4px; border-radius: 2px; background: #e5e7eb; overflow: hidden; position: relative; }
+    .file-progress-inner { height: 100%; width: 0%; background: #2563eb; transition: width 0.3s; }
+    .status-badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; margin-left: 8px; font-weight: 600; }
+    .badge-queued { background: #dbeafe; color: #1e40af; }
+    .badge-success { background: #d1fae5; color: #065f46; }
+    .badge-error { background: #fee2e2; color: #991b1b; }
+    .badge-uploading { background: #fef3c7; color: #92400e; }
+  </style>
+
+  <div class="modal-content-main">
+    <!-- Windows-Style Title Bar (Sharp) -->
+    <div style="background: #f9fafb; border-bottom: 1px solid #e5e7eb; height: 38px; padding: 0; display: flex; justify-content: space-between; align-items: stretch; flex-shrink: 0; border-radius: 0;">
+        <div style="font-size: 0.7rem; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 0.12em; display: flex; align-items: center; gap: 8px; padding-left: 16px;">
+            <i class="bi bi-window-stack text-primary" style="font-size: 0.85rem;"></i>
+            <span>Add New Documents</span>
+        </div>
+        <div class="d-flex h-100">
+            <button type="button" class="btn btn-min-win border-0 rounded-0 d-flex align-items-center justify-content-center" onclick="window.minimizeCreateModal()" style="width: 38px; height: 38px; background: transparent; transition: background 0.2s; border-radius: 0;">
+                <i class="bi bi-dash-lg" style="font-size: 1rem; color: #6b7280;"></i>
+            </button>
+            <button type="button" class="btn-close-win" onclick="closeCreateModal()" style="width: 44px; height: 38px; border: none; background-color: transparent; box-shadow: none; border-radius: 0; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; outline: none;"></button>
+        </div>
+    </div>
     
-    <!-- Tabs -->
-    <ul class="nav nav-tabs mb-3" id="createTabs" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="text-tab" data-bs-toggle="tab" data-bs-target="#textTab" type="button" role="tab">
-          <i class="bi bi-text-paragraph"></i> Text
-        </button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="pdf-tab" data-bs-toggle="tab" data-bs-target="#pdfTab" type="button" role="tab">
-          <i class="bi bi-file-pdf"></i> PDF Upload
-        </button>
-      </li>
-    </ul>
-    
-    <!-- Tab Content -->
-    <div class="tab-content" id="createTabsContent">
-      <!-- Text Tab -->
-      <div class="tab-pane fade show active" id="textTab" role="tabpanel">
-        <form method="POST" action="{{ url_for('new_post') }}">
-          <input type="hidden" name="q" value="{{ query }}">
-          <input type="hidden" name="mode" value="{{ mode }}">
-          <input type="hidden" name="language" value="en">
-          <textarea class="form-control mb-3" name="content" rows="8" placeholder="Enter document content..." required></textarea>
-          <div class="d-flex gap-2 justify-content-end">
-            <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
-            <button type="submit" class="btn btn-primary">Create</button>
-          </div>
-        </form>
-      </div>
-      
-      <!-- PDF Tab -->
-      <div class="tab-pane fade" id="pdfTab" role="tabpanel">
-        <form id="pdfUploadForm" enctype="multipart/form-data">
-          <div id="pdfDropZone" style="border: 2px dashed #d1d5db; border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.3s;">
-            <i class="bi bi-cloud-upload" style="font-size: 3rem; color: #9ca3af;"></i>
-            <p class="mt-2 mb-2">Drag and drop PDF file here or click to browse</p>
-            <p style="font-size: 0.875rem; color: #6b7280;">Only .pdf files are supported</p>
-            <input type="file" id="pdfFileInput" name="pdfFile" accept=".pdf" multiple style="display: none;">
+    <div style="padding: 1.25rem; flex: 1; display: flex; flex-direction: column; overflow: hidden; background: #ffffff;">
+        <!-- Tabs -->
+        <ul class="nav nav-tabs mb-3 border-0" id="createTabs" role="tablist" style="background: #f3f4f6; padding: 4px; border-radius: 6px; flex-shrink: 0;">
+          <li class="nav-item" role="presentation" style="flex: 1;">
+            <button class="nav-link active w-100 border-0" id="text-tab" data-bs-toggle="tab" data-bs-target="#textTab" type="button" role="tab" style="border-radius: 4px; font-size: 0.8rem; font-weight: 700; padding: 6px;">
+              <i class="bi bi-fonts me-1"></i> PASTE TEXT
+            </button>
+          </li>
+          <li class="nav-item" role="presentation" style="flex: 1;">
+            <button class="nav-link w-100 border-0" id="pdf-tab" data-bs-toggle="tab" data-bs-target="#pdfTab" type="button" role="tab" style="border-radius: 4px; font-size: 0.8rem; font-weight: 700; padding: 6px;">
+              <i class="bi bi-file-earmark-pdf me-1"></i> UPLOAD PDFS
+            </button>
+          </li>
+        </ul>
+        
+        <!-- Tab Content -->
+        <div class="tab-content" id="createTabsContent" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column;">
+          <!-- Text Tab -->
+          <div class="tab-pane fade show active h-100" id="textTab" role="tabpanel">
+            <form method="POST" action="{{ url_for('new_post') }}" class="d-flex flex-column h-100">
+              <input type="hidden" name="q" value="{{ query }}">
+              <input type="hidden" name="mode" value="{{ mode }}">
+              <input type="hidden" name="language" value="en">
+              <textarea class="form-control mb-3 border-0 bg-light flex-grow-1" name="content" placeholder="Paste or type document content here..." required style="resize: none; border-radius: 8px; font-size: 0.9rem; padding: 12px;"></textarea>
+              
+              <!-- Local Footer for Text Tab -->
+              <div class="d-flex gap-2 justify-content-end pt-3 border-top mt-auto">
+                <button type="button" class="btn btn-light btn-sm fw-bold border px-3" onclick="closeCreateModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary btn-sm fw-bold px-4">Create Document</button>
+              </div>
+            </form>
           </div>
           
-          <div id="pdfFileName" class="mt-3" style="display: none;">
-            <div class="alert alert-info d-flex align-items-center">
-              <i class="bi bi-file-pdf me-2"></i>
-              <span id="selectedFileName"></span>
-              <button type="button" class="btn-close ms-auto" onclick="clearPDFSelection()"></button>
-            </div>
+          <!-- PDF Tab -->
+          <div class="tab-pane fade h-100" id="pdfTab" role="tabpanel">
+            <form id="pdfUploadForm" enctype="multipart/form-data" class="d-flex flex-column h-100">
+              <div class="flex-grow-1 overflow-y-auto pr-2">
+                  <!-- Selection Area -->
+                  <div id="pdfDropZone" class="p-4 text-center" style="border: 2px dashed #e5e7eb; border-radius: 12px; cursor: pointer; transition: background 0.2s; background: #fafafa;">
+                    <div class="mb-2">
+                        <i class="bi bi-cloud-arrow-up" style="font-size: 2rem; color: #2563eb;"></i>
+                    </div>
+                    <p class="mb-1 fw-bold" style="font-size: 0.9rem;">Drop your PDFs here</p>
+                    <p class="text-muted small mb-0">or click to browse from files</p>
+                    <input type="file" id="pdfFileInput" name="pdfFile" accept=".pdf" multiple style="display: none;">
+                  </div>
+                  
+                  <!-- File Table / Progress List -->
+                  <div id="pdfFileListArea" style="display: none;">
+                      <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
+                          <span class="small fw-bold text-muted uppercase" style="font-size: 0.65rem;" id="fileListSummary">0 FILES SELECTED</span>
+                          <button type="button" class="btn btn-link btn-sm text-danger text-decoration-none p-0 fw-bold" style="font-size: 0.65rem;" onclick="clearPDFSelection()">Clear all</button>
+                      </div>
+                      <div class="file-list-container" id="fileListItems">
+                          <!-- File Rows Dynamic -->
+                      </div>
+                  </div>
+                  
+                  <!-- Bulk Control -->
+                  <div id="pdfBulkStatus" class="mt-3 p-2 rounded text-center small" style="display: none; background: #eff6ff; color: #1e40af; font-weight: 600;">
+                      <span id="bulkUploadText">Ready to upload 0 files</span>
+                  </div>
+              </div>
+              
+              <!-- Local Footer for PDF Tab -->
+              <div class="d-flex gap-2 justify-content-end pt-3 border-top mt-auto">
+                <button type="button" id="pdfCancelBtn" class="btn btn-light btn-sm fw-bold border px-3" onclick="closeCreateModal()">Cancel</button>
+                <button type="button" id="pdfStopBtn" class="btn btn-danger btn-sm fw-bold px-3" style="display: none;" onclick="window.stopUploadBatch()">STOP BATCH</button>
+                <button type="submit" id="pdfUploadBtn" class="btn btn-primary btn-sm fw-bold px-4" disabled>Start Upload</button>
+              </div>
+            </form>
           </div>
-          
-          <div id="pdfUploadProgress" class="mt-3" style="display: none;">
-            <div class="progress">
-              <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
-            </div>
-            <p class="text-center mt-2 mb-0" style="font-size: 0.875rem; color: #6b7280;">Processing PDF...</p>
-          </div>
-          
-          <div id="pdfUploadResult" class="mt-3" style="display: none;"></div>
-          
-          <div class="d-flex gap-2 justify-content-end mt-3">
-            <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
-            <button type="submit" id="pdfUploadBtn" class="btn btn-primary" disabled>Upload PDF</button>
-          </div>
-        </form>
-      </div>
+        </div>
+    </div>
     </div>
   </div>
+</div>
 </div>

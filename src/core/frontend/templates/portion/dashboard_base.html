@@ -226,32 +226,8 @@
     {% endblock %}
   </div>
 
-  <!-- Create Document Modal -->
-  <div id="createModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center;">
-    <div style="background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: var(--border-radius); padding: var(--spacing-lg); max-width: 600px; width: 90%;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
-        <h3 style="margin: 0;">Create New Document</h3>
-        <button onclick="closeCreateModal()" style="background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer;">&times;</button>
-      </div>
-      <form method="POST" action="{{ url_for('new_post') }}">
-        <input type="hidden" name="q" value="{{ query }}">
-        <input type="hidden" name="mode" value="{{ mode }}">
-        <input type="hidden" name="language" value="en">
-        <textarea 
-          class="search-input" 
-          name="content" 
-          rows="12" 
-          placeholder="Enter document content..."
-          style="width: 100%; margin-bottom: var(--spacing-md); min-height: 200px; resize: vertical;"
-          required
-        ></textarea>
-        <div style="display: flex; gap: var(--spacing-sm); justify-content: flex-end;">
-          <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Cancel</button>
-          <button type="submit" class="btn btn-primary">Create Document</button>
-        </div>
-      </form>
-    </div>
-  </div>
+  <!-- Centralized Create Document Modal -->
+  {% include 'components/modal_create.html' %}
 
   <!-- Command Palette (if exists) -->
   {% include 'components/command_palette.html' ignore missing %}

@@ -458,9 +458,12 @@ def delete_document_endpoint(doc_id: int):
 # --------------------------------------------------------------------- #
 # PDF Ingestion Endpoint (Offloaded from Flask)
 # --------------------------------------------------------------------- #
+import asyncio
+processing_semaphore = asyncio.Semaphore(3) # Limit to 3 concurrent ingestions to save memory/crashes
+
 @app.post("/upload-pdf")
 async def upload_pdf_endpoint(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
-    """Handles PDF upload and starts background ingestion."""
+    """Handles PDF upload and starts background ingestion with throttling."""
     if not file.filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")
 
@@ -469,30 +472,42 @@ async def upload_pdf_endpoint(background_tasks: BackgroundTasks, file: UploadFil
         temp_dir = tempfile.gettempdir()
         temp_path = os.path.join(temp_dir, f"fastapi_upload_{uuid.uuid4()}_{file.filename}")
         
+        # Save file to disk
         with open(temp_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        # Define background processing
-        def run_ingestion(path, filename):
-            print(f"🚀 Starting background ingestion for: {filename}")
-            conn = None
-            try:
-                conn, cursor = get_db()
-                success = insert_pdf(path, conn, cursor)
-                print(f"✅ Ingestion for {filename} finished. Status: {success}")
-            except Exception as e:
-                print(f"❌ Background ingestion crashed for {filename}: {e}")
-            finally:
-                if os.path.exists(path):
-                    os.remove(path)
-                if conn:
-                    cursor.close()
-                    conn.close()
+        # Define background processing wrapper
+        async def run_ingestion_throttled(path, filename):
+            async with processing_semaphore:
+                print(f"🚀 Starting (throttled) ingestion for: {filename}")
+                conn = None
+                try:
+                    # insert_pdf is likely synchronous, we run in thread if needed
+                    # but here we'll just call it since add_task handles the loop
+                    import functools
+                    loop = asyncio.get_event_loop()
+                    
+                    def sync_wrapper():
+                        c, cur = get_db()
+                        try:
+                            return insert_pdf(path, c, cur)
+                        finally:
+                            cur.close()
+                            c.close()
 
-        background_tasks.add_task(run_ingestion, temp_path, file.filename)
-        return {"success": True, "message": "Background ingestion started", "filename": file.filename}
+                    success = await loop.run_in_executor(None, sync_wrapper)
+                    print(f"✅ Ingestion for {filename} finished. Success: {success}")
+                except Exception as e:
+                    print(f"❌ Background ingestion crashed for {filename}: {e}")
+                finally:
+                    if os.path.exists(path):
+                        os.remove(path)
+
+        background_tasks.add_task(run_ingestion_throttled, temp_path, file.filename)
+        return {"success": True, "message": "Background ingestion queued", "filename": file.filename}
 
     except Exception as e:
+        print(f"Upload Endpoint Error: {e}")
         raise HTTPException(status_code=500, detail=f"PDF upload failed: {str(e)}")
 
 # --------------------------------------------------------------------- #
@@ -513,8 +528,18 @@ def get_system_stats():
         cursor.close()
         conn.close()
 
+@app.post("/api/system/stop-indexing")
+def stop_indexing():
+    """Trigger the global stop flag across all workers."""
+    from core.utils import system_state
+    system_state.request_stop()
+    return {"success": True, "message": "Global stop request sent."}
+
 @app.post("/api/system/reset")
 def reset_system_data():
+    from core.utils import system_state
+    system_state.request_stop() # Safety: trigger stop before reset
+    
     conn, cursor = get_db()
     try:
         print("🚮 DANGER: Executing full system data reset...")
@@ -532,6 +557,9 @@ def reset_system_data():
             bm25_utils.needs_update = True
         except Exception as e:
             print(f"⚠️ BM25 refresh skipped: {e}")
+        
+        # Clear the flag after a successful reset
+        system_state.clear_stop()
             
         return {"success": True, "message": "All data cleared successfully"}
     except Exception as e:

@@ -1,60 +1,62 @@
 <div class="modal-backdrop-custom" id="settingModal" style="display: none;">
     <div class="modal-content-custom">
-        <div class="modal-header-custom">
-            <h5 class="m-0">
-                <i class="bi bi-sliders2 me-2"></i>
-                Preferences
-            </h5>
-            <button class="btn-close-custom" onclick="document.getElementById('settingModal').style.display='none'">
-                <i class="bi bi-x-lg"></i>
-            </button>
+        <!-- Windows-Style Title Bar (Sharp) -->
+        <div style="background: #f9fafb; border-bottom: 1px solid #e5e7eb; height: 38px; padding: 0; display: flex; justify-content: space-between; align-items: stretch; flex-shrink: 0; border-radius: 0;">
+            <div style="font-size: 0.7rem; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 0.12em; display: flex; align-items: center; gap: 8px; padding-left: 16px;">
+                <i class="bi bi-gear-wide-connected text-primary" style="font-size: 0.9rem;"></i>
+                <span>System Preferences</span>
+            </div>
+            <button type="button" class="btn-close-win" onclick="document.getElementById('settingModal').style.display='none'" style="width: 44px; height: 38px; border: none; background-color: transparent; box-shadow: none; border-radius: 0; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; outline: none;"></button>
         </div>
         
         <div class="modal-body-custom">
-            <!-- Search Mode Section -->
-            <div class="settings-section">
+            <!-- Search Topology Section -->
+            <div class="settings-card">
                 <div class="section-label">
-                    <i class="bi bi-search-heart"></i>
-                    <span>Search Mode</span>
+                    <i class="bi bi-diagram-3-fill"></i>
+                    <span>Search Strategy</span>
                 </div>
                 <div class="mode-grid">
-                    <div class="mode-option {% if mode == 'hybrid' or not mode %}active{% endif %}" data-mode="hybrid" role="button" tabindex="0">
-                        <i class="bi bi-layers-fill mode-icon"></i>
-                        <div class="mode-info">
-                            <span class="mode-title">Hybrid</span>
+                    <div class="mode-option {% if mode == 'hybrid' or not mode %}active{% endif %}" data-mode="hybrid" role="button" title="Combines Keyword and Semantic for best results">
+                        <div class="mode-icon-wrapper">
+                            <i class="bi bi-layers-fill"></i>
                         </div>
+                        <span class="mode-title">Hybrid</span>
                     </div>
                     
-                    <div class="mode-option {% if mode == 'rrf' %}active{% endif %}" data-mode="rrf" role="button" tabindex="0">
-                        <i class="bi bi-arrow-left-right mode-icon"></i>
-                        <div class="mode-info">
-                            <span class="mode-title">RRF</span>
+                    <div class="mode-option {% if mode == 'rrf' %}active{% endif %}" data-mode="rrf" role="button" title="Reciprocal Rank Fusion">
+                        <div class="mode-icon-wrapper">
+                            <i class="bi bi-funnel-fill"></i>
                         </div>
+                        <span class="mode-title">RRF</span>
                     </div>
                     
-                    <div class="mode-option {% if mode == 'semantic' %}active{% endif %}" data-mode="semantic" role="button" tabindex="0">
-                        <i class="bi bi-stars mode-icon"></i>
-                        <div class="mode-info">
-                            <span class="mode-title">Semantic</span>
+                    <div class="mode-option {% if mode == 'semantic' %}active{% endif %}" data-mode="semantic" role="button" title="AI-powered meaning search">
+                        <div class="mode-icon-wrapper">
+                            <i class="bi bi-stars"></i>
                         </div>
+                        <span class="mode-title">Semantic</span>
                     </div>
                     
-                    <div class="mode-option {% if mode == 'keyword' %}active{% endif %}" data-mode="keyword" role="button" tabindex="0">
-                        <i class="bi bi-fonts mode-icon"></i>
-                        <div class="mode-info">
-                            <span class="mode-title">Keyword</span>
+                    <div class="mode-option {% if mode == 'keyword' %}active{% endif %}" data-mode="keyword" role="button" title="Traditional text matching">
+                        <div class="mode-icon-wrapper">
+                            <i class="bi bi-fonts"></i>
                         </div>
+                        <span class="mode-title">Keyword</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Configuration Section -->
-            <div class="settings-section">
-
-                <div class="parameter-item">
-                    <div class="parameter-label">
-                        <i class="bi bi-robot"></i>
-                        <span>AI Summarization</span>
+            <!-- AI Engine Section -->
+            <div class="settings-card">
+                <div class="section-label">
+                    <i class="bi bi-cpu-fill"></i>
+                    <span>Intelligence Engine</span>
+                </div>
+                <div class="parameter-item border-0 pb-0">
+                    <div class="parameter-info">
+                        <span class="parameter-title">AI Summarization</span>
+                        <p class="parameter-desc">Uses local Ollama models to generate answers from retrieved documents.</p>
                     </div>
                     <label class="toggle-switch">
                         <input type="checkbox" id="modalAiToggle" {% if use_ai %}checked{% endif %}>
@@ -63,475 +65,216 @@
                 </div>
             </div>
 
-            <!-- Data Overview Section -->
-            <div class="settings-section">
+            <!-- System Telemetry Section -->
+            <div class="settings-card">
                 <div class="section-label">
-                    <i class="bi bi-database"></i>
-                    <span>Data Overview</span>
+                    <i class="bi bi-activity"></i>
+                    <span>System Telemetry</span>
                 </div>
-                <div class="stats-mini-grid">
-                    <div class="stat-mini-card">
-                        <span class="stat-mini-label">Total Documents</span>
-                        <span class="stat-mini-value" id="statDocCount">--</span>
+                <div class="telemetry-grid">
+                    <div class="telemetry-card">
+                        <div class="telemetry-icon bg-soft-blue">
+                             <i class="bi bi-files text-primary"></i>
+                        </div>
+                        <div class="telemetry-content">
+                            <span class="telemetry-label">Total Documents</span>
+                            <span class="telemetry-value" id="statDocCount">0</span>
+                        </div>
                     </div>
-                    <div class="stat-mini-card">
-                        <span class="stat-mini-label">Search Logs</span>
-                        <span class="stat-mini-value" id="statLogCount">--</span>
+                    <div class="telemetry-card">
+                        <div class="telemetry-icon bg-soft-purple">
+                             <i class="bi bi-journal-text text-purple"></i>
+                        </div>
+                        <div class="telemetry-content">
+                            <span class="telemetry-label">Search Insights</span>
+                            <span class="telemetry-value" id="statLogCount">0</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Danger Zone -->
-            <div class="settings-section">
+            <!-- Maintenance & Safety -->
+            <div class="settings-card border-danger-subtle">
                 <div class="section-label text-danger">
-                    <i class="bi bi-exclamation-triangle text-danger"></i>
-                    <span class="text-danger">Danger Zone</span>
+                    <i class="bi bi-shield-lock-fill"></i>
+                    <span>System Maintenance</span>
                 </div>
-                <div class="danger-box">
-                    <div class="danger-info">
-                        <span class="danger-title">Delete All Data</span>
-                        <p class="danger-desc">Permanently remove all documents, embeddings, and search history.</p>
+                <div class="danger-zone-wrapper">
+                    <div class="danger-text">
+                        <span class="danger-headline">Factory Reset Data</span>
+                        <p class="danger-subtext">Clear all documents and logs. All identities will be reset to 1.</p>
                     </div>
-                    <button class="btn-danger-custom" onclick="resetSystemData()">
-                        Delete All
+                    <button class="btn-danger-pro" onclick="resetSystemData()">
+                        <i class="bi bi-trash3-fill me-1"></i> Reset System
                     </button>
                 </div>
             </div>
 
-            <!-- Quick Access -->
-            <div class="settings-section mb-0">
-                <a href="http://127.0.0.1:8000/docs" target="_blank" class="access-link-inline">
-                    <i class="bi bi-code-square me-1"></i> API Documentation <i class="bi bi-box-arrow-up-right ms-1" style="font-size: 0.7rem;"></i>
+            <!-- Footer Meta -->
+            <div class="d-flex justify-content-center mt-3 mb-1">
+                <a href="http://127.0.0.1:8000/docs" target="_blank" class="api-docs-link">
+                    <i class="bi bi-box-arrow-up-right me-1"></i> Technical API Reference
                 </a>
             </div>
         </div>
 
-        <div class="modal-footer-custom">
-            <button class="apply-button" onclick="saveModalSettings()">
-                Apply Changes
+        <div class="modal-footer-custom bg-white">
+            <button class="apply-btn-pro" onclick="saveModalSettings()">
+                Save Preferences
             </button>
         </div>
     </div>
 </div>
 
 <style>
-.modal-backdrop-custom {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
-    z-index: 2000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* PREMIUM DESIGN TOKENS */
+:root {
+    --text-primary: #111827;
+    --text-secondary: #4b5563;
+    --text-muted: #9ca3af;
+    --primary-blue: #2563eb;
+    --soft-blue: #eff6ff;
+    --soft-purple: #f5f3ff;
+    --danger-red: #ef4444;
+    --glass-border: rgba(0, 0, 0, 0.05);
 }
 
-/* Ensure global confirmModal is on top of this custom modal */
-#confirmModal {
-    z-index: 3000 !important;
-}
-.modal-backdrop.show {
-    z-index: 2990 !important; /* Ensure the backdrop is also above the first modal */
+.modal-backdrop-custom {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(5px);
+    z-index: 5000; display: flex; align-items: center; justify-content: center;
 }
 
 .modal-content-custom {
-    background: #ffffff;
-    width: 680px; /* Increased from 560px */
-    max-width: 95vw;
-    max-height: 85vh; /* Limit height to 85% of viewport height */
-    border-radius: 24px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    background: #ffffff; width: 620px; max-width: 95vw; max-height: 85vh;
+    border-radius: 8px; box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.3);
+    overflow: hidden; display: flex; flex-direction: column;
+    animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.modal-body-custom {
-    padding: 1.5rem 2rem;
-    overflow-y: auto; /* Enable scrolling for the body only */
-    flex: 1;
-}
-
-@keyframes modalPop {
-    from { transform: scale(0.95); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+@keyframes modalSlideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 .modal-header-custom {
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid #f0f2f5;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    padding: 1.5rem 2rem; border-bottom: 1px solid var(--glass-border);
+    display: flex; justify-content: space-between; align-items: center;
 }
 
-.modal-header-custom h5 {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #1a1f2e;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0;
-}
-
-.modal-header-custom h5 i {
-    color: #111827;
-}
+.modal-header-custom h5 { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0; }
 
 .btn-close-custom {
-    background: transparent;
-    border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #7e8497;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 1.2rem;
+    background: #f3f4f6; border: none; width: 32px; height: 32px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    color: var(--text-secondary); cursor: pointer; transition: 0.2s;
 }
+.btn-close-custom:hover { background: #e5e7eb; color: var(--text-primary); }
 
-.btn-close-custom:hover {
-    background: #f5f6fa;
-    color: #1a1f2e;
+.modal-body-custom { padding: 1.25rem 1.5rem; overflow-y: auto; flex: 1; scrollbar-width: thin; }
+
+/* Section Cards */
+.settings-card {
+    background: #ffffff; border: 1px solid #f3f4f6; border-radius: 12px;
+    padding: 1.25rem; margin-bottom: 1.25rem; transition: transform 0.2s, box-shadow 0.2s;
 }
-
-/* Main sections */
-
-.settings-section {
-    margin-bottom: 1.5rem;
-}
+.settings-card:hover { border-color: #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
 
 .section-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
+    display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem;
 }
+.section-label i { font-size: 1rem; color: var(--text-muted); }
+.section-label span { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
 
-.section-label i {
-    font-size: 1rem;
-    color: #111827;
-}
-
-.section-label span {
-    font-size: 0.8rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: #5a6275;
-    letter-spacing: 0.05em;
-}
-
-.mode-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.75rem;
-}
-
+/* Mode Grid */
+.mode-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
 .mode-option {
-    padding: 0.75rem 0.5rem;
-    background: #f9fafc;
-    border: 1.5px solid #eef0f4;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.35rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
+    padding: 1rem 0.5rem; background: #fff; border: 2px solid #f3f4f6;
+    border-radius: 12px; display: flex; flex-direction: column; align-items: center;
+    gap: 0.5rem; cursor: pointer; transition: 0.2s;
 }
+.mode-icon-wrapper {
+    width: 40px; height: 40px; border-radius: 10px; background: #f9fafb;
+    display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--text-secondary);
+}
+.mode-option:hover { border-color: #d1d5db; background: #fafafa; }
+.mode-option.active { border-color: var(--primary-blue); background: var(--soft-blue); }
+.mode-option.active .mode-icon-wrapper { background: white; color: var(--primary-blue); }
+.mode-title { font-weight: 700; font-size: 0.8rem; color: var(--text-primary); }
 
-.mode-option:hover {
-    border-color: #d0d5e0;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+/* Telemetry Stats */
+.telemetry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.telemetry-card {
+    display: flex; align-items: center; gap: 1rem; padding: 1rem;
+    background: #fafafa; border-radius: 12px; border: 1px solid #f3f4f6;
 }
+.telemetry-icon {
+    width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+}
+.bg-soft-blue { background: #eff6ff; }
+.bg-soft-purple { background: #f5f3ff; }
+.text-purple { color: #8b5cf6; }
 
-.mode-option.active {
-    background: #e5e7eb;
-    border-color: #111827;
-    color: #111827;
-}
+.telemetry-label { font-size: 0.65rem; color: var(--text-secondary); display: block; }
+.telemetry-value { font-size: 1.15rem; font-weight: 800; color: var(--text-primary); }
 
-.mode-option.active .mode-icon {
-    color: #111827;
-}
-
-.mode-icon {
-    font-size: 1.3rem;
-    color: #4f5af5;
-    margin-bottom: 0.1rem;
-}
-
-.mode-title {
-    font-weight: 600;
-    font-size: 0.9rem;
-}
-
-.parameter-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.6rem 0;
-    border-bottom: 1px solid #f0f2f5;
-}
-
-.parameter-item:last-of-type {
-    border-bottom: none;
-}
-
-.parameter-label {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.parameter-label i {
-    color: #7e8497;
-    font-size: 1rem;
-    width: 20px;
-}
-
-.parameter-label span {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: #2a3142;
-}
-
-.parameter-select {
-    padding: 0.4rem 2rem 0.4rem 1rem;
-    border-radius: 30px;
-    border: 1px solid #e2e6ed;
-    background: #f5f7fa;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: #1a1f2e;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a6275' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.75rem center;
-    cursor: pointer;
-}
-
-.parameter-select:hover {
-    background-color: #f0f2f8;
-    border-color: #cbd0dc;
-}
-
-.parameter-select:focus {
-    outline: none;
-    border-color: #111827;
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
-}
-
-.toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 44px;
-    height: 22px;
-}
-
-.toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: #e2e6ed;
-    transition: .3s;
-    border-radius: 34px;
-}
-
-.toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 2px;
-    bottom: 2px;
-    background: white;
-    transition: .3s;
-    border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-input:checked + .toggle-slider {
-    background: #111827;
-}
-
-input:checked + .toggle-slider:before {
-    transform: translateX(22px);
-}
-
-.access-link-inline {
-    display: inline-flex;
-    align-items: center;
-    font-size: 0.85rem;
-    color: #4f5af5;
-    text-decoration: none;
-    font-weight: 600;
-    padding: 0.25rem 0;
-}
-
-.access-link-inline:hover {
-    text-decoration: underline;
-}
-
-.modal-footer-custom {
-    padding: 1rem 1.5rem 1.25rem 1.5rem;
-    background: #fafbff;
-    border-top: 1px solid #f0f2f5;
-}
-
-.apply-button {
-    width: 100%;
-    padding: 0.75rem;
-    background: #1a1f2e;
-    border: none;
-    border-radius: 40px;
-    color: white;
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.apply-button:hover {
-    background: #2c3447;
-    transform: translateY(-1px);
-    box-shadow: 0 8px 16px -8px rgba(0,0,0,0.2);
-}
-
-.apply-button:active {
-    transform: translateY(0);
-}
-
-/* Stats Mini Grid */
-.stats-mini-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-}
-
-.stat-mini-card {
-    background: #f8f9fb;
-    padding: 0.75rem;
-    border-radius: 12px;
-    border: 1px solid #edf0f5;
-    display: flex;
-    flex-direction: column;
-}
-
-.stat-mini-label {
-    font-size: 0.7rem;
-    color: #6b7280;
-    font-weight: 500;
-}
-
-.stat-mini-value {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #111827;
-}
+/* Parameter Toggles */
+.parameter-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; }
+.parameter-title { font-weight: 700; font-size: 0.95rem; color: var(--text-primary); display: block; }
+.parameter-desc { font-size: 0.78rem; color: var(--text-secondary); margin: 0; font-weight: 400; }
 
 /* Danger Zone */
-.danger-box {
-    background: #fff5f5;
-    border: 1px solid #fee2e2;
-    border-radius: 12px;
-    padding: 0.75rem;
+.danger-zone-wrapper { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.danger-headline { font-weight: 700; font-size: 0.95rem; color: #b91c1c; display: block; }
+.danger-subtext { font-size: 0.78rem; color: #991b1b; opacity: 0.8; margin: 0; }
+.btn-danger-pro {
+    background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;
+    padding: 0.5rem 1rem; border-radius: 8px; font-weight: 700; font-size: 0.8rem;
+    transition: 0.2s; white-space: nowrap;
+}
+.btn-danger-pro:hover { background: #ef4444; color: white; border-color: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
+
+/* Footer & Buttons */
+.modal-footer-custom {
+    padding: 1rem 1.5rem;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
+    justify-content: flex-end;
+    background: #fdfdfd;
+    border-top: 1px solid #f3f4f6;
 }
 
-.danger-info {
-    flex: 1;
+.apply-btn-pro {
+    padding: 0.6rem 1.75rem; background: var(--text-primary); border: none;
+    border-radius: 8px; color: white; font-weight: 700; font-size: 0.9rem;
+    cursor: pointer; transition: 0.3s;
 }
+.apply-btn-pro:hover { background: var(--primary-blue); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15); }
 
-.danger-title {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: #991b1b;
-    display: block;
+.api-docs-link { color: var(--text-muted); text-decoration: none; font-size: 0.8rem; font-weight: 500; }
+.api-docs-link:hover { color: var(--text-secondary); text-decoration: underline; }
+
+/* Custom Toggle */
+.toggle-switch { position: relative; width: 44px; height: 24px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background: #e5e7eb; transition: .4s; border-radius: 34px;
 }
-
-.danger-desc {
-    font-size: 0.75rem;
-    color: #b91c1c;
-    margin: 0;
-    opacity: 0.8;
+.toggle-slider:before {
+    position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
+    background: white; transition: .4s; border-radius: 50%;
 }
+input:checked + .toggle-slider { background: var(--primary-blue); }
+input:checked + .toggle-slider:before { transform: translateX(20px); }
 
-.btn-danger-custom {
-    background: #ef4444;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-    flex-shrink: 0; /* Prevent shrinking */
-}
-
-.btn-danger-custom:hover {
-    background: #dc2626;
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
-}
-
-/* Responsive adjustments */
 @media (max-width: 600px) {
-    .modal-content-custom {
-        width: 95vw;
-    }
-    
-    .mode-grid {
-        gap: 0.5rem;
-    }
-    
-    .mode-title {
-        font-size: 0.8rem;
-    }
-    
-    .modal-body-custom {
-        padding: 1.25rem;
-    }
-
-    .stats-mini-grid {
-        grid-template-columns: 1fr; /* Stack stats on mobile */
-    }
-
-    .danger-box {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.75rem;
-    }
-
-    .btn-danger-custom {
-        width: 100%;
-        text-align: center;
-    }
+    .mode-grid { grid-template-columns: repeat(2, 1fr); }
+    .telemetry-grid { grid-template-columns: 1fr; }
+    .danger-zone-wrapper { flex-direction: column; align-items: stretch; text-align: center; }
+    .btn-danger-pro { width: 100%; }
 }
 </style>
+
 <script>
     document.querySelectorAll('.mode-option').forEach(opt => {
         opt.addEventListener('click', function() {
@@ -544,20 +287,31 @@ input:checked + .toggle-slider:before {
         const activeMode = document.querySelector('.mode-option.active').dataset.mode;
         const aiEnabled = document.getElementById('modalAiToggle').checked;
         const modeInput = document.getElementById('activeModeInput');
-        const pageSizeInput = document.getElementsByName('page_size')[0];
         const aiToggleInput = document.getElementById('aiToggle');
 
         if (modeInput) modeInput.value = activeMode;
         if (aiToggleInput) aiToggleInput.checked = aiEnabled;
         
-        // Persist to localStorage
         localStorage.setItem('ai-summarization-enabled', aiEnabled);
         window.ENABLE_AI = aiEnabled;
         
-        document.getElementById('settingModal').style.display = 'none';
+        // Brief visual success feedback
+        const btn = document.querySelector('.apply-btn-pro');
+        const oldText = btn.innerText;
+        btn.innerText = "Settings Saved!";
+        btn.classList.add('bg-success');
+        
+        setTimeout(() => {
+            document.getElementById('settingModal').style.display = 'none';
+            btn.innerText = oldText;
+            btn.classList.remove('bg-success');
+            // If on home page, maybe reload or update UI live
+            if (activeMode && window.location.search.includes('mode=')) {
+                 window.location.reload();
+            }
+        }, 800);
     }
 
-    // Fetch Stats when modal is shown
     const settingModal = document.getElementById('settingModal');
     if (settingModal) {
         const observer = new MutationObserver((mutations) => {
@@ -572,36 +326,31 @@ input:checked + .toggle-slider:before {
 
     async function refreshSystemStats() {
         try {
-            // Using Flask Proxy for better reliability and avoiding CORS issues
             const resp = await fetch('/api/stats');
             const data = await resp.json();
-            document.getElementById('statDocCount').textContent = data.document_count || 0;
-            document.getElementById('statLogCount').textContent = data.search_log_count || 0;
+            document.getElementById('statDocCount').textContent = (data.document_count || 0).toLocaleString();
+            document.getElementById('statLogCount').textContent = (data.search_log_count || 0).toLocaleString();
         } catch (e) {
             console.error("Failed to fetch stats", e);
         }
     }
 
     async function resetSystemData() {
-        // Use the custom confirmModal instead of native alert
         const modalEl = document.getElementById('confirmModal');
         const confirmBtn = document.getElementById('confirmModalBtn');
         const modalTitle = document.getElementById('confirmModalTitle');
         const modalMsg = document.getElementById('confirmModalMessage');
-        const iconElement = modalEl.querySelector('.modal-body i'); // More stable selector
+        const iconElement = modalEl.querySelector('.modal-body i');
         
-        // Temporarily adjust modal for Danger reset
-        modalTitle.innerText = "Clear All Data?";
-        modalMsg.innerText = "This will permanently delete all records. This cannot be undone.";
-        confirmBtn.innerText = "Clear All"; // Shorter text
-        confirmBtn.className = "btn btn-danger btn-sm rounded-pill px-4"; // btn-sm to reduce size
-        if (iconElement) iconElement.className = "bi bi-exclamation-triangle-fill text-danger";
+        modalTitle.innerText = "Factory Reset?";
+        modalMsg.innerHTML = "<strong>DANGER:</strong> This will erase all documents, embeddings, and logs.<br>This action cannot be undone.";
+        confirmBtn.innerText = "Yes";
+        confirmBtn.className = "btn btn-danger rounded-pill px-4 fw-bold";
+        if (iconElement) iconElement.className = "bi bi-exclamation-octagon-fill text-danger mb-3";
         
         const bootstrapModal = new bootstrap.Modal(modalEl);
         
-        // Cleanup modal state when finished or closed
         modalEl.addEventListener('hidden.bs.modal', function () {
-            // Restore default appearance for other uses (like PDF upload)
             modalTitle.innerText = "Upload PDF?";
             modalMsg.innerText = "Are you sure you want to upload this file?";
             confirmBtn.innerText = "Upload";
@@ -612,31 +361,28 @@ input:checked + .toggle-slider:before {
 
         confirmBtn.onclick = async function() {
             bootstrapModal.hide();
-            
-            const btn = document.querySelector('.btn-danger-custom');
-            const originalText = btn.textContent;
+            const btn = document.querySelector('.btn-danger-pro');
+            const originalContent = btn.innerHTML;
             btn.disabled = true;
-            btn.textContent = "Clearing...";
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Resetting...';
 
             try {
-                // Using Flask Proxy for better reliability
                 const resp = await fetch('/api/reset', { method: 'POST' });
                 const result = await resp.json();
                 
                 if (result.success) {
-                    alert("✅ System data successfully cleared.");
-                    refreshSystemStats();
-                    // Forced redirect to home to clear chat view/query
-                    window.location.href = '/';
+                    btn.innerHTML = "Success!";
+                    window.Notify.show("System data successfully cleared.", "success", 5000);
+                    setTimeout(() => window.location.href = '/', 1000);
                 } else {
-                    alert("❌ Reset failed: " + (result.detail || "Unknown error"));
+                    window.Notify.show("Reset failed: " + (result.detail || "Unknown error"), "danger", 6000);
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
                 }
             } catch (e) {
-                alert("❌ Network Error: Could not reach backend for reset.");
-                console.error(e);
-            } finally {
+                window.Notify.show("Network Error: Could not reach backend.", "danger", 6000);
+                btn.innerHTML = originalContent;
                 btn.disabled = false;
-                btn.textContent = originalText;
             }
         };
 

@@ -12,6 +12,7 @@ from core.models.ai_model import get_embedder
 # Import the ColorScheme for colored console output
 from core.utils.ColorScheme import ColorScheme
 from core.utils.languages import detect_language
+from core.utils.system_state import is_stop_requested # Import Stop Flag
 from core.utils.text_properties import (
     normalize_content,
 )
@@ -166,6 +167,11 @@ def insert_pdf(file_path: str, conn, cursor):
                 print(
                     f"  {cs.BLUE}📝 Processed {i + 1}/{stats['total_elements']} elements...{cs.RESET}"
                 )
+
+            # Check for Global Stop Request
+            if (i + 1) % 10 == 0 and is_stop_requested():
+                print(f"  {cs.RED}🛑 BREAK: System Stop requested. Halting middle-of-file...{cs.RESET}")
+                break
     # Final commit
     conn.commit()
     # if stats["successful_inserts"] > 0:
