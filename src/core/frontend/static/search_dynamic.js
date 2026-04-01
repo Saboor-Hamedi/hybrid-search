@@ -190,7 +190,7 @@ function renderSearchResults(data, turnId) {
                     
                     <div class="d-flex align-items-center gap-2">
                         ${(mode === 'ltr' || r.origin_mode === 'ltr') ? `
-                        <span class="score-badge bg-primary text-white" style="background: linear-gradient(45deg, #4f46e5, #9333ea); padding: 2px 8px; font-size: 0.75rem;">
+                        <span class="score-badge bg-dark text-white" style="background: linear-gradient(45deg, #111827, #374151); padding: 2px 8px; font-size: 0.75rem;">
                             <i class="bi bi-stars"></i> AI: ${r.score.toFixed(4)}
                         </span>` : ''}
                         
@@ -222,6 +222,11 @@ function renderSearchResults(data, turnId) {
                                         <i class="bi bi-pencil text-primary"></i> Edit Entry
                                     </button>
                                 </li>
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center gap-2" onclick="copyToClipboard(this, this.closest('.result-item').querySelector('.result-content').innerText)">
+                                        <i class="bi bi-copy"></i> Copy Content
+                                    </button>
+                                </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <button class="dropdown-item d-flex align-items-center gap-2 text-danger" onclick="deleteRecord('${r.doc_id}')">
@@ -242,7 +247,7 @@ function renderSearchResults(data, turnId) {
                         <div class="d-flex align-items-center gap-2 text-muted x-small" style="font-size: 0.7rem;">
                             <span>${r.language.toUpperCase()}</span>
                             <span class="text-secondary opacity-50">•</span>
-                            <span>${r.created_at}</span>
+                            <span class="human-date">${formatTimeAgo(r.created_at)}</span>
                             <label class="relevance-toggle ms-2 mb-0" style="font-size: 0.7rem;" title="Mark as Relevant">
                                 <input type="checkbox" onchange="toggleRelevance(this)" data-doc-id="${r.doc_id}">
                                 Relevant?
@@ -265,15 +270,6 @@ function renderSearchResults(data, turnId) {
                         </div>
                     </div>
 
-                    <div class="d-flex align-items-center gap-2">
-                        <button class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center" 
-                            style="width: 24px; height: 24px; border-radius: 6px; padding: 0; border-color: #e2e8f0;"
-                            onclick="copyToClipboard(this, this.dataset.content)"
-                            data-content="${escapeHTML(r.content.substring(0, 4000))}"
-                            title="Copy text">
-                            <i class="bi bi-copy" style="font-size: 0.7rem;"></i>
-                        </button>
-                    </div>
                 </div>
             </div>`;
     });
@@ -283,10 +279,10 @@ function renderSearchResults(data, turnId) {
             <!-- AI Insight area for dynamic turn -->
             <div class="ai-research-box d-none mt-4">
                 <div class="ai-research-header">
+                    <div class="loading-shimmer d-none spinner-ai me-2"></div>
                     <span class="d-flex align-items-center gap-2">
                         <i class="bi bi-robot"></i> <strong>AI Insight</strong>
                     </span>
-                    <div class="loading-shimmer d-none spinner-ai"></div>
                 </div>
                 <div class="ai-research-body">
                     <div class="ai-answer-text">
@@ -409,3 +405,39 @@ function escapeHTML(str) {
         .replace(/'/g, '&apos;');
 }
 
+function formatTimeAgo(dateStr) {
+    if (!dateStr) return '';
+    try {
+        const date = new Date(dateStr.replace(/-/g, '/')); // Better cross-browser date parsing
+        if (isNaN(date.getTime())) return dateStr;
+
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+        
+        if (seconds < 60) return 'Just now';
+        
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        
+        const days = Math.floor(hours / 24);
+        if (days < 7) return `${days}d ago`;
+        
+        // Return clear date otherwise
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch (e) {
+        return dateStr;
+    }
+}
+
+// Initial sweep for static results
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.human-date').forEach(el => {
+        const date = el.dataset.date;
+        if (date) {
+            el.textContent = formatTimeAgo(date);
+        }
+    });
+});

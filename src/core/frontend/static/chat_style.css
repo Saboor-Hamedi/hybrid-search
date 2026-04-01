@@ -28,7 +28,7 @@
 }
 
 .chat-title i {
-  color: #2563eb;
+  color: #111827;
 }
 
 /* Messages Area */
@@ -83,7 +83,7 @@
 }
 
 .user-avatar {
-  background: #2563eb;
+  background: #111827;
   color: white;
 }
 
@@ -154,8 +154,8 @@
 }
 
 .user-action-btn:hover {
-    color: #2563eb;
-    background: rgba(37, 99, 235, 0.05);
+    color: #111827;
+    background: rgba(0, 0, 0, 0.05);
 }
 
 /* Container for user query and actions */
@@ -168,9 +168,8 @@
 
 .message-response {
   background: transparent;
-  padding: 0;
-  border: none;
-  box-shadow: none;
+  position: relative;
+  z-index: 100; /* Main results layer */
   max-width: 90%;
   flex-grow: 1;
 }
@@ -207,7 +206,7 @@
 }
 
 .result-title:hover {
-  color: #2563eb;
+  color: #111827;
   text-decoration: underline;
 }
 
@@ -267,7 +266,7 @@
     left: 0;
     width: 4px;
     height: 100%;
-    background: linear-gradient(to bottom, #4f46e5, #9333ea);
+    background: linear-gradient(to bottom, #111827, #6b7280);
 }
 
 .ai-answer-text {
@@ -423,7 +422,7 @@ pre code {
   box-shadow: none !important;
   line-height: 1.6;
   color: #111827;
-  caret-color: #2563eb;
+  caret-color: #111827;
   background: transparent;
   display: block;
 }
@@ -720,7 +719,7 @@ pre code {
 
 .page-btn:hover:not(:disabled) {
   border-color: #2563eb;
-  color: #2563eb;
+  color: #111827;
 }
 
 .page-btn:disabled {
@@ -787,7 +786,7 @@ pre code {
 /* Result Count Badge */
 .result-count-badge {
   display: inline-block;
-  background: #2563eb;
+  background: #111827;
   color: white;
   padding: 0.25rem 0.625rem;
   border-radius: 12px;
@@ -881,7 +880,7 @@ body.modal-open {
   top: 15%;
   bottom: 15%;
   width: 3px;
-  background: #2563eb;
+  background: #111827;
   border-radius: 0 4px 4px 0;
   opacity: 0.6;
 }
@@ -919,9 +918,9 @@ body.modal-open {
 }
 
 .action-btn.active {
-  color: #2563eb;
+  color: #111827;
   border-color: #2563eb;
-  background: rgba(37, 99, 235, 0.05);
+    background: rgba(0, 0, 0, 0.05);
 }
 
 .action-btn.success {
@@ -950,7 +949,7 @@ body.modal-open {
 .typing-indicator span {
   width: 6px;
   height: 6px;
-  background: #2563eb;
+  background: #111827;
   border-radius: 50%;
   animation: typingPulse 1.2s infinite ease-in-out;
 }
@@ -1008,6 +1007,15 @@ body.modal-open {
   animation: shimmerMove 1.5s infinite linear;
 }
 /* AI Research Box (Modern Replacement for Cards) */
+.result-item {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.result-item:hover {
+  z-index: 1000;
+}
+
 .result-card {
       background: white;
       padding: 1.25rem;
@@ -1023,14 +1031,15 @@ body.modal-open {
       border-color: #cbd5e1;
     }
 .ai-research-box {
-  margin-top: 2rem;
-  margin-bottom: 2rem;
+  margin-top: 3rem !important;
   border-radius: 12px;
   background: white;
   border: 1px solid #f3f4f6;
-  overflow: hidden;
+  overflow: visible; /* CRITICAL: Allow dropdowns to float over it */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
   animation: fadeIn 0.4s ease;
+  position: relative;
+  z-index: 1;
 }
 
 .ai-research-header {
@@ -1038,10 +1047,26 @@ body.modal-open {
   background: #f8fafc;
   border-bottom: 1px solid #f1f5f9;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  color: #2563eb;
-  font-size: 0.875rem;
+  position: relative;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  min-height: 48px;
+}
+
+.spinner-ai {
+  width: 40px !important;
+  height: 3px !important;
+  margin-right: 12px !important;
+  flex-shrink: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Maintain space even when "hidden" to prevent text jumping */
+.spinner-ai.d-none {
+  display: block !important;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .ai-research-body {
@@ -1116,7 +1141,7 @@ body.modal-open {
 .example-search:hover {
   background: #e5e7eb;
   border-color: #2563eb;
-  color: #2563eb;
+  color: #111827;
 }
 
 /* Keyboard Shortcut Hint */
@@ -1620,9 +1645,9 @@ html {
 }
 
 .rank-badge-s {
-  background: rgba(37, 99, 235, 0.05);
-  color: #3b82f6;
-  border: 1px solid rgba(37, 99, 235, 0.15);
+    background: rgba(0, 0, 0, 0.05);
+  color: #111827;
+  border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 .rank-badge-k {
@@ -1750,13 +1775,73 @@ html {
 }
 
 .dropdown-menu {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
     padding: 0.5rem;
     min-width: 160px;
-    z-index: 1050;
+    z-index: 5000 !important; /* Extremely high to beat any sibling box */
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 .dropdown-item {
     border-radius: 6px;
     padding: 0.4rem 0.8rem;
     font-weight: 500;
+}
+
+/* Global Reset for Blue Selection/Focus */
+.dropdown-item.active, 
+.dropdown-item:active, 
+.dropdown-item:focus {
+    background-color: #f3f4f6 !important;
+    color: #111827 !important;
+}
+
+.form-select:focus, 
+.form-control:focus {
+    border-color: #d1d5db !important;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05) !important;
+    background-color: #fff !important;
+    color: #111827 !important;
+}
+
+/* Neutralizing Primary Buttons (Active/Checked States) */
+.btn-primary {
+    background-color: #111827 !important;
+    border-color: #111827 !important;
+    color: white !important;
+}
+
+.btn-primary:hover {
+    background-color: #374151 !important;
+    border-color: #374151 !important;
+}
+
+.btn-check:checked + .btn-outline-primary,
+.btn-check:active + .btn-outline-primary,
+.btn-outline-primary:active,
+.btn-outline-primary.active,
+.btn-outline-primary.show {
+    background-color: #f3f4f6 !important;
+    border-color: #111827 !important;
+    color: #111827 !important;
+}
+
+.btn-outline-primary {
+    color: #111827 !important;
+    border-color: #e5e7eb !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: #f9fafb !important;
+    border-color: #111827 !important;
+    color: #111827 !important;
+}
+
+/* Neutralizing native select options */
+select option:checked {
+    background-color: #f3f4f6 !important;
+    color: #111827 !important;
 }

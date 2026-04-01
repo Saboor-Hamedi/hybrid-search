@@ -46,5 +46,5 @@ if __name__ == "__main__":
     # Adjust relative path based on where you run this script
     # This script is in src/core/ingestion/
     
-    target_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../utils/pdf_2025"))
+    target_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../docs/data/arxiv_pdfs"))
     ingest_folder(target_dir)

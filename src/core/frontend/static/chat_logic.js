@@ -326,6 +326,7 @@ function showSessionAnalysis(btn) {
     document.getElementById('metricR').textContent = d.r !== 'N/A' ? parseFloat(d.r).toFixed(4) : 'N/A';
     document.getElementById('metricMAP').textContent = d.map !== 'N/A' ? parseFloat(d.map).toFixed(4) : 'N/A';
     document.getElementById('metricNDCG').textContent = d.ndcg !== 'N/A' ? parseFloat(d.ndcg).toFixed(4) : 'N/A';
+    document.getElementById('metricMRR').textContent = d.mrr !== 'N/A' ? parseFloat(d.mrr).toFixed(4) : 'N/A';
     
     // 2. Efficiency
     document.getElementById('metricLatency').textContent = d.latency + ' ms';
@@ -335,12 +336,21 @@ function showSessionAnalysis(btn) {
     document.getElementById('metricRouter').textContent = d.router !== 'N/A' ? (parseFloat(d.router)*100).toFixed(0) + '%' : 'N/A';
     
     const routerBadge = document.getElementById('metricRouterBadge');
-    if (d.choice === 'Hybrid') {
-        routerBadge.className = 'badge bg-primary';
-        routerBadge.textContent = 'Correct'; // Mock logic for now
+    if (d.router && d.router !== 'N/A') {
+        const rAcc = parseFloat(d.router);
+        if (rAcc >= 1.0) {
+            routerBadge.className = 'badge bg-success';
+            routerBadge.textContent = 'Optimal';
+        } else if (rAcc > 0.7) {
+            routerBadge.className = 'badge bg-primary';
+            routerBadge.textContent = 'Effective';
+        } else {
+            routerBadge.className = 'badge bg-warning text-dark';
+            routerBadge.textContent = 'Sub-optimal';
+        }
     } else {
-        routerBadge.className = 'badge bg-secondary';
-        routerBadge.textContent = d.choice;
+        routerBadge.className = 'badge bg-light text-dark border';
+        routerBadge.textContent = 'Untested';
     }
     
     // Load Chart
@@ -427,18 +437,18 @@ function copyAnalysisData(btn) {
     const metricsData = {
         focus: metricFocus,
         effectiveness: {
-            precision: document.getElementById('metricP').textContent,
-            recall: document.getElementById('metricR').textContent,
-            map: document.getElementById('metricMAP').textContent,
-            mrr: document.getElementById('metricMRR').textContent, // New
-            ndcg: document.getElementById('metricNDCG').textContent
+            precision: document.getElementById('metricP')?.textContent || 'N/A',
+            recall: document.getElementById('metricR')?.textContent || 'N/A',
+            map: document.getElementById('metricMAP')?.textContent || 'N/A',
+            mrr: document.getElementById('metricMRR')?.textContent || 'N/A',
+            ndcg: document.getElementById('metricNDCG')?.textContent || 'N/A'
         },
         efficiency: {
-            latency: document.getElementById('metricLatency').textContent,
-            qpms: document.getElementById('metricQpMS').textContent
+            latency: document.getElementById('metricLatency')?.textContent || 'N/A',
+            qpms: document.getElementById('metricQpMS')?.textContent || 'N/A'
         },
         router: {
-            accuracy: document.getElementById('metricRouter').textContent
+            accuracy: document.getElementById('metricRouter')?.textContent || 'N/A'
         }
     };
     
@@ -454,13 +464,13 @@ function copyAnalysisData(btn) {
     navigator.clipboard.writeText(textSummary).then(() => {
         // Use Global Style Feedback
         if (btn) {
-            const originalHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="bi bi-check2"></i>';
             btn.classList.add('btn-success');
             btn.classList.remove('btn-primary');
+            if (typeof window.showCopySuccess === 'function') {
+                window.showCopySuccess(btn);
+            }
             
             setTimeout(() => {
-                btn.innerHTML = originalHtml;
                 btn.classList.remove('btn-success');
                 btn.classList.add('btn-primary');
             }, 2000);
@@ -479,13 +489,21 @@ function toggleRelevance(checkbox) {
     } else {
         judgedDocs.delete(docId);
     }
-    calculateAndSyncMetrics();
+    // Pass the checkbox to identify which search turn we are in
+    calculateAndSyncMetrics(checkbox);
 }
 
-function calculateAndSyncMetrics() {
-    // 1. gather current ranked list
-    // We assume the DOM order is the ranked order (1 to N)
-    const results = document.querySelectorAll('.result-item');
+function calculateAndSyncMetrics(contextEl) {
+    // 1. Identify which turn we are in
+    let container = document;
+    if (contextEl) {
+        container = contextEl.closest('.message-response') || contextEl.closest('.turn-results') || document;
+    }
+
+    // 2. Gather results for THIS TURN ONLY
+    const results = container.querySelectorAll('.result-item');
+    if (results.length === 0) return; // Nothing to calculate
+
     let hits = 0;
     let rank = 1;
     let sumPrec = 0;
@@ -578,7 +596,25 @@ function calculateAndSyncMetrics() {
 
     const qpms = (latency > 0) ? (ndcg / latency) * 1000 : 0;
 
-    updateSessionStats(p_k, r_k, map, ndcg, mrr, qpms, compNDCG, latStats);
+    // Calculate Router Accuracy (Simulated for Thesis)
+    // How well did the router/fusion perform compared to best baseline?
+    let routerAcc = 1.0; 
+    if (compNDCG.semantic > 0 || compNDCG.keyword > 0) {
+        const bestBaseline = Math.max(compNDCG.semantic, compNDCG.keyword);
+        if (ndcg < bestBaseline) {
+            routerAcc = ndcg / bestBaseline;
+        } else {
+            routerAcc = 1.0; // We found the best or better
+        }
+    } else if (ndcg === 0 && totalRel > 0) {
+        routerAcc = 0; // Truly missed
+    }
+
+    // Find the specific button for THIS TURN
+    const turnBtn = container.querySelector('button[onclick="showSessionAnalysis(this)"]') || 
+                    document.querySelector('button[onclick="showSessionAnalysis(this)"]');
+
+    updateSessionStats(p_k, r_k, map, ndcg, mrr, qpms, compNDCG, latStats, turnBtn, routerAcc);
 }
 
 function calculateSingleStrategyNDCG(idList, trueIds, k) {
@@ -602,8 +638,8 @@ function calculateSingleStrategyNDCG(idList, trueIds, k) {
     return idcg > 0 ? dcg / idcg : 0;
 }
 
-function updateSessionStats(p, r, map, ndcg, mrr, qpms, compStats, latStats) {
-    const btn = document.querySelector('button[onclick="showSessionAnalysis(this)"]');
+function updateSessionStats(p, r, map, ndcg, mrr, qpms, compStats, latStats, specificBtn, routerAcc = null) {
+    const btn = specificBtn || document.querySelector('button[onclick="showSessionAnalysis(this)"]');
     if (!btn) return;
 
     // Update Data Attributes
@@ -611,8 +647,12 @@ function updateSessionStats(p, r, map, ndcg, mrr, qpms, compStats, latStats) {
     btn.dataset.r = r.toFixed(4);
     btn.dataset.map = map.toFixed(4);
     btn.dataset.ndcg = ndcg.toFixed(4);
-    btn.dataset.mrr = mrr.toFixed(4); // New
+    btn.dataset.mrr = mrr.toFixed(4);
     btn.dataset.qpms = qpms.toFixed(4);
+    
+    if (routerAcc !== null) {
+        btn.dataset.router = routerAcc.toFixed(4);
+    }
     
     if (compStats) {
         btn.dataset.ndcgSem = compStats.semantic.toFixed(4);
@@ -627,6 +667,23 @@ function updateSessionStats(p, r, map, ndcg, mrr, qpms, compStats, latStats) {
         document.getElementById('metricMRR').textContent = mrr.toFixed(4); // New
         document.getElementById('metricNDCG').textContent = ndcg.toFixed(4);
         document.getElementById('metricQpMS').textContent = qpms.toFixed(4);
+        
+        if (routerAcc !== null) {
+            document.getElementById('metricRouter').textContent = (routerAcc * 100).toFixed(0) + '%';
+            const routerBadge = document.getElementById('metricRouterBadge');
+            if (routerBadge) {
+                if (routerAcc >= 1.0) {
+                    routerBadge.className = 'badge bg-success';
+                    routerBadge.textContent = 'Optimal';
+                } else if (routerAcc > 0.7) {
+                    routerBadge.className = 'badge bg-primary';
+                    routerBadge.textContent = 'Effective';
+                } else {
+                    routerBadge.className = 'badge bg-warning text-dark';
+                    routerBadge.textContent = 'Sub-optimal';
+                }
+            }
+        }
         
         // Update Comparison Chart
         if (window.updateComparisonChart && compStats) {

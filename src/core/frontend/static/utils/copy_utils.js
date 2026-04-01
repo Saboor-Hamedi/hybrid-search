@@ -63,27 +63,26 @@ function fallbackCopyToClipboard(btn, text) {
 /**
  * Visual feedback for copy success
  */
-function showCopySuccess(btn) {
-    const originalText = btn.innerHTML;
-    const isSmallBtn = btn.classList.contains('btn-icon-small') || btn.classList.contains('user-action-btn') || btn.style.width === '28px';
-    
-    if (isSmallBtn) {
-        btn.innerHTML = '<i class="bi bi-check2 text-success"></i>';
+window.showCopySuccess = function(btn) {
+    const iconEl = btn.querySelector('i');
+    if (iconEl) {
+        const originalClass = iconEl.className;
+        iconEl.className = 'bi bi-check2 text-success';
+        btn.classList.add('copy-success');
+        
+        setTimeout(() => {
+            iconEl.className = originalClass;
+            btn.classList.remove('copy-success');
+        }, 2000);
     } else {
-        // Buttons with labels like "Copy" - keep icon only
-        if (originalText.includes('bi-copy')) {
-            btn.innerHTML = originalText.replace('bi-copy', 'bi-check2 text-success').replace('Copy', '');
-        } else {
-            btn.innerHTML = '<i class="bi bi-check2 text-success"></i>';
-        }
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check2 text-success"></i>';
+        btn.classList.add('copy-success');
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.classList.remove('copy-success');
+        }, 2000);
     }
-    
-    btn.classList.add('copy-success');
-    
-    setTimeout(() => {
-        btn.innerHTML = originalText;
-        btn.classList.remove('copy-success');
-    }, 2000);
 }
 
 window.copyCode = function(btn) {
