@@ -188,6 +188,42 @@ def home():
     )
 
 
+#  /document/<id> – View Single Document
+@app.route("/document/<int:doc_id>")
+def document_page(doc_id: int):
+    back_query = request.args.get("q", "")
+    back_mode = request.args.get("mode", "hybrid")
+    conn, cursor = _db()
+    try:
+        cursor.execute("SELECT id, content, language, created_at FROM document WHERE id = %s", (doc_id,))
+        row = cursor.fetchone()
+        if not row:
+            return render_template("404.html"), 404
+        
+        doc = {
+            "doc_id": row[0],
+            "content": row[1] or "",
+            "content_highlighted": highlight_text(row[1] or "", back_query),
+            "language": (row[2] or "en").upper(),
+            "created_at": row[3].strftime("%Y-%m-%d %H:%M") if row[3] else "unknown",
+            "score": 1.0 # Default score for direct view
+        }
+        
+        # Use index.html to render, which will use chat_base.html
+        return render_template(
+            "index.html",
+            results=[doc],
+            query=back_query,
+            mode=back_mode,
+            stats={"returned": 1, "query_time_ms": 0}
+        )
+    except Exception as e:
+        print(f"Document view error: {e}")
+        return str(e), 500
+    finally:
+        cursor.close()
+        conn.close()
+
 #  /document/<id> – JSON API for Preview Modal
 @app.route("/api/document/<int:doc_id>")
 def get_document_api(doc_id: int):
@@ -208,6 +244,7 @@ def get_document_api(doc_id: int):
         return {"error": str(e)}, 500
     finally:
         cursor.close()
+        conn.close()
 
 
 def _db():
@@ -312,6 +349,25 @@ def UploadPDF():
     except Exception as e:
         print(f"Flask Upload Proxy Error: {e}")
         return {"success": False, "error": str(e)}, 500
+
+# --------------------------------------------------------------------- #
+# System Stats & Reset Proxy
+# --------------------------------------------------------------------- #
+@app.route("/api/stats", methods=["GET"])
+def proxy_stats():
+    try:
+        resp = requests.get(f"{API_URL}/api/system/stats", timeout=10)
+        return resp.json(), resp.status_code
+    except Exception as e:
+        return {"error": str(e)}, 500
+
+@app.route("/api/reset", methods=["POST"])
+def proxy_reset():
+    try:
+        resp = requests.post(f"{API_URL}/api/system/reset", timeout=30)
+        return resp.json(), resp.status_code
+    except Exception as e:
+        return {"error": str(e)}, 500
 
 @app.route("/generate", methods=["POST"])
 def proxy_generate():

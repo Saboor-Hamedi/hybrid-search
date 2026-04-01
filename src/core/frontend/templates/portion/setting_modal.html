@@ -63,6 +63,41 @@
                 </div>
             </div>
 
+            <!-- Data Overview Section -->
+            <div class="settings-section">
+                <div class="section-label">
+                    <i class="bi bi-database"></i>
+                    <span>Data Overview</span>
+                </div>
+                <div class="stats-mini-grid">
+                    <div class="stat-mini-card">
+                        <span class="stat-mini-label">Total Documents</span>
+                        <span class="stat-mini-value" id="statDocCount">--</span>
+                    </div>
+                    <div class="stat-mini-card">
+                        <span class="stat-mini-label">Search Logs</span>
+                        <span class="stat-mini-value" id="statLogCount">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="settings-section">
+                <div class="section-label text-danger">
+                    <i class="bi bi-exclamation-triangle text-danger"></i>
+                    <span class="text-danger">Danger Zone</span>
+                </div>
+                <div class="danger-box">
+                    <div class="danger-info">
+                        <span class="danger-title">Delete All Data</span>
+                        <p class="danger-desc">Permanently remove all documents, embeddings, and search history.</p>
+                    </div>
+                    <button class="btn-danger-custom" onclick="resetSystemData()">
+                        Delete All
+                    </button>
+                </div>
+            </div>
+
             <!-- Quick Access -->
             <div class="settings-section mb-0">
                 <a href="http://127.0.0.1:8000/docs" target="_blank" class="access-link-inline">
@@ -94,14 +129,31 @@
     justify-content: center;
 }
 
+/* Ensure global confirmModal is on top of this custom modal */
+#confirmModal {
+    z-index: 3000 !important;
+}
+.modal-backdrop.show {
+    z-index: 2990 !important; /* Ensure the backdrop is also above the first modal */
+}
+
 .modal-content-custom {
     background: #ffffff;
-    width: 560px; /* Average width - not too wide, not too narrow */
-    max-width: 90vw; /* Responsive fallback for smaller screens */
-    border-radius: 20px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    width: 680px; /* Increased from 560px */
+    max-width: 95vw;
+    max-height: 85vh; /* Limit height to 85% of viewport height */
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     overflow: hidden;
-    animation: modalPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: column;
+    animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-body-custom {
+    padding: 1.5rem 2rem;
+    overflow-y: auto; /* Enable scrolling for the body only */
+    flex: 1;
 }
 
 @keyframes modalPop {
@@ -151,9 +203,7 @@
     color: #1a1f2e;
 }
 
-.modal-body-custom {
-    padding: 1.5rem 1.5rem 1rem 1.5rem;
-}
+/* Main sections */
 
 .settings-section {
     margin-bottom: 1.5rem;
@@ -371,6 +421,83 @@ input:checked + .toggle-slider:before {
     transform: translateY(0);
 }
 
+/* Stats Mini Grid */
+.stats-mini-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.stat-mini-card {
+    background: #f8f9fb;
+    padding: 0.75rem;
+    border-radius: 12px;
+    border: 1px solid #edf0f5;
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-mini-label {
+    font-size: 0.7rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.stat-mini-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* Danger Zone */
+.danger-box {
+    background: #fff5f5;
+    border: 1px solid #fee2e2;
+    border-radius: 12px;
+    padding: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.danger-info {
+    flex: 1;
+}
+
+.danger-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #991b1b;
+    display: block;
+}
+
+.danger-desc {
+    font-size: 0.75rem;
+    color: #b91c1c;
+    margin: 0;
+    opacity: 0.8;
+}
+
+.btn-danger-custom {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0; /* Prevent shrinking */
+}
+
+.btn-danger-custom:hover {
+    background: #dc2626;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
 /* Responsive adjustments */
 @media (max-width: 600px) {
     .modal-content-custom {
@@ -387,6 +514,21 @@ input:checked + .toggle-slider:before {
     
     .modal-body-custom {
         padding: 1.25rem;
+    }
+
+    .stats-mini-grid {
+        grid-template-columns: 1fr; /* Stack stats on mobile */
+    }
+
+    .danger-box {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .btn-danger-custom {
+        width: 100%;
+        text-align: center;
     }
 }
 </style>
@@ -413,5 +555,91 @@ input:checked + .toggle-slider:before {
         window.ENABLE_AI = aiEnabled;
         
         document.getElementById('settingModal').style.display = 'none';
+    }
+
+    // Fetch Stats when modal is shown
+    const settingModal = document.getElementById('settingModal');
+    if (settingModal) {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'style' && settingModal.style.display === 'flex') {
+                    refreshSystemStats();
+                }
+            });
+        });
+        observer.observe(settingModal, { attributes: true });
+    }
+
+    async function refreshSystemStats() {
+        try {
+            // Using Flask Proxy for better reliability and avoiding CORS issues
+            const resp = await fetch('/api/stats');
+            const data = await resp.json();
+            document.getElementById('statDocCount').textContent = data.document_count || 0;
+            document.getElementById('statLogCount').textContent = data.search_log_count || 0;
+        } catch (e) {
+            console.error("Failed to fetch stats", e);
+        }
+    }
+
+    async function resetSystemData() {
+        // Use the custom confirmModal instead of native alert
+        const modalEl = document.getElementById('confirmModal');
+        const confirmBtn = document.getElementById('confirmModalBtn');
+        const modalTitle = document.getElementById('confirmModalTitle');
+        const modalMsg = document.getElementById('confirmModalMessage');
+        const iconElement = modalEl.querySelector('.modal-body i'); // More stable selector
+        
+        // Temporarily adjust modal for Danger reset
+        modalTitle.innerText = "Clear All Data?";
+        modalMsg.innerText = "This will permanently delete all records. This cannot be undone.";
+        confirmBtn.innerText = "Clear All"; // Shorter text
+        confirmBtn.className = "btn btn-danger btn-sm rounded-pill px-4"; // btn-sm to reduce size
+        if (iconElement) iconElement.className = "bi bi-exclamation-triangle-fill text-danger";
+        
+        const bootstrapModal = new bootstrap.Modal(modalEl);
+        
+        // Cleanup modal state when finished or closed
+        modalEl.addEventListener('hidden.bs.modal', function () {
+            // Restore default appearance for other uses (like PDF upload)
+            modalTitle.innerText = "Upload PDF?";
+            modalMsg.innerText = "Are you sure you want to upload this file?";
+            confirmBtn.innerText = "Upload";
+            confirmBtn.className = "btn btn-primary rounded-pill px-4";
+            if (iconElement) iconElement.className = "bi bi-cloud-upload text-primary";
+            confirmBtn.onclick = null;
+        }, { once: true });
+
+        confirmBtn.onclick = async function() {
+            bootstrapModal.hide();
+            
+            const btn = document.querySelector('.btn-danger-custom');
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = "Clearing...";
+
+            try {
+                // Using Flask Proxy for better reliability
+                const resp = await fetch('/api/reset', { method: 'POST' });
+                const result = await resp.json();
+                
+                if (result.success) {
+                    alert("✅ System data successfully cleared.");
+                    refreshSystemStats();
+                    // Forced redirect to home to clear chat view/query
+                    window.location.href = '/';
+                } else {
+                    alert("❌ Reset failed: " + (result.detail || "Unknown error"));
+                }
+            } catch (e) {
+                alert("❌ Network Error: Could not reach backend for reset.");
+                console.error(e);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
+        };
+
+        bootstrapModal.show();
     }
 </script>

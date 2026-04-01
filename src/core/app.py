@@ -494,3 +494,51 @@ async def upload_pdf_endpoint(background_tasks: BackgroundTasks, file: UploadFil
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"PDF upload failed: {str(e)}")
+
+# --------------------------------------------------------------------- #
+# System Stats & Reset
+# --------------------------------------------------------------------- #
+@app.get("/api/system/stats")
+def get_system_stats():
+    conn, cursor = get_db()
+    try:
+        cursor.execute("SELECT COUNT(*) FROM document")
+        doc_count = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM search_logs")
+        log_count = cursor.fetchone()[0]
+        return {"document_count": doc_count, "search_log_count": log_count}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Stats failed: {str(e)}")
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.post("/api/system/reset")
+def reset_system_data():
+    conn, cursor = get_db()
+    try:
+        print("🚮 DANGER: Executing full system data reset...")
+        
+        # Use TRUNCATE CASCADE for speed and certainty. 
+        # It handles all foreign key relationships in one go.
+        cursor.execute("TRUNCATE TABLE document_embedding, document, search_logs RESTART IDENTITY CASCADE;")
+        
+        conn.commit()
+        print("✅ Data purge committed to Database.")
+        
+        # Refresh BM25 cache if relevant
+        try:
+            from core.utils import bm25_utils
+            bm25_utils.needs_update = True
+        except Exception as e:
+            print(f"⚠️ BM25 refresh skipped: {e}")
+            
+        return {"success": True, "message": "All data cleared successfully"}
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        print(f"❌ Reset failed dramatically: {e}")
+        raise HTTPException(status_code=500, detail=f"Reset failed: {str(e)}")
+    finally:
+        cursor.close()
+        conn.close()
