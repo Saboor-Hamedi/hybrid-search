@@ -846,13 +846,13 @@ pre code {
   clear: both;
 }
 
-/* Global Modal Backdrop (Light Blur Style) */
+/* Global Modal Backdrop — MUST be BELOW .modal (1055) */
 .modal-backdrop.show {
-  backdrop-filter: blur(5px) !important;
-  -webkit-backdrop-filter: blur(5px) !important;
-  background-color: rgba(0, 0, 0, 0.3) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background-color: rgba(0, 0, 0, 0.45) !important;
   opacity: 1 !important;
-  z-index: 5000 !important; /* Always above results layer (100) and sidebar */
+  z-index: 1050 !important;
 }
 
 /* Prevent Bootstrap Jump */
@@ -1898,4 +1898,31 @@ select option:checked {
 .btn-close-win:hover {
     background-color: #ef4444 !important;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") !important;
+}
+
+/* ============================================================
+   DEFINITIVE MODAL FIX — No Backdrop Stacking, No Blur Locks
+   ============================================================ */
+
+/* Kill ALL backdrops by default */
+.modal-backdrop {
+    display: none !important;
+}
+
+/* Only show ONE backdrop when a modal is actually open */
+body.modal-open .modal-backdrop:last-of-type {
+    display: block !important;
+    background-color: rgba(0, 0, 0, 0.45) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* Ensure modals are always on top and clickable */
+.modal {
+    z-index: 1055 !important;
+}
+
+.modal-open {
+    overflow: hidden !important;
+    padding-right: 0 !important;
 }

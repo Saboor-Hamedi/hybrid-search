@@ -1,281 +1,202 @@
-<div class="modal-backdrop-custom" id="settingModal" style="display: none;">
-    <div class="modal-content-custom">
-        <!-- Windows-Style Title Bar (Sharp) -->
-        <div style="background: #f9fafb; border-bottom: 1px solid #e5e7eb; height: 38px; padding: 0; display: flex; justify-content: space-between; align-items: stretch; flex-shrink: 0; border-radius: 0;">
-            <div style="font-size: 0.7rem; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 0.12em; display: flex; align-items: center; gap: 8px; padding-left: 16px;">
-                <i class="bi bi-gear-wide-connected text-primary" style="font-size: 0.9rem;"></i>
-                <span>System Preferences</span>
-            </div>
-            <button type="button" class="btn-close-win" onclick="document.getElementById('settingModal').style.display='none'" style="width: 44px; height: 38px; border: none; background-color: transparent; box-shadow: none; border-radius: 0; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; outline: none;"></button>
-        </div>
-        
-        <div class="modal-body-custom">
-            <!-- Search Topology Section -->
-            <div class="settings-card">
-                <div class="section-label">
-                    <i class="bi bi-diagram-3-fill"></i>
-                    <span>Search Strategy</span>
+<!-- Settings Modal (Standardized Bootstrap 5) -->
+<div class="modal fade" id="settingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden; background: #ffffff;">
+            <!-- Windows-Style Title Bar (Sharp) -->
+            <div class="d-flex justify-content-between align-items-stretch" style="background: #f9fafb; border-bottom: 1px solid #e5e7eb; height: 38px; flex-shrink: 0;">
+                <div style="font-size: 0.7rem; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 0.12em; display: flex; align-items: center; gap: 8px; padding-left: 16px;">
+                    <i class="bi bi-gear-wide-connected text-primary" style="font-size: 0.9rem;"></i>
+                    <span>System Preferences</span>
                 </div>
-                <div class="mode-grid">
-                    <div class="mode-option {% if mode == 'hybrid' or not mode %}active{% endif %}" data-mode="hybrid" role="button" title="Combines Keyword and Semantic for best results">
-                        <div class="mode-icon-wrapper">
-                            <i class="bi bi-layers-fill"></i>
+                <!-- Standard BS Close button logic -->
+                <button type="button" class="btn-close-win" data-bs-dismiss="modal" style="width: 44px; height: 38px; border: none; background-color: transparent; box-shadow: none; border-radius: 0; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; outline: none;"></button>
+            </div>
+            
+            <div class="modal-body p-4" style="max-height: 75vh; overflow-y: auto; scrollbar-width: thin;">
+                <!-- Search Topology Section -->
+                <div class="settings-card mb-4" style="background: #ffffff; border: 1px solid #f3f4f6; border-radius: 12px; padding: 1.25rem;">
+                    <div class="section-label mb-3" style="display: flex; align-items: center; gap: 0.6rem;">
+                        <i class="bi bi-diagram-3-fill text-muted"></i>
+                        <span style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280;">Search Strategy</span>
+                    </div>
+                    <div class="mode-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem;">
+                        <div class="mode-option {% if mode == 'hybrid' or not mode %}active{% endif %}" data-mode="hybrid" role="button">
+                            <div class="mode-icon-wrapper">
+                                <i class="bi bi-layers-fill"></i>
+                            </div>
+                            <span class="mode-title">Hybrid</span>
                         </div>
-                        <span class="mode-title">Hybrid</span>
+                        <div class="mode-option {% if mode == 'rrf' %}active{% endif %}" data-mode="rrf" role="button">
+                            <div class="mode-icon-wrapper">
+                                <i class="bi bi-funnel-fill"></i>
+                            </div>
+                            <span class="mode-title">RRF</span>
+                        </div>
+                        <div class="mode-option {% if mode == 'semantic' %}active{% endif %}" data-mode="semantic" role="button">
+                            <div class="mode-icon-wrapper">
+                                <i class="bi bi-stars"></i>
+                            </div>
+                            <span class="mode-title">Semantic</span>
+                        </div>
+                        <div class="mode-option {% if mode == 'keyword' %}active{% endif %}" data-mode="keyword" role="button">
+                            <div class="mode-icon-wrapper">
+                                <i class="bi bi-fonts"></i>
+                            </div>
+                            <span class="mode-title">Keyword</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Engine Section -->
+                <div class="settings-card mb-4" style="background: #ffffff; border: 1px solid #f3f4f6; border-radius: 12px; padding: 1.25rem;">
+                    <div class="section-label mb-3" style="display: flex; align-items: center; gap: 0.6rem;">
+                        <i class="bi bi-cpu-fill text-muted"></i>
+                        <span style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280;">Intelligence Engine</span>
                     </div>
                     
-                    <div class="mode-option {% if mode == 'rrf' %}active{% endif %}" data-mode="rrf" role="button" title="Reciprocal Rank Fusion">
-                        <div class="mode-icon-wrapper">
-                            <i class="bi bi-funnel-fill"></i>
+                    <div class="parameter-item d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-light">
+                        <div>
+                            <span class="fw-bold d-block text-dark" style="font-size: 0.95rem;">AI Summarization</span>
+                            <p class="text-muted m-0" style="font-size: 0.78rem;">Enable or disable semantic analysis of retrieved documents.</p>
                         </div>
-                        <span class="mode-title">RRF</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="modalAiToggle" {% if use_ai %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
                     </div>
-                    
-                    <div class="mode-option {% if mode == 'semantic' %}active{% endif %}" data-mode="semantic" role="button" title="AI-powered meaning search">
-                        <div class="mode-icon-wrapper">
-                            <i class="bi bi-stars"></i>
-                        </div>
-                        <span class="mode-title">Semantic</span>
-                    </div>
-                    
-                    <div class="mode-option {% if mode == 'keyword' %}active{% endif %}" data-mode="keyword" role="button" title="Traditional text matching">
-                        <div class="mode-icon-wrapper">
-                            <i class="bi bi-fonts"></i>
-                        </div>
-                        <span class="mode-title">Keyword</span>
-                    </div>
-                </div>
-            </div>
 
-            <!-- AI Engine Section -->
-            <div class="settings-card">
-                <div class="section-label">
-                    <i class="bi bi-cpu-fill"></i>
-                    <span>Intelligence Engine</span>
-                </div>
-                <div class="parameter-item border-0 pb-0">
-                    <div class="parameter-info">
-                        <span class="parameter-title">AI Summarization</span>
-                        <p class="parameter-desc">Uses local Ollama models to generate answers from retrieved documents.</p>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="small fw-bold text-muted mb-1 d-block">AI Provider</label>
+                            <select class="form-select form-select-sm" id="aiProvider" style="border-radius: 8px; border: 1px solid #e5e7eb;">
+                                <option value="ollama">Ollama (Local)</option>
+                                <option value="chatgpt">ChatGPT (OpenAI)</option>
+                                <option value="deepseek">DeepSeek AI</option>
+                                <option value="claude">Anthropic Claude</option>
+                                <option value="gemini">Google Gemini</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="small fw-bold text-muted mb-1 d-block">Model Target</label>
+                            <input type="text" class="form-control form-control-sm" id="aiModel" placeholder="e.g. qwen2.5:0.5b" style="border-radius: 8px;">
+                        </div>
                     </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="modalAiToggle" {% if use_ai %}checked{% endif %}>
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-            </div>
 
-            <!-- System Telemetry Section -->
-            <div class="settings-card">
-                <div class="section-label">
-                    <i class="bi bi-activity"></i>
-                    <span>System Telemetry</span>
-                </div>
-                <div class="telemetry-grid">
-                    <div class="telemetry-card">
-                        <div class="telemetry-icon bg-soft-blue">
-                             <i class="bi bi-files text-primary"></i>
-                        </div>
-                        <div class="telemetry-content">
-                            <span class="telemetry-label">Total Documents</span>
-                            <span class="telemetry-value" id="statDocCount">0</span>
-                        </div>
+                    <div id="ollamaUrlWrapper" class="mt-3">
+                        <label class="small fw-bold text-muted mb-1 d-block">Ollama Base URL</label>
+                        <input type="text" class="form-control form-control-sm" id="ollamaBaseUrl" placeholder="http://localhost:11434" style="border-radius: 8px;">
                     </div>
-                    <div class="telemetry-card">
-                        <div class="telemetry-icon bg-soft-purple">
-                             <i class="bi bi-journal-text text-purple"></i>
-                        </div>
-                        <div class="telemetry-content">
-                            <span class="telemetry-label">Search Insights</span>
-                            <span class="telemetry-value" id="statLogCount">0</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Maintenance & Safety -->
-            <div class="settings-card border-danger-subtle">
-                <div class="section-label text-danger">
-                    <i class="bi bi-shield-lock-fill"></i>
-                    <span>System Maintenance</span>
-                </div>
-                <div class="danger-zone-wrapper">
-                    <div class="danger-text">
-                        <span class="danger-headline">Factory Reset Data</span>
-                        <p class="danger-subtext">Clear all documents and logs. All identities will be reset to 1.</p>
+                    <div class="mt-3">
+                        <label class="small fw-bold text-muted mb-1 d-block">API Access Key</label>
+                        <div class="position-relative">
+                            <input type="password" class="form-control form-control-sm pe-5" id="aiApiKey" placeholder="Enter key..." style="border-radius: 8px;">
+                            <i class="bi bi-shield-lock position-absolute end-0 top-50 translate-middle-y me-3 text-muted" style="font-size: 0.8rem;"></i>
+                        </div>
+                        <p class="text-muted mt-1" style="font-size: 0.7rem;">Credentials are stored locally in your browser proxy for this session.</p>
                     </div>
-                    <button class="btn-danger-pro" onclick="resetSystemData()">
-                        <i class="bi bi-trash3-fill me-1"></i> Reset System
+                </div>
+
+                <!-- Telemetry & Database Audit -->
+                <div class="settings-card mb-4" style="background: #ffffff; border: 1px solid #f3f4f6; border-radius: 12px; padding: 1.25rem;">
+                    <div class="section-label mb-3" style="display: flex; align-items: center; gap: 0.6rem;">
+                        <i class="bi bi-activity text-muted"></i>
+                        <span style="font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7280;">System Telemetry</span>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                             <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
+                                <div style="width: 44px; height: 44px; background: #eff6ff; color: #2563eb; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                                    <i class="bi bi-files"></i>
+                                </div>
+                                 <div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="text-muted fw-semibold" style="font-size: 0.75rem; letter-spacing: 0.02em;">Total Documents</span>
+                                        <button class="btn btn-link btn-sm p-0 stats-refresh-mini" onclick="refreshSystemStats()" title="Refresh">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                        </button>
+                                    </div>
+                                    <span class="fw-bold d-block text-dark fs-5" id="statDocCount">0</span>
+                                </div>
+                             </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 bg-light rounded-3 border d-flex align-items-center gap-3">
+                                <div style="width: 44px; height: 44px; background: #f5f3ff; color: #8b5cf6; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                                    <i class="bi bi-journal-text"></i>
+                                </div>
+                                <div>
+                                    <span class="text-muted fw-semibold d-block" style="font-size: 0.75rem; letter-spacing: 0.02em;">Search Insights</span>
+                                    <span class="fw-bold d-block text-dark fs-5" id="statLogCount">0</span>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+                    <div class="px-3 py-2 bg-light rounded-3" style="font-size: 0.7rem; border: 1px solid #eef0f2;">
+                        <div class="d-flex justify-content-between text-muted">
+                            <span>Target: <strong id="telemetryHost">...</strong></span>
+                            <span>DB: <strong id="telemetryDb">...</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Maintenance -->
+                <div class="p-3 border border-danger-subtle rounded-3 d-flex justify-content-between align-items-center bg-danger-subtle bg-opacity-10">
+                    <div>
+                        <span class="fw-bold text-danger d-block" style="font-size: 0.95rem;">Factory Reset</span>
+                        <p class="text-danger m-0" style="font-size: 0.78rem; opacity: 0.8;">Clear all documents and logs. Identities will reset.</p>
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger px-3 fw-bold" onclick="resetSystemData()">
+                        <i class="bi bi-trash3-fill me-1"></i> Reset
                     </button>
                 </div>
             </div>
 
-            <!-- Footer Meta -->
-            <div class="d-flex justify-content-center mt-3 mb-1">
-                <a href="http://127.0.0.1:8000/docs" target="_blank" class="api-docs-link">
-                    <i class="bi bi-box-arrow-up-right me-1"></i> Technical API Reference
-                </a>
+            <div class="modal-footer bg-light border-top p-3">
+                <button type="button" class="btn btn-sm btn-light border px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-sm btn-primary px-4" onclick="saveModalSettings()">Update Engine</button>
             </div>
-        </div>
-
-        <div class="modal-footer-custom bg-white">
-            <button class="apply-btn-pro" onclick="saveModalSettings()">
-                Save Preferences
-            </button>
         </div>
     </div>
 </div>
 
 <style>
-/* PREMIUM DESIGN TOKENS */
-:root {
-    --text-primary: #111827;
-    --text-secondary: #4b5563;
-    --text-muted: #9ca3af;
-    --primary-blue: #2563eb;
-    --soft-blue: #eff6ff;
-    --soft-purple: #f5f3ff;
-    --danger-red: #ef4444;
-    --glass-border: rgba(0, 0, 0, 0.05);
-}
-
-.modal-backdrop-custom {
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.3); backdrop-filter: blur(5px);
-    z-index: 5000; display: flex; align-items: center; justify-content: center;
-}
-
-.modal-content-custom {
-    background: #ffffff; width: 620px; max-width: 95vw; max-height: 85vh;
-    border-radius: 8px; box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.3);
-    overflow: hidden; display: flex; flex-direction: column;
-    animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes modalSlideUp {
-    from { transform: translateY(20px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-.modal-header-custom {
-    padding: 1.5rem 2rem; border-bottom: 1px solid var(--glass-border);
-    display: flex; justify-content: space-between; align-items: center;
-}
-
-.modal-header-custom h5 { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0; }
-
-.btn-close-custom {
-    background: #f3f4f6; border: none; width: 32px; height: 32px;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    color: var(--text-secondary); cursor: pointer; transition: 0.2s;
-}
-.btn-close-custom:hover { background: #e5e7eb; color: var(--text-primary); }
-
-.modal-body-custom { padding: 1.25rem 1.5rem; overflow-y: auto; flex: 1; scrollbar-width: thin; }
-
-/* Section Cards */
-.settings-card {
-    background: #ffffff; border: 1px solid #f3f4f6; border-radius: 12px;
-    padding: 1.25rem; margin-bottom: 1.25rem; transition: transform 0.2s, box-shadow 0.2s;
-}
-.settings-card:hover { border-color: #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-
-.section-label {
-    display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem;
-}
-.section-label i { font-size: 1rem; color: var(--text-muted); }
-.section-label span { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); }
-
-/* Mode Grid */
-.mode-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
 .mode-option {
     padding: 1rem 0.5rem; background: #fff; border: 2px solid #f3f4f6;
     border-radius: 12px; display: flex; flex-direction: column; align-items: center;
     gap: 0.5rem; cursor: pointer; transition: 0.2s;
 }
+.mode-option:hover { border-color: #d1d5db; background: #fafafa; }
+.mode-option.active { border-color: #2563eb; background: #eff6ff; }
+.mode-option.active .mode-icon-wrapper { background: white; color: #2563eb; }
+
 .mode-icon-wrapper {
     width: 40px; height: 40px; border-radius: 10px; background: #f9fafb;
-    display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--text-secondary);
+    display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: #6b7280;
 }
-.mode-option:hover { border-color: #d1d5db; background: #fafafa; }
-.mode-option.active { border-color: var(--primary-blue); background: var(--soft-blue); }
-.mode-option.active .mode-icon-wrapper { background: white; color: var(--primary-blue); }
-.mode-title { font-weight: 700; font-size: 0.8rem; color: var(--text-primary); }
+.mode-title { font-weight: 700; font-size: 0.8rem; color: #111827; }
 
-/* Telemetry Stats */
-.telemetry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.telemetry-card {
-    display: flex; align-items: center; gap: 1rem; padding: 1rem;
-    background: #fafafa; border-radius: 12px; border: 1px solid #f3f4f6;
-}
-.telemetry-icon {
-    width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
-}
-.bg-soft-blue { background: #eff6ff; }
-.bg-soft-purple { background: #f5f3ff; }
-.text-purple { color: #8b5cf6; }
-
-.telemetry-label { font-size: 0.65rem; color: var(--text-secondary); display: block; }
-.telemetry-value { font-size: 1.15rem; font-weight: 800; color: var(--text-primary); }
-
-/* Parameter Toggles */
-.parameter-item { display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.5rem; }
-.parameter-title { font-weight: 700; font-size: 0.95rem; color: var(--text-primary); display: block; }
-.parameter-desc { font-size: 0.78rem; color: var(--text-secondary); margin: 0; font-weight: 400; }
-
-/* Danger Zone */
-.danger-zone-wrapper { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
-.danger-headline { font-weight: 700; font-size: 0.95rem; color: #b91c1c; display: block; }
-.danger-subtext { font-size: 0.78rem; color: #991b1b; opacity: 0.8; margin: 0; }
-.btn-danger-pro {
-    background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca;
-    padding: 0.5rem 1rem; border-radius: 8px; font-weight: 700; font-size: 0.8rem;
-    transition: 0.2s; white-space: nowrap;
-}
-.btn-danger-pro:hover { background: #ef4444; color: white; border-color: #ef4444; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
-
-/* Footer & Buttons */
-.modal-footer-custom {
-    padding: 1rem 1.5rem;
-    display: flex;
-    justify-content: flex-end;
-    background: #fdfdfd;
-    border-top: 1px solid #f3f4f6;
-}
-
-.apply-btn-pro {
-    padding: 0.6rem 1.75rem; background: var(--text-primary); border: none;
-    border-radius: 8px; color: white; font-weight: 700; font-size: 0.9rem;
-    cursor: pointer; transition: 0.3s;
-}
-.apply-btn-pro:hover { background: var(--primary-blue); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15); }
-
-.api-docs-link { color: var(--text-muted); text-decoration: none; font-size: 0.8rem; font-weight: 500; }
-.api-docs-link:hover { color: var(--text-secondary); text-decoration: underline; }
-
-/* Custom Toggle */
-.toggle-switch { position: relative; width: 44px; height: 24px; }
+.toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
 .toggle-switch input { opacity: 0; width: 0; height: 0; }
 .toggle-slider {
     position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-    background: #e5e7eb; transition: .4s; border-radius: 34px;
+    background-color: #e5e7eb; transition: .4s; border-radius: 24px;
 }
 .toggle-slider:before {
     position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
-    background: white; transition: .4s; border-radius: 50%;
+    background-color: white; transition: .4s; border-radius: 50%;
 }
-input:checked + .toggle-slider { background: var(--primary-blue); }
+input:checked + .toggle-slider { background-color: #2563eb; }
 input:checked + .toggle-slider:before { transform: translateX(20px); }
 
-@media (max-width: 600px) {
-    .mode-grid { grid-template-columns: repeat(2, 1fr); }
-    .telemetry-grid { grid-template-columns: 1fr; }
-    .danger-zone-wrapper { flex-direction: column; align-items: stretch; text-align: center; }
-    .btn-danger-pro { width: 100%; }
-}
+.stats-refresh-mini { color: #2563eb; opacity: 0.6; transition: all 0.3s ease; }
+.stats-refresh-mini:hover { opacity: 1; transform: rotate(180deg); }
+.stats-refreshing i { animation: spin 1s linear infinite; }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 </style>
 
 <script>
+    // Mode selection logic
     document.querySelectorAll('.mode-option').forEach(opt => {
         opt.addEventListener('click', function() {
             document.querySelectorAll('.mode-option').forEach(o => o.classList.remove('active'));
@@ -283,109 +204,97 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
         });
     });
 
-    function saveModalSettings() {
-        const activeMode = document.querySelector('.mode-option.active').dataset.mode;
-        const aiEnabled = document.getElementById('modalAiToggle').checked;
-        const modeInput = document.getElementById('activeModeInput');
-        const aiToggleInput = document.getElementById('aiToggle');
-
-        if (modeInput) modeInput.value = activeMode;
-        if (aiToggleInput) aiToggleInput.checked = aiEnabled;
-        
-        localStorage.setItem('ai-summarization-enabled', aiEnabled);
-        window.ENABLE_AI = aiEnabled;
-        
-        // Brief visual success feedback
-        const btn = document.querySelector('.apply-btn-pro');
-        const oldText = btn.innerText;
-        btn.innerText = "Settings Saved!";
-        btn.classList.add('bg-success');
-        
-        setTimeout(() => {
-            document.getElementById('settingModal').style.display = 'none';
-            btn.innerText = oldText;
-            btn.classList.remove('bg-success');
-            // If on home page, maybe reload or update UI live
-            if (activeMode && window.location.search.includes('mode=')) {
-                 window.location.reload();
-            }
-        }, 800);
-    }
-
-    const settingModal = document.getElementById('settingModal');
-    if (settingModal) {
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.attributeName === 'style' && settingModal.style.display === 'flex') {
-                    refreshSystemStats();
-                }
-            });
-        });
-        observer.observe(settingModal, { attributes: true });
-    }
-
     async function refreshSystemStats() {
+        const refreshIcon = document.querySelector('.stats-refresh-mini');
+        if (refreshIcon) refreshIcon.classList.add('stats-refreshing');
+        
         try {
-            const resp = await fetch('/api/stats');
-            const data = await resp.json();
-            document.getElementById('statDocCount').textContent = (data.document_count || 0).toLocaleString();
-            document.getElementById('statLogCount').textContent = (data.search_log_count || 0).toLocaleString();
+            const response = await fetch('/api/stats');
+            const data = await response.json();
+            
+            document.getElementById('statDocCount').textContent = data.document_count || 0;
+            document.getElementById('statLogCount').textContent = data.log_count || 0;
+            document.getElementById('telemetryHost').textContent = data.db_host || 'localhost';
+            document.getElementById('telemetryDb').textContent = data.db_name || 'postgres';
         } catch (e) {
-            console.error("Failed to fetch stats", e);
+            console.error("Stats refresh failed", e);
+        } finally {
+            if (refreshIcon) {
+                setTimeout(() => refreshIcon.classList.remove('stats-refreshing'), 600);
+            }
         }
     }
 
-    async function resetSystemData() {
-        const modalEl = document.getElementById('confirmModal');
-        const confirmBtn = document.getElementById('confirmModalBtn');
-        const modalTitle = document.getElementById('confirmModalTitle');
-        const modalMsg = document.getElementById('confirmModalMessage');
-        const iconElement = modalEl.querySelector('.modal-body i');
+    function saveModalSettings() {
+        const activeOption = document.querySelector('.mode-option.active');
+        const activeMode = activeOption ? activeOption.dataset.mode : 'hybrid';
+        const aiEnabled = document.getElementById('modalAiToggle').checked;
         
-        modalTitle.innerText = "Factory Reset?";
-        modalMsg.innerHTML = "<strong>DANGER:</strong> This will erase all documents, embeddings, and logs.<br>This action cannot be undone.";
-        confirmBtn.innerText = "Yes";
-        confirmBtn.className = "btn btn-danger rounded-pill px-4 fw-bold";
-        if (iconElement) iconElement.className = "bi bi-exclamation-octagon-fill text-danger mb-3";
-        
-        const bootstrapModal = new bootstrap.Modal(modalEl);
-        
-        modalEl.addEventListener('hidden.bs.modal', function () {
-            modalTitle.innerText = "Upload PDF?";
-            modalMsg.innerText = "Are you sure you want to upload this file?";
-            confirmBtn.innerText = "Upload";
-            confirmBtn.className = "btn btn-primary rounded-pill px-4";
-            if (iconElement) iconElement.className = "bi bi-cloud-upload text-primary";
-            confirmBtn.onclick = null;
-        }, { once: true });
+        const aiProvider = document.getElementById('aiProvider').value;
+        const aiModel = document.getElementById('aiModel').value;
+        const aiApiKey = document.getElementById('aiApiKey').value;
+        const ollamaBaseUrl = document.getElementById('ollamaBaseUrl').value;
 
-        confirmBtn.onclick = async function() {
-            bootstrapModal.hide();
-            const btn = document.querySelector('.btn-danger-pro');
-            const originalContent = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Resetting...';
+        // Persist to LocalStorage
+        localStorage.setItem('mode', activeMode);
+        localStorage.setItem('use_ai', aiEnabled);
+        localStorage.setItem('ai_provider', aiProvider);
+        localStorage.setItem('ai_model', aiModel);
+        localStorage.setItem('ai_api_key', aiApiKey);
+        localStorage.setItem('ollama_base_url', ollamaBaseUrl);
 
-            try {
-                const resp = await fetch('/api/reset', { method: 'POST' });
-                const result = await resp.json();
-                
-                if (result.success) {
-                    btn.innerHTML = "Success!";
-                    window.Notify.show("System data successfully cleared.", "success", 5000);
-                    setTimeout(() => window.location.href = '/', 1000);
-                } else {
-                    window.Notify.show("Reset failed: " + (result.detail || "Unknown error"), "danger", 6000);
-                    btn.innerHTML = originalContent;
-                    btn.disabled = false;
-                }
-            } catch (e) {
-                window.Notify.show("Network Error: Could not reach backend.", "danger", 6000);
-                btn.innerHTML = originalContent;
-                btn.disabled = false;
-            }
-        };
-
-        bootstrapModal.show();
+        // Reload current page to apply new engine settings
+        const queryInput = document.querySelector('textarea[name="query"]');
+        const queryVal = queryInput ? queryInput.value : '';
+        window.location.href = `/?q=${encodeURIComponent(queryVal)}&mode=${activeMode}&use_ai=${aiEnabled}`;
     }
+
+    async function resetSystemData() {
+        const confirmBtn = document.querySelector('.btn-outline-danger');
+        const originalHtml = confirmBtn.innerHTML;
+        
+        if (!confirm("Are you SURE you want to factory reset? This will wipe ALL documents and logs.")) return;
+
+        confirmBtn.disabled = true;
+        confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+        try {
+            const resp = await fetch('/api/reset', { method: 'POST' });
+            const result = await resp.json();
+            if (result.success) {
+                window.location.href = '/';
+            } else {
+                alert("Reset failed: " + result.detail);
+                confirmBtn.innerHTML = originalHtml;
+                confirmBtn.disabled = false;
+            }
+        } catch (e) {
+            alert("Connection error.");
+            confirmBtn.innerHTML = originalHtml;
+            confirmBtn.disabled = false;
+        }
+    }
+
+    // Modal API initialization
+    function openSettings() {
+        const modalEl = document.getElementById('settingModal');
+        if (modalEl) {
+            const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            bsModal.show();
+            refreshSystemStats();
+        }
+    }
+
+    // Load defaults on startup
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedProvider = localStorage.getItem('ai_provider');
+        const savedModel = localStorage.getItem('ai_model');
+        const savedApiKey = localStorage.getItem('ai_api_key');
+        const savedUrl = localStorage.getItem('ollama_base_url');
+
+        if (savedProvider) document.getElementById('aiProvider').value = savedProvider;
+        if (savedModel) document.getElementById('aiModel').value = savedModel;
+        if (savedApiKey) document.getElementById('aiApiKey').value = savedApiKey;
+        if (savedUrl) document.getElementById('ollamaBaseUrl').value = savedUrl;
+    });
 </script>

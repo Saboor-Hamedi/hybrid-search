@@ -18,11 +18,8 @@
         return;
     }
 
-    // Initialize Bootstrap modal
-    const bsModal = new bootstrap.Modal(commandModal, {
-        keyboard: true,
-        backdrop: true
-    });
+    // Initialize Bootstrap modal (getOrCreateInstance prevents duplicate backdrops)
+    const bsModal = bootstrap.Modal.getOrCreateInstance(commandModal);
 
     /**
      * Open command palette

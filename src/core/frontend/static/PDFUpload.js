@@ -77,9 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.minimizeCreateModal();
         return;
     }
-    const modal = document.getElementById('createModal');
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto'; // Restore scroll
+    const el = document.getElementById('createModal');
+    if (el) bootstrap.Modal.getOrCreateInstance(el).hide();
   };
 
   window.stopUploadBatch = async function() {

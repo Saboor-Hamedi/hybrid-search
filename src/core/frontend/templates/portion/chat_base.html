@@ -277,11 +277,11 @@
                   </button>
                 </div>
 
-                <button type="button" class="btn-icon-small" onclick="document.getElementById('quickPdfInput').click()" title="Quick Upload PDF">
+                <button type="button" class="btn-icon-small" onclick="openCreateModal()" title="Upload Documents">
                   <i class="bi bi-paperclip"></i>
                 </button>
 
-                <button type="button" class="btn-icon-small" onclick="document.getElementById('settingModal').style.display='flex'" title="Search Preferences">
+                <button type="button" class="btn-icon-small" onclick="openSettings()" title="Search Preferences">
                   <i class="bi bi-sliders"></i>
                 </button>
               </div>
@@ -367,5 +367,24 @@
 
   <script src="{{ url_for('static', filename='chat_logic.js') }}"></script>
   <script src="{{ url_for('static', filename='deleteRecord.js') }}"></script>
+
+  <!-- Global Modal Helpers (must be after Bootstrap JS) -->
+  <script>
+    function openCreateModal() {
+      const el = document.getElementById('createModal');
+      if (el) bootstrap.Modal.getOrCreateInstance(el).show();
+    }
+    function closeCreateModal() {
+      const el = document.getElementById('createModal');
+      if (el) bootstrap.Modal.getOrCreateInstance(el).hide();
+    }
+    function openSettings() {
+      const el = document.getElementById('settingModal');
+      if (el) {
+        bootstrap.Modal.getOrCreateInstance(el).show();
+        if (typeof refreshSystemStats === 'function') refreshSystemStats();
+      }
+    }
+  </script>
 </body>
 </html>

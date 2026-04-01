@@ -92,7 +92,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // --- CREATE DOCUMENT MODAL ---
 function openCreateModal() {
-    const createModal = new bootstrap.Modal(document.getElementById('createModal'));
-    createModal.show();
+    const el = document.getElementById('createModal');
+    if (el) bootstrap.Modal.getOrCreateInstance(el).show();
+}
+
+function closeCreateModal() {
+    const el = document.getElementById('createModal');
+    if (el) bootstrap.Modal.getOrCreateInstance(el).hide();
 }
 

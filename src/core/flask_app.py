@@ -389,39 +389,41 @@ def proxy_generate():
 
 @app.route("/api/quick-chat", methods=["POST"])
 def quick_chat_proxy():
-    """Simple proxy for the Global Chat widget to talk to Ollama"""
-    
-    data = request.json
-    user_message = data.get("message", "")
-    
-    if not user_message:
-        return {"error": "No message provided"}, 400
-
-    # Configuration for Ollama
-    OLLAMA_URL = "http://localhost:11434/api/generate"
-    # Use same model as main app or a faster one
-    MODEL = "qwen3:0.6b" 
-    
-    payload = {
-        "model": MODEL,
-        "prompt": user_message,
-        "stream": False,
-        "system": "You are a helpful, concise AI assistant."
-    }
-    
+    """Proxy for Global Chat using standardized MultiAIManager logic"""
     try:
-        # Forward request to Ollama
-        resp = requests.post(OLLAMA_URL, json=payload, timeout=30)
+        data = request.get_json()
+        user_message = data.get("message", "")
         
-        if resp.status_code == 200:
-            ollama_data = resp.json()
-            return {"reply": ollama_data.get("response", "")}, 200
-        else:
-            return {"error": f"Ollama Error: {resp.text}"}, 500
+        provider = data.get("provider", "ollama")
+        model = data.get("model", "qwen2.5:0.5b")
+        api_key = data.get("api_key", "")
+        base_url = data.get("base_url", "http://localhost:11434")
+
+        # 1. Reach out to the AI Provider using MultiAIManager
+        # Ensure 'ai' package is importable
+        sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+        from ai.MultiAIManager import MultiAIManager
+        
+        client = MultiAIManager.create_client(
+            provider_name=provider,
+            api_key=api_key,
+            model=model,
+            base_url=base_url
+        )
+        
+        if not client:
+            return {"error": f"AI Provider '{provider}' not available."}, 500
+        
+        response = client.generate_response(
+            prompt=user_message,
+            system_instruction="You are a helpful and concise AI assistant."
+        )
+        
+        return {"reply": response}, 200
             
     except Exception as e:
         print(f"Global Chat Proxy Error: {e}")
-        return {"error": "Could not connect to Ollama. Is it running?"}, 500
+        return {"error": f"AI Service error: {str(e)}"}, 500
 
 #  Run
 if __name__ == "__main__":

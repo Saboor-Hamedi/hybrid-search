@@ -49,10 +49,22 @@ async function triggerAIAnswer(turnId = null) {
     }
 
     try {
+        const aiProvider = localStorage.getItem('ai_provider') || 'ollama';
+        const aiModel = localStorage.getItem('ai_model') || 'qwen2.5:0.5b';
+        const aiApiKey = localStorage.getItem('ai_api_key') || '';
+        const ollamaBaseUrl = localStorage.getItem('ollama_base_url') || 'http://localhost:11434';
+
         const response = await fetch('/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query: query.trim(), contexts: contexts })
+            body: JSON.stringify({ 
+                query: query.trim(), 
+                contexts: contexts,
+                provider: aiProvider,
+                model: aiModel,
+                api_key: aiApiKey,
+                base_url: ollamaBaseUrl
+            })
         });
 
         const data = await response.json();

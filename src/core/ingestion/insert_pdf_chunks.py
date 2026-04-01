@@ -158,6 +158,11 @@ def insert_pdf(file_path: str, conn, cursor):
                 clean_chunk, conn, cursor, model, commit=False, silent=True
             ):
                 stats["successful_inserts"] += 1
+                
+                # Batch commit every 50 chunks for real-time visibility
+                if stats["successful_inserts"] > 0 and stats["successful_inserts"] % 50 == 0:
+                    conn.commit()
+                    print(f"  {cs.GREEN}✅ Auto-committed {stats['successful_inserts']} chunks to database.{cs.RESET}")
             else:
                 stats["failed_inserts"] += 1
 

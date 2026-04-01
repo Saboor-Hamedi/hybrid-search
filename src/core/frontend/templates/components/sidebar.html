@@ -4,7 +4,7 @@
       <button class="new-chat-btn flex-grow-1" onclick="window.location.href='/'">
         <i class="bi bi-plus-lg"></i> New Search
       </button>
-      <button class="new-doc-btn" onclick="document.getElementById('createModal').style.display='flex'" title="Create New Document">
+      <button class="new-doc-btn" onclick="openCreateModal()" title="Create New Document">
         <i class="bi bi-file-earmark-plus"></i>
       </button>
     </div>
@@ -43,7 +43,7 @@
     <div class="user-profile">
       <div class="sidebar-user-avatar">SH</div>
       <span class="user-name">Saboor Hamedi</span>
-      <button class="btn-icon ms-auto" onclick="document.getElementById('settingModal').style.display='flex'">
+      <button class="btn-icon ms-auto" onclick="openSettings()">
           <i class="bi bi-gear"></i>
       </button>
     </div>

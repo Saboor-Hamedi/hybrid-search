@@ -38,7 +38,7 @@ from core.db.operations.search_flask.rrf_search import search_rrf
 from core.db.operations.search_queries import execute_vector_query, execute_bm25_query  # <-- Added
 from core.db.db_connection import db_connection
 from core.models.ai_model import get_embedder
-from core.utils.llm_service import OllamaService
+from ai.OllamaClient import OllamaClient
 
 # Setup Logging
 logging.basicConfig(
@@ -145,14 +145,15 @@ def extract_metrics(doc_tuple: tuple, stats: Dict, strategy_type: str) -> Dict:
 # --- AI Judge ---
 def judge_relevance(query: str, content: str) -> Dict[str, Any]:
     """
-    Evaluates relevance of content to query using LLM (Ollama).
+    Evaluates relevance of content to query using standardized OllamaClient.
     """
-    model_name = os.environ.get("OLLAMA_MODEL", "qwen3:0.6b")
-    base_url = os.environ.get("OLLAMA_URL", "http://localhost:11434")
-    
     if not content:
         return {"is_relevant": False, "score": 0, "reason": "Empty Content"}
 
+    # Initialize client from environment or defaults
+    model_name = os.environ.get("OLLAMA_MODEL", "qwen2.5:0.5b")
+    client = OllamaClient(model=model_name)
+    
     prompt = (
         f"Query: {query}\n"
         f"Content fragment: {content[:800]}\n\n"
@@ -161,39 +162,37 @@ def judge_relevance(query: str, content: str) -> Dict[str, Any]:
     )
     
     try:
-        payload = {
-            "model": model_name,
-            "prompt": prompt,
-            "stream": False,
-            "format": "json",
-            "options": {"temperature": 0}
-        }
-        response = requests.post(f"{base_url}/api/generate", json=payload, timeout=30)
+        # Use standardized client with JSON format requirement
+        # Note: we use generate_response but add the format logic if needed.
+        # However, OllamaClient.py uses /api/generate without format: json by default.
+        # We'll just use the raw response and parse it as we did before.
         
-        if response.status_code == 200:
-            res_text = response.json().get("response", "")
-            clean_text = res_text.strip()
-            if clean_text.startswith("```json"):
-                clean_text = clean_text[7:]
-            if clean_text.endswith("```"):
-                clean_text = clean_text[:-3]
-            
-            try:
-                data = json.loads(clean_text)
-                return {
-                    "is_relevant": data.get("is_relevant", False),
-                    "score": data.get("score", 0),
-                    "reason": data.get("reason", "Auto-judged")
-                }
-            except json.JSONDecodeError:
-                 return {"is_relevant": False, "score": 0, "reason": "JSON Error"}
-        else:
-             logger.error(f"Ollama Error: {response.status_code}")
+        response_text = client.generate_response(
+            prompt=prompt,
+            system_instruction="You are a meticulous Evaluation AI that outputs ONLY JSON.",
+            temperature=0
+        )
+        
+        clean_text = response_text.strip()
+        if "```json" in clean_text:
+            clean_text = clean_text.split("```json")[1].split("```")[0].strip()
+        elif "```" in clean_text:
+            clean_text = clean_text.split("```")[1].strip()
+        
+        try:
+            data = json.loads(clean_text)
+            return {
+                "is_relevant": data.get("is_relevant", False),
+                "score": data.get("score", 0),
+                "reason": data.get("reason", "Auto-judged")
+            }
+        except json.JSONDecodeError:
+             return {"is_relevant": False, "score": 0, "reason": "JSON Parse error"}
              
     except Exception as e:
         logger.error(f"Judge Exception: {e}")
         
-    return {"is_relevant": False, "score": 0, "reason": "Error"}
+    return {"is_relevant": False, "score": 0, "reason": "Execution Error"}
 
 # --- Main Engine ---
 def run_evaluation(mode: str, query_limit: int):

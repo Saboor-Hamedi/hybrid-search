@@ -1,33 +1,28 @@
-<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true" style="z-index: 20000 !important;">
-  <style>
-    #confirmModal { z-index: 20001 !important; }
-    .modal-backdrop.show:last-of-type { 
-        z-index: 19999 !important; 
-        backdrop-filter: none !important; /* No double blur on top modal */
-        -webkit-backdrop-filter: none !important;
-    }
-  </style>
+<!-- Standardized Confirmation Modal (Bootstrap 5) -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true" style="z-index: 1060 !important;">
   <div class="modal-dialog modal-sm modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg" style="border-radius: 8px; overflow: hidden; background: #ffffff; border: 1px solid #e5e7eb !important;">
-      <!-- Windows-Style Title Bar -->
-      <div style="background: #f9fafb; border-bottom: 1px solid #e5e7eb; height: 38px; padding: 0 0 0 16px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
-          <div style="font-size: 0.7rem; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 8px;">
-              <i class="bi bi-shield-check text-primary" style="font-size: 0.85rem;"></i>
-              <span id="confirmModalTitle">Verification</span>
-          </div>
-          <button type="button" class="btn-close btn-close-win" data-bs-dismiss="modal" style="width: 44px; height: 100%; border: none; background-color: transparent; box-shadow: none; border-radius: 0 8px 0 0;"></button>
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden; background: #ffffff;">
+      <!-- Modern Title Bar -->
+      <div class="d-flex justify-content-between align-items-stretch" style="background: #f9fafb; border-bottom: 1px solid #e5e7eb; height: 38px;">
+        <div style="font-size: 0.70rem; font-weight: 800; color: #6b7280; text-transform: uppercase; letter-spacing: 0.12em; display: flex; align-items: center; gap: 8px; padding-left: 16px;">
+          <i class="bi bi-shield-check text-primary" style="font-size: 0.85rem;"></i>
+          <span id="confirmModalTitle">Security Lock</span>
+        </div>
+        <button type="button" class="btn-close-win" data-bs-dismiss="modal" style="width: 44px; height: 38px; border: none; background-color: transparent; box-shadow: none; border-radius: 0; display: flex; align-items: center; justify-content: center; padding: 0; margin: 0; outline: none;"></button>
       </div>
 
-      <div class="modal-body text-center p-4">
-        <div class="mb-3">
-            <i class="bi bi-cloud-upload text-primary" style="font-size: 2.2rem;"></i>
+      <div class="modal-body p-4 text-center">
+        <div id="confirmModalIcon" class="mb-3 text-secondary" style="font-size: 2.5rem; opacity: 0.2;">
+           <i class="bi bi-shield-lock-fill"></i>
         </div>
-        <p class="text-muted small mb-4" id="confirmModalMessage" style="font-size: 0.85rem; line-height: 1.5; font-weight: 500;">Are you sure you want to upload this file?</p>
-        
-        <div class="d-flex gap-2 justify-content-center">
-            <button type="button" class="btn btn-light rounded-pill px-3 btn-sm fw-bold border" data-bs-dismiss="modal" style="min-width: 90px; font-size: 0.75rem;">CANCEL</button>
-            <button type="button" class="btn btn-primary rounded-pill px-3 btn-sm fw-bold" id="confirmModalBtn" style="min-width: 90px; font-size: 0.75rem;">OKAY</button>
+        <div id="confirmModalMessage" class="text-secondary fw-semibold mb-0" style="font-size: 0.85rem; line-height: 1.5;">
+          Are you sure you want to perform this operation?
         </div>
+      </div>
+      
+      <div class="modal-footer bg-light border-0 p-3 justify-content-center">
+        <button type="button" class="btn btn-sm btn-light border px-4" data-bs-dismiss="modal">Decline</button>
+        <button type="button" id="confirmModalBtn" class="btn btn-sm btn-primary px-4 fw-bold">Confirm</button>
       </div>
     </div>
   </div>

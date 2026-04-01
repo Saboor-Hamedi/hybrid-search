@@ -241,11 +241,13 @@
   <script>
     // Modal Functions
     function openCreateModal() {
-      document.getElementById('createModal').style.display = 'flex';
+      const el = document.getElementById('createModal');
+      if (el && window.bootstrap) bootstrap.Modal.getOrCreateInstance(el).show();
     }
     
     function closeCreateModal() {
-      document.getElementById('createModal').style.display = 'none';
+      const el = document.getElementById('createModal');
+      if (el && window.bootstrap) bootstrap.Modal.getOrCreateInstance(el).hide();
     }
     
     // Close modal on outside click

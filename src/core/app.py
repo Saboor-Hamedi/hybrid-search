@@ -119,21 +119,111 @@ class ContextItem(BaseModel):
 class GenerateRequest(BaseModel):
     query: str
     contexts: List[ContextItem]
+    provider: Optional[str] = "ollama"
+    model: Optional[str] = "qwen2.5:0.5b"
+    api_key: Optional[str] = ""
+    base_url: Optional[str] = "http://localhost:11434"
 
 # --------------------------------------------------------------------- #
-# RAG / LLM Services
+# RAG / LLM Services (High-Fidelity AI System)
 # --------------------------------------------------------------------- #
-from core.utils.llm_service import OllamaService
-ollama_service = OllamaService()
+import sys
+
+# Ensure AI clients are importable
+ai_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if ai_dir not in sys.path:
+    sys.path.append(ai_dir)
+
+from ai.MultiAIManager import MultiAIManager
+
+# --------------------------------------------------------------------- #
+# Telemetry & Stats
+# --------------------------------------------------------------------- #
+@app.get("/api/system/stats")
+async def get_system_stats():
+    conn, cursor = get_db()
+    try:
+        cursor.execute("SELECT COUNT(id) FROM document")
+        doc_count = cursor.fetchone()[0]
+        
+        # Search Logs (Feedback)
+        try:
+            cursor.execute("SELECT COUNT(id) FROM search_log")
+            log_count = cursor.fetchone()[0]
+        except:
+            log_count = 0
+
+        # DB connection info directly from env
+        return {
+            "document_count": doc_count,
+            "log_count": log_count,
+            "db_host": os.getenv("DB_HOST", "localhost"),
+            "db_name": os.getenv("DB_NAME", "postgres")
+        }
+    except Exception as e:
+        print(f"Stats error: {e}")
+        return {"error": str(e)}, 500
+    finally:
+        cursor.close()
+        conn.close()
+
+@app.post("/api/system/reset")
+async def reset_system():
+    conn, cursor = get_db()
+    try:
+        cursor.execute("TRUNCATE TABLE document RESTART IDENTITY CASCADE")
+        cursor.execute("TRUNCATE TABLE search_log RESTART IDENTITY CASCADE")
+        conn.commit()
+        return {"success": True}
+    except Exception as e:
+        conn.rollback()
+        return {"success": False, "detail": str(e)}, 500
+    finally:
+        cursor.close()
+        conn.close()
 
 @app.post("/generate")
 def generate_answer(request: GenerateRequest):
     """
-    RAG Endpoint: Generates an AI answer using Local Ollama.
-    Expects 'query' and 'contexts' (list of {doc_id, content}).
+    RAG Endpoint: Generates an AI answer using the specified provider.
+    Defaults to Local Ollama if no provider is specified.
     """
     if not request.contexts:
         return {"answer": "No context provided to generate an answer."}
+
+    provider_name = request.provider or "ollama"
+    model_name = request.model or "qwen2.5:0.5b"
+    api_key = request.api_key or ""
+    base_url = request.base_url or "http://localhost:11434"
+
+    # Create the specialized client
+    client = MultiAIManager.create_client(
+        provider_name=provider_name, 
+        api_key=api_key,
+        model=model_name,
+        base_url=base_url
+    )
+
+    if not client:
+        return {"answer": f"Error: AI Provider '{provider_name}' is not supported or misconfigured."}
+    
+    # Convert Pydantic models to list of dicts for the client
+    context_dicts = [{"doc_id": c.doc_id, "content": c.content} for c in request.contexts]
+    
+    try:
+        # Check if client has RAG specific method, otherwise use standard generate
+        if hasattr(client, 'generate_rag_response'):
+            answer = client.generate_rag_response(request.query, context_dicts)
+        else:
+            # Fallback to standard prompt construction if provider doesn't have RAG wrapper
+            context_text = "\n".join([f"Doc {c['doc_id']}: {c['content']}" for c in context_dicts])
+            answer = client.generate_response(
+                prompt=f"Context Data:\n{context_text}\n\nUser Question: {request.query}",
+                system_instruction="You are an Academic Research Assistant. Synthesize an answer based on context."
+            )
+        return {"answer": answer}
+    except Exception as e:
+        return {"answer": f"Backend AI Error: {str(e)}"}
     
     # Convert Pydantic models to list of dicts
     context_dicts = [{"doc_id": c.doc_id, "content": c.content} for c in request.contexts]
@@ -521,7 +611,19 @@ def get_system_stats():
         doc_count = cursor.fetchone()[0]
         cursor.execute("SELECT COUNT(*) FROM search_logs")
         log_count = cursor.fetchone()[0]
-        return {"document_count": doc_count, "search_log_count": log_count}
+        
+        # Connection metadata for high-fidelity auditing
+        db_info = {
+            "host": os.getenv("DB_HOST", "localhost"),
+            "database": os.getenv("DB_NAME", "search"),
+            "user": os.getenv("DB_USER", "postgres")
+        }
+        
+        return {
+            "document_count": doc_count, 
+            "search_log_count": log_count, 
+            "db_info": db_info
+        }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Stats failed: {str(e)}")
     finally:

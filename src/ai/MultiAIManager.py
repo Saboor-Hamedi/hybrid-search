@@ -5,6 +5,7 @@ try:
     from .ClaudeClient import ClaudeClient
     from .DeepSeekClient import DeepSeekClient
     from .GeminiClient import GeminiClient
+    from .OllamaClient import OllamaClient
 except ImportError:
     from LLMProvider import LLMProvider
     from ChatGPTClient import ChatGPTClient
@@ -21,13 +22,14 @@ class MultiAIManager:
         self.clients: Dict[str, LLMProvider] = {}
 
     @staticmethod
-    def create_client(provider_name: str, api_key: str) -> LLMProvider:
+    def create_client(provider_name: str, api_key: str = "", **kwargs) -> LLMProvider:
         """Centralized factory for instantiating clinical LLM providers."""
         name = provider_name.lower()
         if "chatgpt" in name: return ChatGPTClient(api_key)
         if "claude" in name: return ClaudeClient(api_key)
         if "deepseek" in name: return DeepSeekClient(api_key)
         if "gemini" in name: return GeminiClient(api_key)
+        if "ollama" in name: return OllamaClient(model=kwargs.get("model", "qwen2.5:0.5b"), base_url=kwargs.get("base_url", "http://localhost:11434"))
         return None
 
     def add_client(self, name: str, client: LLMProvider):

@@ -311,7 +311,7 @@ function showAnalysis(btn) {
     // Attempt to pre-load the Strategy Chart (Session context) even in Doc view
     preloadStrategyChart();
 
-    new bootstrap.Modal(document.getElementById('analysisModal')).show();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('analysisModal')).show();
 }
 
 function showSessionAnalysis(btn) {
@@ -356,7 +356,7 @@ function showSessionAnalysis(btn) {
     // Load Chart
     preloadStrategyChart();
     
-    new bootstrap.Modal(document.getElementById('analysisModal')).show();
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('analysisModal')).show();
 }
 
 // Helper: Loads the chart data from the Session Button without needing a toggle event
