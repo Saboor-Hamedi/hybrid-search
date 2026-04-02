@@ -223,14 +223,59 @@ function minimizePDFModal() {
   if (el && window.bootstrap) bootstrap.Modal.getOrCreateInstance(el).hide();
 }
 
-// Validate text min 20 chars
-document.getElementById('textInsertForm')?.addEventListener('submit', function(e) {
+// Handle Text Submission via AJAX
+document.getElementById('textInsertForm')?.addEventListener('submit', async function(e) {
   const ta = document.getElementById('manualContent');
-  if ((ta?.value?.trim() ?? '').length < 20) {
+  const content = ta?.value?.trim() ?? '';
+  
+  if (content.length < 20) {
     e.preventDefault();
     ta.focus();
     ta.style.borderColor = '#ef4444';
     setTimeout(() => { ta.style.borderColor = '#e5e7eb'; }, 2000);
+    return;
+  }
+
+  // Intercept normal submission
+  e.preventDefault();
+  const form = this;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const originalHtml = submitBtn.innerHTML;
+  
+  try {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Indexing...';
+
+    const formData = new FormData(form);
+    const response = await fetch(form.action, {
+      method: "POST",
+      body: formData,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      // Clear form
+      ta.value = '';
+      
+      // Close Modal
+      const modalEl = document.getElementById('createModal');
+      bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+
+      // Show Success Toast
+      if (window.Notify) {
+        window.Notify.show(`Document <strong>#${result.doc_id}</strong> indexed successfully.`, 'success');
+      }
+    } else {
+      throw new Error(result.error || "Insertion failed");
+    }
+  } catch (err) {
+    if (window.Notify) window.Notify.show(`Error: ${err.message}`, 'danger');
+    else alert(`Error: ${err.message}`);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = originalHtml;
   }
 });
 </script>

@@ -235,18 +235,34 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
         const aiApiKey = document.getElementById('aiApiKey').value;
         const ollamaBaseUrl = document.getElementById('ollamaBaseUrl').value;
 
-        // Persist to LocalStorage
+        // Persist to LocalStorage for future sessions
         localStorage.setItem('mode', activeMode);
         localStorage.setItem('use_ai', aiEnabled);
-        localStorage.setItem('ai_provider', aiProvider);
-        localStorage.setItem('ai_model', aiModel);
-        localStorage.setItem('ai_api_key', aiApiKey);
-        localStorage.setItem('ollama_base_url', ollamaBaseUrl);
+        localStorage.setItem('ai_provider', aiProvider || "");
+        localStorage.setItem('ai_model', aiModel || "");
+        localStorage.setItem('ai_api_key', aiApiKey || "");
+        localStorage.setItem('ollama_base_url', ollamaBaseUrl || "");
 
-        // Reload current page to apply new engine settings
-        const queryInput = document.querySelector('textarea[name="query"]');
-        const queryVal = queryInput ? queryInput.value : '';
-        window.location.href = `/?q=${encodeURIComponent(queryVal)}&mode=${activeMode}&use_ai=${aiEnabled}`;
+        // SYNC WITH HIDDEN FORM INPUTS (No Reload Required)
+        const modeInput = document.getElementById('activeModeInput');
+        const aiToggle = document.getElementById('aiToggle');
+        
+        if (modeInput) modeInput.value = activeMode;
+        if (aiToggle) aiToggle.checked = aiEnabled;
+
+        // Close Modal via BS5 API
+        const modalEl = document.getElementById('settingModal');
+        if (modalEl) {
+            const bsModal = bootstrap.Modal.getInstance(modalEl);
+            if (bsModal) bsModal.hide();
+        }
+
+        // Show global feedback using project's singleton window.Notify
+        if (window.Notify && typeof window.Notify.show === 'function') {
+            window.Notify.show(`Search strategy switched to <strong>${activeMode}</strong>`, 'success');
+        } else {
+             console.log("Settings applied: ", activeMode, aiEnabled);
+        }
     }
 
     async function resetSystemData() {

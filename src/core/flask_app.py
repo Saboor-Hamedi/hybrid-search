@@ -278,6 +278,11 @@ def update_post(doc_id: int):
     language = request.form.get("language", "en")
     redirect_to = request.form.get("redirect_to", "document")
     
+    # AJAX Detection
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or \
+              request.args.get('ajax') == '1' or \
+              request.form.get('ajax') == '1'
+              
     try:
         r = requests.post(
             f"{API_URL}/documents/{doc_id}/update",
@@ -285,8 +290,14 @@ def update_post(doc_id: int):
             timeout=20,
         )
         r.raise_for_status()
+        
+        if is_ajax:
+            return {"success": True, "doc_id": doc_id, "message": "Document updated successfully."}
+            
     except requests.RequestException as e:
         print("Update post error:", e)
+        if is_ajax:
+            return {"success": False, "error": str(e)}, 500
     
     if redirect_to == "home":
         return redirect(f"/?query={back_query}&mode={back_mode}")
@@ -298,6 +309,12 @@ def new_post():
     back_mode = request.form.get("mode", "hybrid")
     content = request.form.get("content", "")
     language = request.form.get("language", "en")
+    
+    # AJAX Detection
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or \
+              request.args.get('ajax') == '1' or \
+              request.form.get('ajax') == '1'
+              
     try:
         r = requests.post(
             f"{API_URL}/documents/insert",
@@ -307,21 +324,41 @@ def new_post():
         r.raise_for_status()
         data = r.json()
         doc_id = data.get("doc_id")
+        
+        if is_ajax:
+            return {"success": True, "doc_id": doc_id, "message": "Document indexed successfully."}
+            
         if doc_id:
             return redirect(f"/document/{doc_id}?q={back_query}&mode={back_mode}")
     except requests.RequestException as e:
         print("New post error:", e)
+        if is_ajax:
+            return {"success": False, "error": str(e)}, 500
+            
     return redirect(f"/?query={back_query}&mode={back_mode}")
 
 @app.post("/document/<int:doc_id>/delete_post")
 def delete_post(doc_id: int):
     back_query = request.form.get("q", "")
     back_mode = request.form.get("mode", "hybrid")
+    
+    # AJAX Detection
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or \
+              request.args.get('ajax') == '1' or \
+              request.form.get('ajax') == '1'
+              
     try:
         r = requests.delete(f"{API_URL}/documents/{doc_id}", timeout=15)
         r.raise_for_status()
+        
+        if is_ajax:
+            return {"success": True, "doc_id": doc_id, "message": "Document deleted successfully."}
+            
     except requests.RequestException as e:
         print("Delete post error:", e)
+        if is_ajax:
+            return {"success": False, "error": str(e)}, 500
+            
     return redirect(f"/?query={back_query}&mode={back_mode}")
     
 @app.route("/upload-pdf", methods=["POST"])
@@ -380,6 +417,7 @@ def proxy_reset():
 
 @app.route("/generate", methods=["POST"])
 def proxy_generate():
+    """Classic non-streaming proxy."""
     try:
         data = request.get_json()
         resp = requests.post(f"{API_URL}/generate", json=data, timeout=30)
@@ -387,43 +425,74 @@ def proxy_generate():
     except requests.RequestException as e:
         return {"answer": f"Backend Error: {str(e)}"}, 500
 
+@app.route("/generate-stream", methods=["POST"])
+def proxy_generate_stream():
+    """Streaming proxy using Response to yield tokens."""
+    try:
+        data = request.get_json()
+        def generate():
+            # Set stream=True to process chunks as they arrive from FastAPI
+            with requests.post(f"{API_URL}/generate-stream", json=data, stream=True, timeout=60) as r:
+                for chunk in r.iter_content(chunk_size=None):
+                    if chunk:
+                        yield chunk
+
+        return Response(generate(), mimetype="text/event-stream")
+    except Exception as e:
+        return str(e), 500
+
+
 @app.route("/api/quick-chat", methods=["POST"])
 def quick_chat_proxy():
     """Proxy for Global Chat using standardized MultiAIManager logic"""
     try:
         data = request.get_json()
         user_message = data.get("message", "")
-        
         provider = data.get("provider", "ollama")
         model = data.get("model", "qwen2.5:0.5b")
         api_key = data.get("api_key", "")
         base_url = data.get("base_url", "http://localhost:11434")
 
-        # 1. Reach out to the AI Provider using MultiAIManager
-        # Ensure 'ai' package is importable
         sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
         from ai.MultiAIManager import MultiAIManager
         
-        client = MultiAIManager.create_client(
-            provider_name=provider,
-            api_key=api_key,
-            model=model,
-            base_url=base_url
-        )
+        client = MultiAIManager.create_client(provider_name=provider, api_key=api_key, model=model, base_url=base_url)
+        if not client: return {"error": f"AI Provider '{provider}' not available."}, 500
         
-        if not client:
-            return {"error": f"AI Provider '{provider}' not available."}, 500
-        
-        response = client.generate_response(
-            prompt=user_message,
-            system_instruction="You are a helpful and concise AI assistant."
-        )
-        
+        response = client.generate_response(prompt=user_message, system_instruction="You are a helpful and concise AI assistant.")
         return {"reply": response}, 200
-            
     except Exception as e:
-        print(f"Global Chat Proxy Error: {e}")
         return {"error": f"AI Service error: {str(e)}"}, 500
+
+@app.route("/api/quick-chat-stream", methods=["POST"])
+def quick_chat_stream():
+    """Streaming Version of Global Chat for real-time responsiveness."""
+    try:
+        data = request.get_json()
+        user_message = data.get("message", "")
+        provider = data.get("provider", "ollama")
+        model = data.get("model", "qwen2.5:0.5b")
+        api_key = data.get("api_key", "")
+        base_url = data.get("base_url", "http://localhost:11434")
+
+        sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+        from ai.MultiAIManager import MultiAIManager
+        
+        client = MultiAIManager.create_client(provider_name=provider, api_key=api_key, model=model, base_url=base_url)
+        if not client: return str(f"Error: {provider} not found."), 500
+
+        def stream_generator():
+            try:
+                for chunk in client.generate_stream(user_message, system_instruction="You are a helpful and concise AI assistant."):
+                    if chunk:
+                        yield chunk
+            except Exception as e:
+                yield f"\n[Streaming Error: {str(e)}]"
+
+        return Response(stream_generator(), mimetype="text/event-stream")
+    except Exception as e:
+        return str(e), 500
+
 
 #  Run
 if __name__ == "__main__":

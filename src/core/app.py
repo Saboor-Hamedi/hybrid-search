@@ -185,18 +185,16 @@ async def reset_system():
 @app.post("/generate")
 def generate_answer(request: GenerateRequest):
     """
-    RAG Endpoint: Generates an AI answer using the specified provider.
-    Defaults to Local Ollama if no provider is specified.
+    Classic RAG Endpoint: Generates a full AI answer.
     """
     if not request.contexts:
-        return {"answer": "No context provided to generate an answer."}
+        return {"answer": "No context provided."}
 
     provider_name = request.provider or "ollama"
     model_name = request.model or "qwen2.5:0.5b"
     api_key = request.api_key or ""
     base_url = request.base_url or "http://localhost:11434"
 
-    # Create the specialized client
     client = MultiAIManager.create_client(
         provider_name=provider_name, 
         api_key=api_key,
@@ -205,32 +203,66 @@ def generate_answer(request: GenerateRequest):
     )
 
     if not client:
-        return {"answer": f"Error: AI Provider '{provider_name}' is not supported or misconfigured."}
+        return {"answer": f"Error: AI Provider '{provider_name}' not available."}
     
-    # Convert Pydantic models to list of dicts for the client
     context_dicts = [{"doc_id": c.doc_id, "content": c.content} for c in request.contexts]
     
     try:
-        # Check if client has RAG specific method, otherwise use standard generate
         if hasattr(client, 'generate_rag_response'):
             answer = client.generate_rag_response(request.query, context_dicts)
         else:
-            # Fallback to standard prompt construction if provider doesn't have RAG wrapper
             context_text = "\n".join([f"Doc {c['doc_id']}: {c['content']}" for c in context_dicts])
             answer = client.generate_response(
                 prompt=f"Context Data:\n{context_text}\n\nUser Question: {request.query}",
-                system_instruction="You are an Academic Research Assistant. Synthesize an answer based on context."
+                system_instruction="You are an Academic Research Assistant."
             )
         return {"answer": answer}
     except Exception as e:
         return {"answer": f"Backend AI Error: {str(e)}"}
+
+@app.post("/generate-stream")
+async def generate_answer_stream(request: GenerateRequest):
+    """
+    Streaming RAG Endpoint: Returns a real-time stream of the AI's response.
+    """
+    if not request.contexts:
+        def err(): yield "No context provided."
+        return StreamingResponse(err(), media_type="text/plain")
+
+    provider_name = request.provider or "ollama"
+    model_name = request.model or "qwen2.5:0.5b"
+    api_key = request.api_key or ""
+    base_url = request.base_url or "http://localhost:11434"
+
+    client = MultiAIManager.create_client(
+        provider_name=provider_name, 
+        api_key=api_key,
+        model=model_name,
+        base_url=base_url
+    )
+
+    if not client:
+        def err(): yield f"Error: AI Provider '{provider_name}' not available."
+        return StreamingResponse(err(), media_type="text/plain")
     
-    # Convert Pydantic models to list of dicts
     context_dicts = [{"doc_id": c.doc_id, "content": c.content} for c in request.contexts]
     
-    # Generate
-    answer = ollama_service.generate_rag_response(request.query, context_dicts)
-    return {"answer": answer}
+    def stream_logic():
+        try:
+            # If client has specific RAG stream, use it, else fallback to standard stream
+            if hasattr(client, 'generate_rag_stream'):
+                for chunk in client.generate_rag_stream(request.query, context_dicts):
+                    yield chunk
+            else:
+                context_text = "\n".join([f"Doc {c['doc_id']}: {c['content']}" for c in context_dicts])
+                full_prompt = f"Context Data:\n{context_text}\n\nUser Question: {request.query}"
+                for chunk in client.generate_stream(full_prompt):
+                    yield chunk
+        except Exception as e:
+            yield f"\n[Backend Stream Error: {str(e)}]"
+
+    return StreamingResponse(stream_logic(), media_type="text/event-stream")
+
 
 
 # --------------------------------------------------------------------- #
@@ -249,16 +281,19 @@ def search_endpoint(request: SearchRequest):
         top_k = 10
         # Run the correct search
         # Run the correct search
+        # --- UNIVERSAL DATA GATHERING (For Thesis/NDCG Comparison) ---
+        # We always run both to ensure rank_debug is available for Strategy Comparison
+        sem_raw_full, _ = search_semantic(request.query, conn, cursor, model, top_k=50)
+        bm25_raw_full, _ = search_keyword(request.query, cursor, top_k=50)
+
         if request.mode == "semantic":
-            all_results, _ = search_semantic(
-                request.query, conn, cursor, model, top_k=top_k)
+            all_results = sem_raw_full
             sem_count = len(all_results)
             bm25_count = 0
             search_type = "semantic"
 
         elif request.mode == "keyword":
-            all_results, _ = search_keyword(
-                request.query, cursor, top_k=top_k)
+            all_results = bm25_raw_full
             sem_count = 0
             bm25_count = len(all_results)
             search_type = "keyword"
@@ -268,7 +303,6 @@ def search_endpoint(request: SearchRequest):
             search_type = f"hybrid-{strategy}"
             all_results, stats = search_hybrid(
                 request.query, conn, cursor, model, top_k=top_k, fusion_strategy=strategy, alpha=request.alpha)
-            
             sem_count = len(stats.get("sem_results") or [])
             bm25_count = len(stats.get("bm25_results") or [])
 
@@ -286,9 +320,15 @@ def search_endpoint(request: SearchRequest):
             search_type = "ltr"
             sem_count = 0
             bm25_count = 0
-
+        
         else:
-            raise HTTPException(400, "Invalid mode. Use: semantic, keyword, hybrid, rrf, ltr")
+            raise HTTPException(400, f"Invalid mode '{request.mode}'. Use: semantic, keyword, hybrid, rrf, ltr")
+        
+        # Ensure stats has the raw results for universal rank_debug handling later
+        if not stats: 
+             stats = {}
+        if "sem_results" not in stats: stats["sem_results"] = sem_raw_full
+        if "bm25_results" not in stats: stats["bm25_results"] = bm25_raw_full
 
         # Paginate in Python
         paginated = all_results[offset : offset + page_size]

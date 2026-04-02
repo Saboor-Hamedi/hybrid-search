@@ -63,7 +63,7 @@ async function handleAssistantChat(message) {
         const aiApiKey = localStorage.getItem('ai_api_key') || '';
         const ollamaBaseUrl = localStorage.getItem('ollama_base_url') || 'http://localhost:11434';
 
-        const response = await fetch('/api/quick-chat', {
+        const response = await fetch('/api/quick-chat-stream', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
@@ -75,24 +75,58 @@ async function handleAssistantChat(message) {
             })
         });
 
-        const data = await response.json();
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         
-        // Replace typing skeleton with actual response
+        // Results area setup
         const resultsArea = document.getElementById(typingId);
-        if (resultsArea && data.reply) {
-            const polished = polishChatText(data.reply);
+        if (resultsArea) {
             resultsArea.innerHTML = `
                 <div class="message message-ai-turn d-flex gap-3">
                     <div class="chat-avatar ai-avatar">
                         <i class="bi bi-robot"></i>
                     </div>
-                    <div class="message-response flex-grow-1 chat-bubble-ai">
-                        ${formatBotResponse(polished)}
+                    <div class="message-response flex-grow-1 chat-bubble-ai assistant-chat-bot">
+                        <div class="assistant-content"></div>
                     </div>
                 </div>`;
-        } else if (resultsArea) {
-            resultsArea.innerHTML = `<div class="alert alert-danger mx-5 small">${data.error || "No response."}</div>`;
         }
+        
+        const contentArea = resultsArea.querySelector('.assistant-content');
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullReply = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            const chunk = decoder.decode(value, { stream: true });
+            fullReply += chunk;
+            
+            // Progressive rendering with simple formatting
+            contentArea.innerHTML = formatBotResponse(fullReply);
+            scrollToBottom();
+        }
+
+        // Final Polish
+        const finalPolished = polishChatText(fullReply);
+        contentArea.innerHTML = formatBotResponse(finalPolished);
+        
+        // Add actions after stream is done
+        const responseWrapper = resultsArea.querySelector('.message-response');
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'assistant-actions mt-3 d-flex gap-2';
+        actionsDiv.innerHTML = `
+            <button class="action-btn" onclick="copyToClipboard(this, {parent: '.assistant-chat-bot', child: '.assistant-content'}, 'selector')" title="Copy Response">
+                <i class="bi bi-copy"></i> Copy
+            </button>
+            <button class="action-btn" onclick="handleFeedback(this, 'like')" title="Helpful">
+                <i class="bi bi-hand-thumbs-up"></i>
+            </button>
+            <button class="action-btn" onclick="handleFeedback(this, 'dislike')" title="Not Helpful">
+                <i class="bi bi-hand-thumbs-down"></i>
+            </button>`;
+        responseWrapper.appendChild(actionsDiv);
         
         scrollToBottom();
     } catch (err) {

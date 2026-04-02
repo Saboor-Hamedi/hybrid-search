@@ -564,7 +564,10 @@ function calculateAndSyncMetrics(contextEl) {
     }
 
     // --- Strategy Comparison Logic ---
-    const btn = document.querySelector('button[onclick="showSessionAnalysis(this)"]');
+    // Find the specific button for THIS TURN (important for multi-turn chats)
+    const btn = container.querySelector('button[onclick="showSessionAnalysis(this)"]') || 
+                document.querySelector('button[onclick="showSessionAnalysis(this)"]');
+    
     let compNDCG = { semantic: 0, keyword: 0 };
     
     if (btn && btn.dataset.rankDebug) {
