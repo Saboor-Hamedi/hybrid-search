@@ -14,22 +14,17 @@
             <input type="text" id="aiCustomPromptEdit" class="form-control form-control-xs pe-4" 
                    placeholder="Prompt (e.g. Expand on this...)" 
                    style="width: 200px; font-size: 0.7rem; height: 26px; border-radius: 6px;">
-            <button type="button" class="btn btn-link p-0 position-absolute end-0 top-50 translate-middle-y me-2 text-muted" 
-                    onclick="window.aiGenerator.hide('aiGenBtnEdit', 'aiPromptGroupEdit')" style="font-size: 0.8rem; text-decoration: none;">
-              <i class="bi bi-x"></i>
+            <button type="button" class="btn btn-link p-0 position-absolute end-0 top-50 translate-middle-y me-2 text-muted clear-prompt-btn" 
+                    onclick="document.getElementById('aiCustomPromptEdit').value=''; document.getElementById('aiCustomPromptEdit').focus();" 
+                    style="font-size: 0.65rem; text-decoration: none; border: none; background: none;">
+              <i class="bi bi-x-lg"></i>
             </button>
           </div>
           <button type="button" id="aiGenBtnEdit" class="btn btn-xs btn-outline-primary ai-gen-btn" 
-                  onclick="window.aiGenerator && window.aiGenerator.handleAction('editModalContent', 'aiGenBtnEdit', 'aiPromptGroupEdit', 'aiCustomPromptEdit', 'aiQuickActionsEdit')">
+                  onclick="window.aiGenerator && window.aiGenerator.handleAction('editModalContent', 'aiGenBtnEdit', 'aiPromptGroupEdit', 'aiCustomPromptEdit')">
             <i class="bi bi-robot"></i> AI Generate
           </button>
         </div>
-      </div>
-      <div id="aiQuickActionsEdit" class="d-none animate-slide-in mb-2 d-flex gap-1 flex-wrap">
-        <span class="badge bg-light text-secondary border fw-normal" style="cursor: pointer; font-size: 0.65rem;" onclick="document.getElementById('aiCustomPromptEdit').value='Summarize text'; window.aiGenerator.generate('editModalContent', 'aiGenBtnEdit', 'aiPromptGroupEdit', 'aiCustomPromptEdit', 'aiQuickActionsEdit')">Summarize</span>
-        <span class="badge bg-light text-secondary border fw-normal" style="cursor: pointer; font-size: 0.65rem;" onclick="document.getElementById('aiCustomPromptEdit').value='Fix grammar'; window.aiGenerator.generate('editModalContent', 'aiGenBtnEdit', 'aiPromptGroupEdit', 'aiCustomPromptEdit', 'aiQuickActionsEdit')">Fix Grammar</span>
-        <span class="badge bg-light text-secondary border fw-normal" style="cursor: pointer; font-size: 0.65rem;" onclick="document.getElementById('aiCustomPromptEdit').value='Translate to formal English'; window.aiGenerator.generate('editModalContent', 'aiGenBtnEdit', 'aiPromptGroupEdit', 'aiCustomPromptEdit', 'aiQuickActionsEdit')">To English</span>
-        <span class="badge bg-light text-secondary border fw-normal" style="cursor: pointer; font-size: 0.65rem;" onclick="document.getElementById('aiCustomPromptEdit').value='Explain simply'; window.aiGenerator.generate('editModalContent', 'aiGenBtnEdit', 'aiPromptGroupEdit', 'aiCustomPromptEdit', 'aiQuickActionsEdit')">Simplify</span>
       </div>
       <textarea id="editModalContent" class="form-control mb-3" name="content" rows="12" required></textarea>
       <div class="d-flex gap-2 justify-content-end">

@@ -2030,5 +2030,16 @@ body.modal-open .modal-backdrop:last-of-type {
     to { opacity: 1; transform: translateX(0); }
 }
 
+.clear-prompt-btn {
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+}
+
+.clear-prompt-btn:hover {
+    opacity: 1 !important;
+    color: #ef4444 !important;
+}
+
+
 
 

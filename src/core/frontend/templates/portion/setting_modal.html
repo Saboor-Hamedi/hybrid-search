@@ -189,9 +189,34 @@
 input:checked + .toggle-slider { background-color: #2563eb; }
 input:checked + .toggle-slider:before { transform: translateX(20px); }
 
-.stats-refresh-mini { color: #2563eb; opacity: 0.6; transition: all 0.3s ease; }
-.stats-refresh-mini:hover { opacity: 1; transform: rotate(180deg); }
-.stats-refreshing i { animation: spin 1s linear infinite; }
+.stats-refresh-mini { 
+    color: #2563eb; 
+    opacity: 0.6; 
+    transition: all 0.3s ease; 
+    background: transparent !important; 
+    border: none !important; 
+    box-shadow: none !important;
+    padding: 0 !important;
+    width: 24px;
+    height: 24px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    outline: none !important;
+}
+.stats-refresh-mini:hover { 
+    opacity: 1; 
+    transform: rotate(45deg); 
+    background: transparent !important;
+}
+.stats-refreshing i { 
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    line-height: 1;
+    transform-origin: center center;
+    animation: spin 0.8s linear infinite; 
+}
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 </style>
 
@@ -205,22 +230,26 @@ input:checked + .toggle-slider:before { transform: translateX(20px); }
     });
 
     async function refreshSystemStats() {
-        const refreshIcon = document.querySelector('.stats-refresh-mini');
-        if (refreshIcon) refreshIcon.classList.add('stats-refreshing');
+        const refreshBtn = document.querySelector('.stats-refresh-mini');
+        if (refreshBtn) refreshBtn.classList.add('stats-refreshing');
         
         try {
             const response = await fetch('/api/stats');
             const data = await response.json();
             
-            document.getElementById('statDocCount').textContent = data.document_count || 0;
-            document.getElementById('statLogCount').textContent = data.log_count || 0;
-            document.getElementById('telemetryHost').textContent = data.db_host || 'localhost';
-            document.getElementById('telemetryDb').textContent = data.db_name || 'postgres';
+            // Backend keys: document_count, search_log_count, db_info
+            document.getElementById('statDocCount').textContent = data.document_count ?? 0;
+            document.getElementById('statLogCount').textContent = data.search_log_count ?? 0;
+            
+            if (data.db_info) {
+                document.getElementById('telemetryHost').textContent = data.db_info.host || 'localhost';
+                document.getElementById('telemetryDb').textContent = data.db_info.database || 'postgres';
+            }
         } catch (e) {
             console.error("Stats refresh failed", e);
         } finally {
-            if (refreshIcon) {
-                setTimeout(() => refreshIcon.classList.remove('stats-refreshing'), 600);
+            if (refreshBtn) {
+                setTimeout(() => refreshBtn.classList.remove('stats-refreshing'), 800);
             }
         }
     }

@@ -57,81 +57,84 @@ async function handleAssistantChat(message) {
 
   scrollToBottom();
   
-  // Save User Message to History
-  saveToLocalHistory('user', message);
+        // Save User Message to History
+        const userMsgId = 'msg-' + Date.now();
+        saveToLocalHistory('user', message, false, userMsgId);
 
-    try {
-        const aiProvider = localStorage.getItem('ai_provider') || 'ollama';
-        const aiModel = localStorage.getItem('ai_model') || 'qwen2.5:0.5b';
-        const aiApiKey = localStorage.getItem('ai_api_key') || '';
-        const ollamaBaseUrl = localStorage.getItem('ollama_base_url') || 'http://localhost:11434';
+        try {
+            const aiProvider = localStorage.getItem('ai_provider') || 'ollama';
+            const aiModel = localStorage.getItem('ai_model') || 'qwen2.5:0.5b';
+            const aiApiKey = localStorage.getItem('ai_api_key') || '';
+            const ollamaBaseUrl = localStorage.getItem('ollama_base_url') || 'http://localhost:11434';
 
-        const response = await fetch('/api/quick-chat-stream', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                message: message,
-                provider: aiProvider,
-                model: aiModel,
-                api_key: aiApiKey,
-                base_url: ollamaBaseUrl
-            })
-        });
+            const response = await fetch('/api/quick-chat-stream', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    message: message,
+                    provider: aiProvider,
+                    model: aiModel,
+                    api_key: aiApiKey,
+                    base_url: ollamaBaseUrl
+                })
+            });
 
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        
-        // Results area setup
-        const resultsArea = document.getElementById(typingId);
-        if (resultsArea) {
-            resultsArea.innerHTML = `
-                <div class="message message-ai-turn d-flex gap-3">
-                    <div class="chat-avatar ai-avatar">
-                        <i class="bi bi-robot"></i>
-                    </div>
-                    <div class="message-response flex-grow-1 chat-bubble-ai assistant-chat-bot">
-                        <div class="assistant-content"></div>
-                    </div>
-                </div>`;
-        }
-        
-        const contentArea = resultsArea.querySelector('.assistant-content');
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let fullReply = "";
-
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             
-            const chunk = decoder.decode(value, { stream: true });
-            fullReply += chunk;
+            // Results area setup
+            const resultsArea = document.getElementById(typingId);
+            const botMsgId = 'msg-' + (Date.now() + 1);
+
+            if (resultsArea) {
+                resultsArea.innerHTML = `
+                    <div class="message message-ai-turn d-flex gap-3" id="${botMsgId}">
+                        <div class="chat-avatar ai-avatar">
+                            <i class="bi bi-robot"></i>
+                        </div>
+                        <div class="message-response flex-grow-1 chat-bubble-ai assistant-chat-bot">
+                            <div class="assistant-content"></div>
+                        </div>
+                    </div>`;
+            }
             
-            // Progressive rendering with simple formatting
-            contentArea.innerHTML = formatBotResponse(fullReply);
+            const contentArea = resultsArea.querySelector('.assistant-content');
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let fullReply = "";
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                const chunk = decoder.decode(value, { stream: true });
+                fullReply += chunk;
+                
+                // Progressive rendering with simple formatting
+                contentArea.innerHTML = formatBotResponse(fullReply);
+                scrollToBottom();
+            }
+
+            // Final Polish
+            const finalPolished = polishChatText(fullReply);
+            contentArea.innerHTML = formatBotResponse(finalPolished);
+            
+            // Add actions after stream is done
+            const responseWrapper = resultsArea.querySelector('.message-response');
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'assistant-actions mt-3 d-flex gap-2';
+            actionsDiv.innerHTML = getAssistantActionsHtml(false, botMsgId);
+            responseWrapper.appendChild(actionsDiv);
+            
             scrollToBottom();
+
+            // Save AI Response to History
+            saveToLocalHistory('bot', fullReply, false, botMsgId);
+        } catch (err) {
+            console.error("Assistant chat failed", err);
+            const resultsArea = document.getElementById(typingId);
+            if (resultsArea) resultsArea.innerHTML = `<div class="alert alert-danger mx-5 small">Error: ${err.message}</div>`;
         }
-
-        // Final Polish
-        const finalPolished = polishChatText(fullReply);
-        contentArea.innerHTML = formatBotResponse(finalPolished);
-        
-        // Add actions after stream is done
-        const responseWrapper = resultsArea.querySelector('.message-response');
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'assistant-actions mt-3 d-flex gap-2';
-        actionsDiv.innerHTML = getAssistantActionsHtml();
-        responseWrapper.appendChild(actionsDiv);
-        
-        scrollToBottom();
-
-        // Save AI Response to History
-        saveToLocalHistory('bot', fullReply);
-    } catch (err) {
-        console.error("Assistant chat failed", err);
-        const resultsArea = document.getElementById(typingId);
-        if (resultsArea) resultsArea.innerHTML = `<div class="alert alert-danger mx-5 small">Error: ${err.message}</div>`;
     }
-}
 
 function formatBotResponse(text) {
     if (!text) return "";
@@ -194,7 +197,7 @@ function handleFeedback(btn, type) {
 /**
  * Utility to append a message bubble to the messages area
  */
-function appendChatMessage(sender, text, id = null, isTyping = false) {
+function appendChatMessage(sender, text, id = null, isSaved = false, isTyping = false) {
   let wrapper = document.getElementById('historyArea');
   if (!wrapper) wrapper = document.querySelector('.messages-wrapper');
   if (!wrapper) return;
@@ -243,7 +246,7 @@ function appendChatMessage(sender, text, id = null, isTyping = false) {
         </div>
         ${!isTyping ? `
         <div class="assistant-actions mt-3 d-flex gap-2">
-            ${getAssistantActionsHtml()}
+            ${getAssistantActionsHtml(isSaved, id)}
         </div>
         ` : ''}
       </div>
@@ -269,13 +272,18 @@ function polishChatText(text) {
 /**
  * Returns the HTML for assistant action buttons to avoid duplication
  */
-function getAssistantActionsHtml() {
+function getAssistantActionsHtml(isSaved = false, msgId = null) {
+    const saveClass = isSaved ? 'action-btn text-success disabled' : 'action-btn';
+    const saveIcon = isSaved ? 'bi-check-circle-fill' : 'bi-plus-circle';
+    const saveText = isSaved ? 'Saved' : 'Save';
+    const saveAttr = msgId ? `data-msg-id="${msgId}"` : '';
+
     return `
         <button class="action-btn" onclick="copyToClipboard(this, {parent: '.assistant-chat-bot', child: '.assistant-content'}, 'selector')" title="Copy Response">
             <i class="bi bi-copy"></i> Copy
         </button>
-        <button class="action-btn" onclick="saveToDatabase(this)" title="Save to Knowledge Base">
-            <i class="bi bi-plus-circle"></i> Save
+        <button class="${saveClass}" onclick="saveToDatabase(this)" ${saveAttr} title="Save to Knowledge Base">
+            <i class="bi ${saveIcon}"></i> ${saveText}
         </button>
         <button class="action-btn" onclick="handleFeedback(this, 'like')" title="Helpful">
             <i class="bi bi-hand-thumbs-up"></i>
@@ -290,10 +298,10 @@ function getAssistantActionsHtml() {
  */
 async function saveToDatabase(btn) {
     const parent = btn.closest('.message-ai-turn');
-    const contentArea = parent.querySelector('.assistant-content');
+    const contentArea = parent?.querySelector('.assistant-content');
     if (!contentArea) return;
 
-    // Get cleaned content (strip HTML tags since it's formatted for UI)
+    const msgId = btn.dataset.msgId || parent.getAttribute('id');
     const rawContent = contentArea.innerText;
     
     // UI Loading state
@@ -310,7 +318,7 @@ async function saveToDatabase(btn) {
             },
             body: new URLSearchParams({
                 'content': rawContent,
-                'language': 'en', // Backend detects language anyway
+                'language': 'en',
                 'ajax': '1'
             })
         });
@@ -319,8 +327,11 @@ async function saveToDatabase(btn) {
         if (result.success) {
             btn.innerHTML = `<i class="bi bi-check-circle-fill"></i> Saved`;
             btn.classList.add('text-success');
+            btn.classList.add('disabled');
             
-            // Trigger toast if global showToast exists
+            // Persist the "Saved" state in local history
+            if (msgId) updateMessageSaveState(msgId, true);
+
             if (window.showToast) {
                 showToast("Response indexed into Knowledge Base successfully!", "success");
             }
@@ -331,6 +342,7 @@ async function saveToDatabase(btn) {
         console.error("Save failed:", err);
         btn.innerHTML = `<i class="bi bi-exclamation-triangle"></i> Error`;
         btn.classList.add('text-danger');
+        btn.disabled = false;
         if (window.showToast) {
             showToast("Failed to index content: " + err.message, "error");
         }
@@ -338,7 +350,6 @@ async function saveToDatabase(btn) {
         setTimeout(() => {
             if (!btn.classList.contains('text-success')) {
                 btn.innerHTML = originalHtml;
-                btn.disabled = false;
                 btn.classList.remove('text-danger');
             }
         }, 3000);
@@ -351,19 +362,33 @@ async function saveToDatabase(btn) {
 
 const HISTORY_KEY = 'assistant_chat_history_v1';
 
-function saveToLocalHistory(sender, text) {
+function saveToLocalHistory(sender, text, isSaved = false, id = null) {
     try {
         const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
         history.push({ 
+            id: id || ('msg-' + Date.now()),
             sender, 
             text, 
+            isSaved,
             timestamp: new Date().toISOString() 
         });
-        // Limit history to last 50 messages to keep performance
         if (history.length > 50) history.shift();
         localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
     } catch (e) {
         console.error("Failed to save to local history", e);
+    }
+}
+
+function updateMessageSaveState(id, isSaved) {
+    try {
+        let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+        history = history.map(msg => {
+            if (msg.id === id) return { ...msg, isSaved };
+            return msg;
+        });
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    } catch (e) {
+        console.error("Failed to update save state in history", e);
     }
 }
 
@@ -380,7 +405,7 @@ function loadLocalHistory() {
         }
 
         history.forEach(msg => {
-            appendChatMessage(msg.sender, msg.text);
+            appendChatMessage(msg.sender, msg.text, msg.id, msg.isSaved);
         });
         
         // Add a "Clear History" divider/button if messages exist
@@ -441,21 +466,28 @@ window.aiGenerator = {
     /**
      * Handles the UI flow: Toggle input -> Read prompt -> Generate
      */
-    handleAction(textareaId, btnId, groupId, inputId, quickActionsId) {
+    handleAction(textareaId, btnId, groupId, inputId) {
         const group = document.getElementById(groupId);
         const input = document.getElementById(inputId);
         const btn = document.getElementById(btnId);
-        const actions = document.getElementById(quickActionsId);
 
         if (this.isGenerating) {
             this.stop();
             return;
         }
 
+        // If input is visible, and user clicks Robot again, we might want to hide it
+        if (!group.classList.contains('d-none')) {
+            // Only hide if input is empty, otherwise user might have misclicked
+            if (!input.value.trim()) {
+                this.hide(btnId, groupId);
+                return;
+            }
+        }
+
         // If input is hidden, show it and focus
         if (group.classList.contains('d-none')) {
             group.classList.remove('d-none');
-            if (actions) actions.classList.remove('d-none');
             input.focus();
             btn.innerHTML = `<i class="bi bi-magic"></i> Write`;
             
@@ -463,31 +495,29 @@ window.aiGenerator = {
             input.onkeydown = (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    this.generate(textareaId, btnId, groupId, inputId, quickActionsId);
+                    this.generate(textareaId, btnId, groupId, inputId);
                 }
             };
             return;
         }
 
         // If visible, trigger generation
-        this.generate(textareaId, btnId, groupId, inputId, quickActionsId);
+        this.generate(textareaId, btnId, groupId, inputId);
     },
 
-    hide(btnId, groupId, quickActionsId) {
+    hide(btnId, groupId) {
         document.getElementById(groupId)?.classList.add('d-none');
-        if (quickActionsId) document.getElementById(quickActionsId)?.classList.add('d-none');
         const btn = document.getElementById(btnId);
         if (btn) btn.innerHTML = `<i class="bi bi-robot"></i> AI Generate`;
     },
 
-    async generate(textareaId, btnId, groupId, inputId, quickActionsId) {
+    async generate(textareaId, btnId, groupId, inputId) {
         if (this.isGenerating) return;
 
         const textarea = document.getElementById(textareaId);
         const btn = document.getElementById(btnId);
         const group = document.getElementById(groupId);
         const input = document.getElementById(inputId);
-        const actions = document.getElementById(quickActionsId);
         
         if (!textarea || !btn || !input) return;
 
@@ -579,9 +609,8 @@ window.aiGenerator = {
                 // (Though our loop logic above handles it by splitting)
             }
 
-            // Hide the input and actions
+            // Hide the input
             group.classList.add('d-none');
-            if (actions) actions.classList.add('d-none');
             input.value = '';
 
         } catch (err) {

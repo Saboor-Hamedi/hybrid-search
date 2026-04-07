@@ -137,50 +137,6 @@ if ai_dir not in sys.path:
 from ai.MultiAIManager import MultiAIManager
 
 # --------------------------------------------------------------------- #
-# Telemetry & Stats
-# --------------------------------------------------------------------- #
-@app.get("/api/system/stats")
-async def get_system_stats():
-    conn, cursor = get_db()
-    try:
-        cursor.execute("SELECT COUNT(id) FROM document")
-        doc_count = cursor.fetchone()[0]
-        
-        # Search Logs (Feedback)
-        try:
-            cursor.execute("SELECT COUNT(id) FROM search_log")
-            log_count = cursor.fetchone()[0]
-        except:
-            log_count = 0
-
-        # DB connection info directly from env
-        return {
-            "document_count": doc_count,
-            "log_count": log_count,
-            "db_host": os.getenv("DB_HOST", "localhost"),
-            "db_name": os.getenv("DB_NAME", "postgres")
-        }
-    except Exception as e:
-        print(f"Stats error: {e}")
-        return {"error": str(e)}, 500
-    finally:
-        cursor.close()
-        conn.close()
-
-@app.post("/api/system/reset")
-async def reset_system():
-    conn, cursor = get_db()
-    try:
-        cursor.execute("TRUNCATE TABLE document RESTART IDENTITY CASCADE")
-        cursor.execute("TRUNCATE TABLE search_log RESTART IDENTITY CASCADE")
-        conn.commit()
-        return {"success": True}
-    except Exception as e:
-        conn.rollback()
-        return {"success": False, "detail": str(e)}, 500
-    finally:
-        cursor.close()
-        conn.close()
 
 @app.post("/generate")
 def generate_answer(request: GenerateRequest):
