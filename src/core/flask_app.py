@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import requests
 
 from db.db_connection import db_connection
-from flask import Flask, redirect, render_template, request
+from flask import Flask, Response, redirect, render_template, request
 from frontend.graphs.analyze import generate_query_graph
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

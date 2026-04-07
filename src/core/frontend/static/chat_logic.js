@@ -439,9 +439,21 @@ function copyAnalysisData(btn) {
         effectiveness: {
             precision: document.getElementById('metricP')?.textContent || 'N/A',
             recall: document.getElementById('metricR')?.textContent || 'N/A',
+            f1: document.getElementById('metricF1')?.textContent || 'N/A',
             map: document.getElementById('metricMAP')?.textContent || 'N/A',
             mrr: document.getElementById('metricMRR')?.textContent || 'N/A',
-            ndcg: document.getElementById('metricNDCG')?.textContent || 'N/A'
+            ndcg: document.getElementById('metricNDCG')?.textContent || 'N/A',
+            avgRank: document.getElementById('metricAvgRank')?.textContent || 'N/A'
+        },
+        hits: {
+            h1: document.getElementById('metricH1')?.textContent || 'N/A',
+            h3: document.getElementById('metricH3')?.textContent || 'N/A',
+            h5: document.getElementById('metricH5')?.textContent || 'N/A',
+            h10: document.getElementById('metricH10')?.textContent || 'N/A'
+        },
+        deep: {
+            jaccard: document.getElementById('metricJaccard')?.textContent || 'N/A',
+            faithfulness: document.getElementById('metricFaithfulness')?.textContent || 'N/A'
         },
         efficiency: {
             latency: document.getElementById('metricLatency')?.textContent || 'N/A',
@@ -453,12 +465,20 @@ function copyAnalysisData(btn) {
     };
     
     textSummary += `PRECISION@K: ${metricsData.effectiveness.precision}\n`;
-    textSummary += `RECALL@K:   ${metricsData.effectiveness.recall}\n`;
-    textSummary += `MAP:        ${metricsData.effectiveness.map}\n`;
-    textSummary += `MRR:        ${metricsData.effectiveness.mrr}\n`; // New
-    textSummary += `NDCG@10:    ${metricsData.effectiveness.ndcg}\n\n`;
-    textSummary += `LATENCY:    ${metricsData.efficiency.latency}\n`;
-    textSummary += `QpMS:       ${metricsData.efficiency.qpms}\n\n`;
+    textSummary += `RECALL@K:    ${metricsData.effectiveness.recall}\n`;
+    textSummary += `F1-SCORE:    ${metricsData.effectiveness.f1}\n`;
+    textSummary += `MAP:         ${metricsData.effectiveness.map}\n`;
+    textSummary += `MRR:         ${metricsData.effectiveness.mrr}\n`;
+    textSummary += `NDCG@10:     ${metricsData.effectiveness.ndcg}\n`;
+    textSummary += `AVG RANK:    ${metricsData.effectiveness.avgRank}\n\n`;
+    
+    textSummary += `Strategy Overlap (Jaccard): ${metricsData.deep.jaccard}\n`;
+    textSummary += `HITS ASSESSMENT: H@1:${metricsData.hits.h1}, H@3:${metricsData.hits.h3}, H@5:${metricsData.hits.h5}, H@10:${metricsData.hits.h10}\n`;
+    textSummary += `AI FAITHFULNESS: ${metricsData.deep.faithfulness}\n\n`;
+
+    textSummary += `LATENCY (Raw): ${metricsData.efficiency.latency}\n`;
+    textSummary += `QpMS (Thesis): ${metricsData.efficiency.qpms}\n\n`;
+    
     textSummary += `ROUTER ACC: ${metricsData.router.accuracy}`;
 
     navigator.clipboard.writeText(textSummary).then(() => {
@@ -563,16 +583,53 @@ function calculateAndSyncMetrics(contextEl) {
         rank2++;
     }
 
-    // --- Strategy Comparison Logic ---
-    // Find the specific button for THIS TURN (important for multi-turn chats)
+    // --- NEW ADVANCED METRICS ---
+    
+    // 1. F1 Score (Harmonic mean of P and R)
+    const f1 = (p_k + r_k) > 0 ? (2 * p_k * r_k) / (p_k + r_k) : 0;
+
+    // 2. Average Rank of Relevant Documents
+    let totalRankSum = 0;
+    let relCount = 0;
+    results.forEach((el, index) => {
+        const box = el.querySelector('.relevance-toggle input');
+        if (judgedDocs.has(box.dataset.docId)) {
+            totalRankSum += (index + 1);
+            relCount++;
+        }
+    });
+    const avgRank = relCount > 0 ? (totalRankSum / relCount) : 0;
+
+    // 3. HITS @ 1, 3, 5, 10
+    let hitsAt = { h1: 0, h3: 0, h5: 0, h10: 0 };
+    results.forEach((el, index) => {
+        const box = el.querySelector('.relevance-toggle input');
+        if (judgedDocs.has(box.dataset.docId)) {
+            const rank = index + 1;
+            if (rank <= 1) hitsAt.h1 = 1;
+            if (rank <= 3) hitsAt.h3 = 1;
+            if (rank <= 5) hitsAt.h5 = 1;
+            if (rank <= 10) hitsAt.h10 = 1;
+        }
+    });
+
+    // 4. Strategy Overlap (Jaccard Index)
     const btn = container.querySelector('button[onclick="showSessionAnalysis(this)"]') || 
                 document.querySelector('button[onclick="showSessionAnalysis(this)"]');
     
+    let jaccard = 0;
     let compNDCG = { semantic: 0, keyword: 0 };
     
     if (btn && btn.dataset.rankDebug) {
         try {
             const rankDebug = JSON.parse(btn.dataset.rankDebug);
+            const semSet = new Set(rankDebug.semantic.map(String));
+            const keySet = new Set(rankDebug.keyword.map(String));
+            
+            const intersection = new Set([...semSet].filter(x => keySet.has(x)));
+            const union = new Set([...semSet, ...keySet]);
+            jaccard = union.size > 0 ? intersection.size / union.size : 0;
+
             compNDCG.semantic = calculateSingleStrategyNDCG(rankDebug.semantic, judgedDocs, sessionK);
             compNDCG.keyword = calculateSingleStrategyNDCG(rankDebug.keyword, judgedDocs, sessionK);
         } catch (e) {
@@ -580,44 +637,49 @@ function calculateAndSyncMetrics(contextEl) {
         }
     }
 
-    // QpMS & Latency Chart
+    // 5. AI Faithfulness (Grounding) Mock/Regex
+    let faithfulness = 1.0; 
+    const aiText = container.querySelector('.ai-answer-text')?.innerText || "";
+    const citations = aiText.match(/\[Doc\s*(\d+)\]/g);
+    if (citations && citations.length > 0) {
+        const allDocIds = new Set(Array.from(results).map(el => el.querySelector('.relevance-toggle input').dataset.docId));
+        let validCitations = 0;
+        citations.forEach(cit => {
+            const id = cit.match(/\d+/)[0];
+            if (allDocIds.has(id)) validCitations++;
+        });
+        faithfulness = validCitations / citations.length;
+    }
+
+    // QpMS & Latency Logic
     let latency = 0;
     let latStats = { semantic: 0, keyword: 0, fusion: 0 };
-    
     if (window.currentLatency) {
         latency = window.currentLatency;
     } else if (btn && btn.dataset.latency) {
         latency = parseFloat(btn.dataset.latency);
     }
-    
-    // Get Stacked Latency Data from Button
     if (btn && btn.dataset.latencyStats) {
-        try {
-            latStats = JSON.parse(btn.dataset.latencyStats);
-        } catch(e) {}
+        try { latStats = JSON.parse(btn.dataset.latencyStats); } catch(e) {}
     }
-
     const qpms = (latency > 0) ? (ndcg / latency) * 1000 : 0;
 
-    // Calculate Router Accuracy (Simulated for Thesis)
-    // How well did the router/fusion perform compared to best baseline?
+    // Router Accuracy
     let routerAcc = 1.0; 
     if (compNDCG.semantic > 0 || compNDCG.keyword > 0) {
         const bestBaseline = Math.max(compNDCG.semantic, compNDCG.keyword);
-        if (ndcg < bestBaseline) {
-            routerAcc = ndcg / bestBaseline;
-        } else {
-            routerAcc = 1.0; // We found the best or better
-        }
+        routerAcc = (ndcg < bestBaseline) ? ndcg / bestBaseline : 1.0;
     } else if (ndcg === 0 && totalRel > 0) {
-        routerAcc = 0; // Truly missed
+        routerAcc = 0;
     }
 
-    // Find the specific button for THIS TURN
-    const turnBtn = container.querySelector('button[onclick="showSessionAnalysis(this)"]') || 
-                    document.querySelector('button[onclick="showSessionAnalysis(this)"]');
-
-    updateSessionStats(p_k, r_k, map, ndcg, mrr, qpms, compNDCG, latStats, turnBtn, routerAcc);
+    updateSessionStats({
+        p: p_k, r: r_k, f1: f1, map: map, ndcg: ndcg, mrr: mrr, 
+        avgRank: avgRank, hits: hitsAt, jaccard: jaccard, 
+        faithfulness: faithfulness, qpms: qpms, 
+        compNDCG: compNDCG, latStats: latStats, 
+        btn: btn, routerAcc: routerAcc
+    });
 }
 
 function calculateSingleStrategyNDCG(idList, trueIds, k) {
@@ -641,62 +703,68 @@ function calculateSingleStrategyNDCG(idList, trueIds, k) {
     return idcg > 0 ? dcg / idcg : 0;
 }
 
-function updateSessionStats(p, r, map, ndcg, mrr, qpms, compStats, latStats, specificBtn, routerAcc = null) {
-    const btn = specificBtn || document.querySelector('button[onclick="showSessionAnalysis(this)"]');
+function updateSessionStats(meta) {
+    const { p, r, f1, map, ndcg, mrr, avgRank, hits, jaccard, faithfulness, qpms, compNDCG, latStats, btn, routerAcc } = meta;
     if (!btn) return;
 
-    // Update Data Attributes
+    // Update Data Attributes for persistence
     btn.dataset.p = p.toFixed(4);
     btn.dataset.r = r.toFixed(4);
+    btn.dataset.f1 = f1.toFixed(4);
     btn.dataset.map = map.toFixed(4);
     btn.dataset.ndcg = ndcg.toFixed(4);
     btn.dataset.mrr = mrr.toFixed(4);
+    btn.dataset.avgRank = avgRank.toFixed(2);
+    btn.dataset.hits = JSON.stringify(hits);
+    btn.dataset.jaccard = jaccard.toFixed(4);
+    btn.dataset.faithfulness = faithfulness.toFixed(4);
     btn.dataset.qpms = qpms.toFixed(4);
+    btn.dataset.router = routerAcc.toFixed(4);
+
+    // Update Modal DOM live
+    const setT = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
     
-    if (routerAcc !== null) {
-        btn.dataset.router = routerAcc.toFixed(4);
-    }
+    setT('metricP', p.toFixed(4));
+    setT('metricR', r.toFixed(4));
+    setT('metricF1', f1.toFixed(4));
+    setT('metricMAP', map.toFixed(4));
+    setT('metricNDCG', ndcg.toFixed(4));
+    setT('metricMRR', mrr.toFixed(4));
+    setT('metricAvgRank', avgRank > 0 ? avgRank.toFixed(1) : '-');
     
-    if (compStats) {
-        btn.dataset.ndcgSem = compStats.semantic.toFixed(4);
-        btn.dataset.ndcgKey = compStats.keyword.toFixed(4);
+    setT('metricH1', hits.h1 ? 'YES' : 'NO');
+    setT('metricH3', hits.h3 ? 'YES' : 'NO');
+    setT('metricH5', hits.h5 ? 'YES' : 'NO');
+    setT('metricH10', hits.h10 ? 'YES' : 'NO');
+
+    setT('metricJaccard', (jaccard * 100).toFixed(1) + '%');
+    const jBar = document.getElementById('jaccardProgress');
+    if(jBar) jBar.style.width = (jaccard * 100) + '%';
+
+    setT('metricFaithfulness', (faithfulness * 100).toFixed(0) + '%');
+    const fBar = document.getElementById('faithfulnessProgress');
+    if(fBar) {
+        fBar.style.width = (faithfulness * 100) + '%';
+        fBar.className = faithfulness > 0.8 ? 'progress-bar bg-success' : (faithfulness > 0.5 ? 'progress-bar bg-warning' : 'progress-bar bg-danger');
     }
 
-    // If modal is open, update it live
-    if (document.getElementById('metricP')) {
-        document.getElementById('metricP').textContent = p.toFixed(4);
-        document.getElementById('metricR').textContent = r.toFixed(4);
-        document.getElementById('metricMAP').textContent = map.toFixed(4);
-        document.getElementById('metricMRR').textContent = mrr.toFixed(4); // New
-        document.getElementById('metricNDCG').textContent = ndcg.toFixed(4);
-        document.getElementById('metricQpMS').textContent = qpms.toFixed(4);
-        
-        if (routerAcc !== null) {
-            document.getElementById('metricRouter').textContent = (routerAcc * 100).toFixed(0) + '%';
-            const routerBadge = document.getElementById('metricRouterBadge');
-            if (routerBadge) {
-                if (routerAcc >= 1.0) {
-                    routerBadge.className = 'badge bg-success';
-                    routerBadge.textContent = 'Optimal';
-                } else if (routerAcc > 0.7) {
-                    routerBadge.className = 'badge bg-primary';
-                    routerBadge.textContent = 'Effective';
-                } else {
-                    routerBadge.className = 'badge bg-warning text-dark';
-                    routerBadge.textContent = 'Sub-optimal';
-                }
-            }
-        }
-        
-        // Update Comparison Chart
-        if (window.updateComparisonChart && compStats) {
-            window.updateComparisonChart(compStats.semantic, compStats.keyword, ndcg);
-        }
-        
-        // Update Latency Stack Chart
-        if (window.updateLatencyChart && latStats) {
-            window.updateLatencyChart(latStats.semantic || 0, latStats.keyword || 0, latStats.fusion || 0);
-        }
+    setT('metricQpMS', qpms.toFixed(4));
+    setT('metricRouter', (routerAcc * 100).toFixed(0) + '%');
+    
+    // Router Badge
+    const routerBadge = document.getElementById('metricRouterBadge');
+    if (routerBadge) {
+        if (routerAcc >= 1.0) { routerBadge.className = 'badge bg-success'; routerBadge.textContent = 'Optimal'; }
+        else if (routerAcc > 0.7) { routerBadge.className = 'badge bg-primary'; routerBadge.textContent = 'Effective'; }
+        else { routerBadge.className = 'badge bg-warning text-dark'; routerBadge.textContent = 'Sub-optimal'; }
+    }
+
+    // Update Charts
+    if (window.updateComparisonChart && compNDCG) {
+        window.updateComparisonChart(compNDCG.semantic, compNDCG.keyword, ndcg);
+    }
+    if (window.updateLatencyChart && latStats) {
+        window.updateLatencyChart(latStats.semantic || 0, latStats.keyword || 0, latStats.fusion || 0);
     }
 }
 
