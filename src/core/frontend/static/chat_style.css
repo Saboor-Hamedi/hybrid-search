@@ -248,6 +248,61 @@
   color: #991b1b;
 }
 
+/* Assistant Markdown Styling */
+.assistant-content {
+    line-height: 1.7;
+}
+
+.assistant-content p {
+    margin-bottom: 1rem;
+}
+
+.assistant-content h1, .assistant-content h2, .assistant-content h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.assistant-content h1 { font-size: 1.3rem; }
+.assistant-content h2 { font-size: 1.15rem; }
+.assistant-content h3 { font-size: 1.05rem; }
+
+.assistant-content ul, .assistant-content ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+}
+
+.assistant-content li {
+    margin-bottom: 0.4rem;
+}
+
+.assistant-content blockquote {
+    border-left: 4px solid #e5e7eb;
+    padding-left: 1rem;
+    color: #4b5563;
+    font-style: italic;
+    margin: 1rem 0;
+}
+
+.assistant-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.assistant-content th, .assistant-content td {
+    border: 1px solid #e5e7eb;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.assistant-content th {
+    background: #f9fafb;
+    font-weight: 600;
+}
+
 /* AI Answer / RAG Styles */
 .ai-research-box {
     background: #f9fafb;
@@ -862,7 +917,7 @@ body.modal-open {
 }
 
 .assistant-chat-bot {
-  background: #f9fafb !important; /* Extremely subtle grey */
+  background: transparent !important; /* Made transparent per user request */
   border: none !important;
   padding: 16px 20px !important;
   border-radius: 12px 12px 12px 12px !important; /* Balanced corners */
