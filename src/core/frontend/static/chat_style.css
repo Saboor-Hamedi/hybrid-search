@@ -1981,3 +1981,54 @@ body.modal-open .modal-backdrop:last-of-type {
     overflow: hidden !important;
     padding-right: 0 !important;
 }
+
+/* AI Generation Polish */
+.btn-gen-stop {
+    background-color: #ef4444 !important;
+    color: white !important;
+    border-color: #ef4444 !important;
+}
+
+.textarea-generating {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1) !important;
+    background-image: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.03), transparent);
+    background-size: 200% 100%;
+    animation: generatorPulse 2s infinite linear;
+}
+
+@keyframes generatorPulse {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.ai-gen-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Compact button for utility tools */
+.btn-xs {
+    padding: 1px 6px;
+    font-size: 0.7rem;
+    line-height: 1.5;
+    border-radius: 4px;
+}
+
+.form-control-xs {
+    height: 24px;
+    padding: 2px 8px;
+    font-size: 0.7rem;
+    border-radius: 6px;
+}
+
+.animate-slide-in {
+    animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInLeft {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+
+

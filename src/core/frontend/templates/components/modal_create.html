@@ -48,7 +48,31 @@
             <input type="hidden" name="mode" value="hybrid">
 
             <div style="flex: 1; overflow-y: auto; padding: 1.25rem 1.5rem;">
-              <label class="hub-label">Document Content</label>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="hub-label mb-0">Document Content</label>
+                <div class="d-flex align-items-center gap-2">
+                  <div id="aiPromptGroupCreate" class="d-none animate-slide-in position-relative">
+                    <input type="text" id="aiCustomPromptCreate" class="form-control form-control-xs pe-4" 
+                           placeholder="Type what to write..." 
+                           style="width: 200px; font-size: 0.7rem; height: 26px; border-radius: 6px;">
+                    <button type="button" class="btn btn-link p-0 position-absolute end-0 top-50 translate-middle-y me-2 text-muted" 
+                            onclick="window.aiGenerator.hide('aiGenBtnCreate', 'aiPromptGroupCreate')" style="font-size: 0.8rem; text-decoration: none;">
+                      <i class="bi bi-x"></i>
+                    </button>
+                  </div>
+                  <button type="button" id="aiGenBtnCreate" class="btn btn-xs btn-outline-primary ai-gen-btn" 
+                          onclick="window.aiGenerator && window.aiGenerator.handleAction('manualContent', 'aiGenBtnCreate', 'aiPromptGroupCreate', 'aiCustomPromptCreate', 'aiQuickActionsCreate')" 
+                          title="Generate content with AI">
+                    <i class="bi bi-robot"></i> AI Generate
+                  </button>
+                </div>
+              </div>
+              <div id="aiQuickActionsCreate" class="d-none animate-slide-in mb-2 d-flex gap-1 flex-wrap">
+                <span class="badge bg-light text-secondary border fw-normal" style="cursor: pointer; font-size: 0.65rem;" onclick="document.getElementById('aiCustomPromptCreate').value='Summarize text'; window.aiGenerator.generate('manualContent', 'aiGenBtnCreate', 'aiPromptGroupCreate', 'aiCustomPromptCreate', 'aiQuickActionsCreate')">Summarize</span>
+                <span class="badge bg-light text-secondary border fw-normal" style="cursor: pointer; font-size: 0.65rem;" onclick="document.getElementById('aiCustomPromptCreate').value='Fix grammar'; window.aiGenerator.generate('manualContent', 'aiGenBtnCreate', 'aiPromptGroupCreate', 'aiCustomPromptCreate', 'aiQuickActionsCreate')">Fix Grammar</span>
+                <span class="badge bg-light text-secondary border fw-normal" style="cursor: pointer; font-size: 0.65rem;" onclick="document.getElementById('aiCustomPromptCreate').value='Translate to formal English'; window.aiGenerator.generate('manualContent', 'aiGenBtnCreate', 'aiPromptGroupCreate', 'aiCustomPromptCreate', 'aiQuickActionsCreate')">To English</span>
+                <span class="badge bg-light text-secondary border fw-normal" style="cursor: pointer; font-size: 0.65rem;" onclick="document.getElementById('aiCustomPromptCreate').value='Explain simply'; window.aiGenerator.generate('manualContent', 'aiGenBtnCreate', 'aiPromptGroupCreate', 'aiCustomPromptCreate', 'aiQuickActionsCreate')">Simplify</span>
+              </div>
               <textarea name="content" id="manualContent" class="form-control hub-textarea"
                 placeholder="Write or paste your document content here. It will be embedded and indexed for hybrid search..."></textarea>
               <div class="hub-hint">Min. 20 characters. Content is automatically chunked and embedded.</div>

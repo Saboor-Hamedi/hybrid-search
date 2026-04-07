@@ -141,14 +141,12 @@ function formatBotResponse(text) {
 
     // 2. Configure marked for great rendering
     if (window.marked) {
-        // Use marked for the heavy lifting
         return marked.parse(cleanText, {
-            breaks: true, // Support single line breaks as <br>
-            gfm: true     // GitHub Flavored Markdown
+            breaks: true,
+            gfm: true
         });
     }
 
-    // Fallback if marked is missing (unlikely)
     return cleanText.replace(/\n/g, '<br>');
 }
 
@@ -431,3 +429,181 @@ document.addEventListener('DOMContentLoaded', () => {
     // Small delay to ensure other UI components are ready
     setTimeout(loadLocalHistory, 100);
 });
+
+/**
+ * AI Content Generator for Textareas
+ * Specialized for modal_create and modal_edit
+ */
+window.aiGenerator = {
+    isGenerating: false,
+    controller: null,
+
+    /**
+     * Handles the UI flow: Toggle input -> Read prompt -> Generate
+     */
+    handleAction(textareaId, btnId, groupId, inputId, quickActionsId) {
+        const group = document.getElementById(groupId);
+        const input = document.getElementById(inputId);
+        const btn = document.getElementById(btnId);
+        const actions = document.getElementById(quickActionsId);
+
+        if (this.isGenerating) {
+            this.stop();
+            return;
+        }
+
+        // If input is hidden, show it and focus
+        if (group.classList.contains('d-none')) {
+            group.classList.remove('d-none');
+            if (actions) actions.classList.remove('d-none');
+            input.focus();
+            btn.innerHTML = `<i class="bi bi-magic"></i> Write`;
+            
+            // Listen for Enter key on the input
+            input.onkeydown = (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.generate(textareaId, btnId, groupId, inputId, quickActionsId);
+                }
+            };
+            return;
+        }
+
+        // If visible, trigger generation
+        this.generate(textareaId, btnId, groupId, inputId, quickActionsId);
+    },
+
+    hide(btnId, groupId, quickActionsId) {
+        document.getElementById(groupId)?.classList.add('d-none');
+        if (quickActionsId) document.getElementById(quickActionsId)?.classList.add('d-none');
+        const btn = document.getElementById(btnId);
+        if (btn) btn.innerHTML = `<i class="bi bi-robot"></i> AI Generate`;
+    },
+
+    async generate(textareaId, btnId, groupId, inputId, quickActionsId) {
+        if (this.isGenerating) return;
+
+        const textarea = document.getElementById(textareaId);
+        const btn = document.getElementById(btnId);
+        const group = document.getElementById(groupId);
+        const input = document.getElementById(inputId);
+        const actions = document.getElementById(quickActionsId);
+        
+        if (!textarea || !btn || !input) return;
+
+        // Selection Logic
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selectedText = textarea.value.substring(start, end);
+
+        const currentText = (selectedText || textarea.value).trim();
+        const customInstruction = input.value.trim();
+        const originalBtnHtml = `<i class="bi bi-robot"></i> AI Generate`;
+
+        try {
+            this.isGenerating = true;
+            this.controller = new AbortController();
+            
+            btn.innerHTML = `<i class="bi bi-stop-fill"></i> Stop`;
+            btn.classList.add('btn-gen-stop');
+            textarea.classList.add('textarea-generating');
+            
+            // Determine the prompt
+            let prompt = "";
+            const systemContext = "You are a professional technical writer. Generate ONLY the raw content. NO conversational filler. NO HTML encoding. Use professional plain text.";
+
+            if (customInstruction) {
+                const targetText = selectedText ? `the following selection: "${selectedText}"` : "the document";
+                prompt = `${systemContext}\n\nInstruction: ${customInstruction}\n\nContext within ${targetText}:\n${currentText}\n\nResponse:`;
+            } else if (!currentText) {
+                prompt = `${systemContext}\n\nWrite a scholarly knowledge base entry about a random technical concept.`;
+            } else {
+                prompt = `${systemContext}\n\nContinue writing or expanding on this text professionally:\n\n${currentText}\n\nContinued Content:`;
+            }
+
+            const aiProvider = localStorage.getItem('ai_provider') || 'ollama';
+            const aiModel = localStorage.getItem('ai_model') || 'qwen2.5:0.5b';
+            const aiApiKey = localStorage.getItem('ai_api_key') || '';
+            const ollamaBaseUrl = localStorage.getItem('ollama_base_url') || 'http://localhost:11434';
+
+            const response = await fetch('/api/quick-chat-stream', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                signal: this.controller.signal,
+                body: JSON.stringify({ 
+                    message: prompt,
+                    provider: aiProvider,
+                    model: aiModel,
+                    api_key: aiApiKey,
+                    base_url: ollamaBaseUrl
+                })
+            });
+
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            
+            // If text is selected, we clear the selection before streaming back into it
+            if (selectedText) {
+                const before = textarea.value.substring(0, start);
+                const after = textarea.value.substring(end);
+                textarea.value = before;
+                // We'll keep track of where we are to append everything correctly
+                var currentPos = start;
+                // Temporarily store 'after' to append once done
+                this.afterBuffer = after;
+            } else if (currentText && !customInstruction.toLowerCase().includes('replace')) {
+                textarea.value += "\n\n";
+            }
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                let chunk = decoder.decode(value, { stream: true });
+                chunk = chunk.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+                
+                if (selectedText) {
+                    const val = textarea.value;
+                    textarea.value = val.substring(0, currentPos) + chunk + val.substring(currentPos);
+                    currentPos += chunk.length;
+                } else {
+                    textarea.value += chunk;
+                }
+                textarea.scrollTop = textarea.scrollHeight;
+            }
+
+            if (selectedText && this.afterBuffer) {
+                // Re-append the 'after' text if it wasn't already handled 
+                // (Though our loop logic above handles it by splitting)
+            }
+
+            // Hide the input and actions
+            group.classList.add('d-none');
+            if (actions) actions.classList.add('d-none');
+            input.value = '';
+
+        } catch (err) {
+            if (err.name === 'AbortError') {
+                console.log("Generation stopped by user");
+            } else {
+                console.error("AI Generation failed", err);
+                if (window.showToast) showToast("AI Generation failed: " + err.message, "error");
+            }
+        } finally {
+            this.isGenerating = false;
+            this.controller = null;
+            btn.innerHTML = originalBtnHtml;
+            btn.classList.remove('btn-gen-stop');
+            textarea.classList.remove('textarea-generating');
+        }
+    },
+
+    stop() {
+        if (this.controller) {
+            this.controller.abort();
+        }
+    }
+};
+
