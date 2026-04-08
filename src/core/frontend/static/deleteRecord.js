@@ -1,9 +1,30 @@
-// 1. Set up the modal (same as before)
+// 1. Set up the modal
 function deleteRecord(docId) {
-  event.preventDefault();
+  if (event) event.preventDefault();
+  
+  // Reset Modal text and icons
+  const titleEl = document.getElementById('quickDeleteTitle');
+  const msgEl = document.getElementById('quickDeleteMessage');
+  const confirmBtn = document.getElementById('quickDeleteConfirmBtn');
+  const iconEl = document.getElementById('quickDeleteIcon');
+  const form = document.getElementById("quickDeleteForm");
+  
+  if (titleEl) titleEl.textContent = 'Delete Document?';
+  if (iconEl) {
+    iconEl.className = 'bi bi-exclamation-triangle';
+    iconEl.style.display = 'inline-block';
+  }
+  if (msgEl) msgEl.innerHTML = `Are you sure you want to delete <strong>#<span id="delTargetId">${docId}</span></strong>?`;
+  if (confirmBtn) {
+    confirmBtn.textContent = 'Delete Permanent';
+    confirmBtn.disabled = false;
+  }
+  
+  // Clear any hijacks (like startNewSession's onsubmit)
+  if (form) form.onsubmit = null;
+
   document.getElementById("delTargetId").textContent = docId;
-  document.getElementById("quickDeleteForm").action =
-    `/document/${docId}/delete_post`;
+  document.getElementById("quickDeleteForm").action = `/document/${docId}/delete_post`;
   document.getElementById("quickDeleteModal").style.display = "flex";
 }
 
@@ -11,15 +32,17 @@ function deleteRecord(docId) {
 document
   .getElementById("quickDeleteForm")
   .addEventListener("submit", async function (e) {
-    e.preventDefault(); // 🛑 This stops the page reload
+    // If it's a hijacked form for New Session, don't run this
+    if (this.onsubmit) return;
+    
+    e.preventDefault(); 
 
-    const submitBtn = this.querySelector('button[type="submit"]');
+    const submitBtn = document.getElementById('quickDeleteConfirmBtn');
     const docId = document.getElementById("delTargetId").textContent;
 
-    // Show loading on button
+    // Show loading on button (Rotating Circle)
     submitBtn.disabled = true;
-    submitBtn.innerHTML =
-      '<span class="spinner-border spinner-border-sm"></span> Deleting...';
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Deleting...';
 
     try {
       const response = await fetch(this.action, {

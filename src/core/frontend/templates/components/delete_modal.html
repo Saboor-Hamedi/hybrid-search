@@ -1,0 +1,19 @@
+<!-- High-Fidelity Delete Confirmation Modal -->
+<div id="quickDeleteModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; align-items: center; justify-content: center;">
+  <div style="background: white; border-radius: 12px; padding: 1.5rem; max-width: 350px; width: 90%;">
+    <h6 class="mb-3 text-danger d-flex align-items-center gap-2">
+      <i class="bi bi-exclamation-triangle" id="quickDeleteIcon"></i> 
+      <span id="quickDeleteTitle">Delete Document?</span>
+    </h6>
+    <p class="text-muted small mb-4" id="quickDeleteMessage">Are you sure you want to delete <strong>#<span id="delTargetId"></span></strong>?</p>
+    
+    <form id="quickDeleteForm" method="POST" action="">
+        <input type="hidden" name="q" value="{{ back_query }}">
+        <input type="hidden" name="mode" value="{{ back_mode }}">
+        <div class="d-flex gap-2 justify-content-end">
+            <button type="button" class="btn btn-sm btn-light" onclick="this.closest('#quickDeleteModal').style.display='none'">Cancel</button>
+            <button type="submit" class="btn btn-sm btn-danger" id="quickDeleteConfirmBtn">Delete Permanent</button>
+        </div>
+    </form>
+  </div>
+</div>

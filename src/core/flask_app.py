@@ -55,20 +55,29 @@ def home():
     input_source = request.form if request.method == "POST" else request.args
 
 
-    # 1. Initialize/Retrieve Search Parameters
-    query = input_source.get("query", "").strip()
+    # 1. Initialize/Retrieve Search Parameters (Support both short & long keys)
+    query = input_source.get("q", input_source.get("query", "")).strip()
     mode = input_source.get("mode", "hybrid")
-    fusion_strategy = input_source.get("fusion_strategy", "linear")
-    use_ltr = input_source.get("use_ltr") == "true" or input_source.get("use_ltr") == "on"
-    use_ai = input_source.get("use_ai") == "true" or input_source.get("use_ai") == "on"  # AI Toggle
+    fusion_strategy = input_source.get("fusion", input_source.get("fusion_strategy", "linear"))
+    
+    # Flags (LTR & AI)
+    use_ltr = input_source.get("ltr") == "1" or input_source.get("use_ltr") in ["true", "on"]
+    ai_val = input_source.get("ai")
+    if ai_val is not None:
+        use_ai = ai_val == "1"
+    else:
+        use_ai = input_source.get("use_ai", "on") in ["true", "on"]
+
     alpha = input_source.get("alpha")
     if alpha:
         try:
-            alpha = float(alpha) / 100.0  # Slider is 0-100, backend wants 0.0-1.0
+            alpha = float(alpha) / 100.0
         except:
             alpha = None
+            
     try:
-        page = int(input_source.get("page", 1))
+        page_val = input_source.get("p", input_source.get("page", 1))
+        page = int(page_val)
     except (TypeError, ValueError):
         page = 1
     try:

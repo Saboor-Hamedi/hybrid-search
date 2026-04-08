@@ -314,7 +314,7 @@
   {% include 'components/modal_analysis.html' %}
 
   <!-- Delete Modal -->
-  {% include 'portion/confirm_delete.html' %}
+  {% include 'components/delete_modal.html' %}
   
   <!-- Confirm Modal -->
   {% include 'components/modal_confirm.html' %}
@@ -350,6 +350,76 @@
         if (modalAiToggle) modalAiToggle.checked = isEnabled;
     }
 
+/**
+ * Generic Helper to show the Industrial Confirmation Modal
+ */
+function showGlobalConfirm(options) {
+    const modalEl = document.getElementById('confirmModal');
+    if (!modalEl) return;
+    
+    document.getElementById('confirmModalTitle').textContent = options.title || 'Security Lock';
+    document.getElementById('confirmModalMessage').textContent = options.message || 'Are you sure?';
+    
+    const confirmBtn = document.getElementById('confirmModalBtn');
+    
+    // Clear previous listeners
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    
+    newConfirmBtn.onclick = () => {
+        if (options.onConfirm) options.onConfirm();
+        bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+    };
+    
+    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+}
+
+/**
+ * Purges the current session and restarts with a clean state
+ */
+function startNewSession() {
+    const modal = document.getElementById('quickDeleteModal');
+    if (!modal) return;
+    
+    // Customize for Session Purge using new Component IDs
+    const titleEl = document.getElementById('quickDeleteTitle');
+    const msgEl = document.getElementById('quickDeleteMessage');
+    const confirmBtn = document.getElementById('quickDeleteConfirmBtn');
+    const form = document.getElementById('quickDeleteForm');
+    
+    if (titleEl) titleEl.innerHTML = '<i class="bi bi-trash3"></i> Purge Session?';
+    if (msgEl) msgEl.textContent = 'This will permanently clear all recent chat history and session data. Continue?';
+    if (confirmBtn) confirmBtn.textContent = 'Purge Everything';
+    
+    // Hijack form submit
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        
+        // Show spinning circle feedback
+        if (confirmBtn) {
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Purging...';
+        }
+        
+        // Deep Storage Wipe
+        const sessionKeys = [
+            'assistant_chat_history_v1', 
+            'assistant_history', 
+            'current_query', 
+            'active_mode', 
+            'last_search_results',
+            'rag_context'
+        ];
+        
+        // Small delay to let the user see the animation (Premium Feel)
+        setTimeout(() => {
+            sessionKeys.forEach(key => localStorage.removeItem(key));
+            window.location.href = '/';
+        }, 500);
+    };
+    
+    modal.style.display = 'flex';
+}
     // Scroll logic
     window.addEventListener('load', function() {
         if (document.body.classList.contains('is-query-active') && typeof scrollToBottom === 'function') {
@@ -360,14 +430,14 @@
 
   <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
   <script src="{{ url_for('static', filename='export/logic.js') }}"></script>
+  <script src="{{ url_for('static', filename='url_manager.js') }}"></script>
+  <script src="{{ url_for('static', filename='chat_logic.js') }}"></script>
+  <script src="{{ url_for('static', filename='deleteRecord.js') }}"></script>
 
   <!-- AI Modules -->
   <script src="{{ url_for('static', filename='ai/assistant.js') }}"></script>
   <script src="{{ url_for('static', filename='ai/rag.js') }}"></script>
   <script src="{{ url_for('static', filename='search_dynamic.js') }}"></script>
-
-  <script src="{{ url_for('static', filename='chat_logic.js') }}"></script>
-  <script src="{{ url_for('static', filename='deleteRecord.js') }}"></script>
 
   <!-- Global Modal Helpers (must be after Bootstrap JS) -->
   <script>

@@ -64,14 +64,17 @@ async function handleDynamicSearch(query, searchMode, page = 1) {
         const useLtr = document.querySelector('input[name="use_ltr"]')?.checked || false;
         const useAi = document.querySelector('input[name="use_ai"]')?.checked || false;
 
-        const params = new URLSearchParams({
+        const state = {
             query: query,
             mode: searchMode,
-            fusion_strategy: fusionStrategy,
-            use_ltr: useLtr ? 'on' : 'off',
-            use_ai: useAi ? 'on' : 'off',
+            fusion: fusionStrategy,
+            ltr: useLtr,
+            ai: useAi,
             page: page
-        });
+        };
+
+        const params = URLManager.buildCleanParams(state);
+        URLManager.updateHistory(state);
 
         const fetchParams = new URLSearchParams(params);
         fetchParams.append('ajax', '1');
