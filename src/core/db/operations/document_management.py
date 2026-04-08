@@ -23,7 +23,7 @@ from core.utils.ColorScheme import ColorScheme
 cs = ColorScheme()
 
 
-def insert_document(content, conn, cursor, model, commit=True, silent=False):
+def insert_document(content, conn, cursor, model, commit=True, silent=False, preserve_fidelity=False):
     # Check for empty input
     if check_if_empty_input(content):
         if not silent:
@@ -31,8 +31,15 @@ def insert_document(content, conn, cursor, model, commit=True, silent=False):
         return False
 
     get_elapsed = measure_time()
-    nor_content = normalize_content(content)
+    
+    # 💎 High-Fidelity Logic: Preserve exact text for Scholar/AI data
+    if preserve_fidelity:
+        nor_content = content.strip()
+    else:
+        nor_content = normalize_content(content)
+        
     language = detect_language(nor_content)
+    
     try:
         # Generate embedding
         emb = model.encode(nor_content).tolist()
@@ -71,7 +78,7 @@ def insert_document(content, conn, cursor, model, commit=True, silent=False):
 
     except Exception as e:
         print(f"{cs.RED}❌ Error after {get_elapsed()}s. Error: {e}{cs.RESET}")
-        print(f"{cs.YELLOW}   Content: '{nor_content[:80]}...'{cs.RESET}")
+        print(f"{cs.YELLOW}   Content: '{nor_content[:80]}...'{cs.RESET}")
         conn.rollback()
         return False
 

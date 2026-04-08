@@ -205,8 +205,9 @@ document.querySelectorAll('.result-content').forEach(result => {
   let clickTimer = null;
   
   result.addEventListener('click', function(e) {
-    // Don't interfere with link clicks
-    if (e.target.tagName === 'A') return;
+    // Don't interfere with link, button, or icon clicks (actions)
+    if (['A', 'BUTTON', 'I'].includes(e.target.tagName)) return;
+    if (e.target.closest('button') || e.target.closest('a')) return;
     
     clickCount++;
     
@@ -303,7 +304,12 @@ function showAnalysis(btn) {
     document.getElementById('modalTableSemW').textContent = d.semW !== 'N/A' ? parseFloat(d.semW).toFixed(2) : '-';
     document.getElementById('modalTableKeyW').textContent = d.keyW !== 'N/A' ? parseFloat(d.keyW).toFixed(2) : '-';
     
-    document.getElementById('modalContentPreview').innerHTML = d.content; // using innerHTML to render highlights if present
+    // Populate Preview (Markdown-aware)
+    if (typeof parseMarkdown === 'function') {
+        document.getElementById('modalContentPreview').innerHTML = parseMarkdown(d.content);
+    } else {
+        document.getElementById('modalContentPreview').innerHTML = d.content;
+    }
     
     // Chart Data Prep
     updateRadar(d);
@@ -318,39 +324,47 @@ function showSessionAnalysis(btn) {
     showAnalysisTab('#metricsTab');
     
     const d = btn.dataset;
-    document.getElementById('modalPrompt').textContent = d.prompt || "No query recorded"; // Set Prompt
-    document.getElementById('metricDocId').textContent = "Session Overview"; // Reset Focus
+    const setVal = (id, val) => { 
+        const el = document.getElementById(id); 
+        if (el) el.textContent = val; 
+    };
+
+    setVal('modalPrompt', d.prompt || "No query recorded");
+    setVal('metricDocId', "Session Overview");
     
     // 1. Effectiveness
-    document.getElementById('metricP').textContent = d.p !== 'N/A' ? parseFloat(d.p).toFixed(4) : 'N/A';
-    document.getElementById('metricR').textContent = d.r !== 'N/A' ? parseFloat(d.r).toFixed(4) : 'N/A';
-    document.getElementById('metricMAP').textContent = d.map !== 'N/A' ? parseFloat(d.map).toFixed(4) : 'N/A';
-    document.getElementById('metricNDCG').textContent = d.ndcg !== 'N/A' ? parseFloat(d.ndcg).toFixed(4) : 'N/A';
-    document.getElementById('metricMRR').textContent = d.mrr !== 'N/A' ? parseFloat(d.mrr).toFixed(4) : 'N/A';
+    setVal('metricP', d.p !== 'N/A' ? parseFloat(d.p).toFixed(4) : 'N/A');
+    setVal('metricR', d.r !== 'N/A' ? parseFloat(d.r).toFixed(4) : 'N/A');
+    setVal('metricF1', d.f1 !== 'N/A' ? parseFloat(d.f1).toFixed(4) : 'N/A');
+    setVal('metricMAP', d.map !== 'N/A' ? parseFloat(d.map).toFixed(4) : 'N/A');
+    setVal('metricNDCG', d.ndcg !== 'N/A' ? parseFloat(d.ndcg).toFixed(4) : 'N/A');
+    setVal('metricMRR', d.mrr !== 'N/A' ? parseFloat(d.mrr).toFixed(4) : 'N/A');
     
     // 2. Efficiency
-    document.getElementById('metricLatency').textContent = d.latency + ' ms';
-    document.getElementById('metricQpMS').textContent = d.qpms !== 'N/A' ? parseFloat(d.qpms).toFixed(4) : 'N/A';
+    setVal('metricLatency', d.latency + ' ms');
+    setVal('metricQpMS', d.qpms !== 'N/A' ? parseFloat(d.qpms).toFixed(4) : 'N/A');
     
     // 3. Router
-    document.getElementById('metricRouter').textContent = d.router !== 'N/A' ? (parseFloat(d.router)*100).toFixed(0) + '%' : 'N/A';
+    setVal('metricRouter', d.router !== 'N/A' ? (parseFloat(d.router)*100).toFixed(0) + '%' : 'N/A');
     
     const routerBadge = document.getElementById('metricRouterBadge');
-    if (d.router && d.router !== 'N/A') {
-        const rAcc = parseFloat(d.router);
-        if (rAcc >= 1.0) {
-            routerBadge.className = 'badge bg-success';
-            routerBadge.textContent = 'Optimal';
-        } else if (rAcc > 0.7) {
-            routerBadge.className = 'badge bg-primary';
-            routerBadge.textContent = 'Effective';
+    if (routerBadge) {
+        if (d.router && d.router !== 'N/A') {
+            const rAcc = parseFloat(d.router);
+            if (rAcc >= 1.0) {
+                routerBadge.className = 'badge bg-success';
+                routerBadge.textContent = 'Optimal';
+            } else if (rAcc > 0.7) {
+                routerBadge.className = 'badge bg-primary';
+                routerBadge.textContent = 'Effective';
+            } else {
+                routerBadge.className = 'badge bg-warning text-dark';
+                routerBadge.textContent = 'Sub-optimal';
+            }
         } else {
-            routerBadge.className = 'badge bg-warning text-dark';
-            routerBadge.textContent = 'Sub-optimal';
+            routerBadge.className = 'badge bg-light text-dark border';
+            routerBadge.textContent = 'Untested';
         }
-    } else {
-        routerBadge.className = 'badge bg-light text-dark border';
-        routerBadge.textContent = 'Untested';
     }
     
     // Load Chart
@@ -436,6 +450,7 @@ function copyAnalysisData(btn) {
     // 2. Collect Thesis Metrics Data
     const metricsData = {
         focus: metricFocus,
+        
         effectiveness: {
             precision: document.getElementById('metricP')?.textContent || 'N/A',
             recall: document.getElementById('metricR')?.textContent || 'N/A',
@@ -678,7 +693,7 @@ function calculateAndSyncMetrics(contextEl) {
         avgRank: avgRank, hits: hitsAt, jaccard: jaccard, 
         faithfulness: faithfulness, qpms: qpms, 
         compNDCG: compNDCG, latStats: latStats, 
-        btn: btn, routerAcc: routerAcc
+        btn: btn, routerAcc: routerAcc, results: results
     });
 }
 
@@ -704,7 +719,7 @@ function calculateSingleStrategyNDCG(idList, trueIds, k) {
 }
 
 function updateSessionStats(meta) {
-    const { p, r, f1, map, ndcg, mrr, avgRank, hits, jaccard, faithfulness, qpms, compNDCG, latStats, btn, routerAcc } = meta;
+    const { p, r, f1, map, ndcg, mrr, avgRank, hits, jaccard, faithfulness, qpms, compNDCG, latStats, btn, routerAcc, results } = meta;
     if (!btn) return;
 
     // Update Data Attributes for persistence
@@ -763,23 +778,180 @@ function updateSessionStats(meta) {
     if (window.updateComparisonChart && compNDCG) {
         window.updateComparisonChart(compNDCG.semantic, compNDCG.keyword, ndcg);
     }
-    if (window.updateLatencyChart && latStats) {
-        window.updateLatencyChart(latStats.semantic || 0, latStats.keyword || 0, latStats.fusion || 0);
-    }
+    
+    // Update PR Curve and GPA (NEW)
+    updatePRCurve(results, judgedDocs);
+    updateGPA(ndcg, mrr, qpms);
 }
 
 
+// === THESIS HUB: PR CURVE & GPA (NEW) ===
+let globalSessionLogs = { ndcgSum: 0, mrrSum: 0, qpmsSum: 0, count: 0 };
+
+function updateGPA(ndcg, mrr, qpms) {
+    globalSessionLogs.ndcgSum += ndcg;
+    globalSessionLogs.mrrSum += mrr;
+    globalSessionLogs.qpmsSum += qpms;
+    globalSessionLogs.count++;
+
+    const avgNDCG = globalSessionLogs.ndcgSum / globalSessionLogs.count;
+    const avgMRR = globalSessionLogs.mrrSum / globalSessionLogs.count;
+    const avgQpMS = globalSessionLogs.qpmsSum / globalSessionLogs.count;
+
+    const setT = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+    setT('sessionNDCG', avgNDCG.toFixed(4));
+    setT('sessionMRR', avgMRR.toFixed(4));
+    setT('sessionQpMS', avgQpMS.toFixed(4));
+
+    // Dynamic Letter Grade
+    const gpaEl = document.getElementById('sessionGPA');
+    if (gpaEl) {
+        if (avgNDCG > 0.8) gpaEl.textContent = 'A+';
+        else if (avgNDCG > 0.6) gpaEl.textContent = 'A';
+        else if (avgNDCG > 0.4) gpaEl.textContent = 'B';
+        else if (avgNDCG > 0.2) gpaEl.textContent = 'C';
+        else gpaEl.textContent = 'D';
+    }
+}
+
+function updatePRCurve(results, judgedIds) {
+    if (!prCurveChart) return;
+    
+    let points = [];
+    let hits = 0;
+    const totalRel = judgedIds.size;
+    
+    if (totalRel === 0) {
+        prCurveChart.data.datasets[0].data = [{x:0, y:1}, {x:1, y:0}];
+        prCurveChart.update();
+        return;
+    }
+
+    results.forEach((el, index) => {
+        const box = el.querySelector('.relevance-toggle input');
+        if (!box) return;
+        const docId = box.dataset.docId;
+        const rank = index + 1;
+        if (judgedIds.has(docId)) {
+            hits++;
+            const precision = hits / rank;
+            const recall = hits / totalRel;
+            points.push({ x: recall, y: precision });
+        }
+    });
+
+    points.sort((a,b) => a.x - b.x);
+    if (points.length > 0) points.unshift({ x: 0, y: points[0].y });
+
+    prCurveChart.data.datasets[0].data = points;
+    prCurveChart.update();
+}
+
+// === THESIS HUB: DYNAMIC RE-RANKING (NEW) ===
+function handleAlphaSimulation() {
+    const range = document.getElementById('alphaSimulationRange');
+    const alphaDisp = document.getElementById('alphaValueDisplay');
+    if (!range || !alphaDisp) return;
+
+    range.addEventListener('input', (e) => {
+        const alpha = parseFloat(e.target.value);
+        alphaDisp.textContent = `α = ${alpha.toFixed(2)}`;
+        
+        const currentModalBtn = document.querySelector('button[onclick="showSessionAnalysis(this)"]');
+        if (!currentModalBtn) return;
+        
+        const container = currentModalBtn.closest('.tab-content') || document;
+        const resultItems = Array.from(document.querySelectorAll('.result-item'));
+        
+        if (resultItems.length === 0) return;
+
+        const simulated = resultItems.map(item => {
+            const btn = item.querySelector('.analysis-btn');
+            if(!btn) return null;
+            const d = btn.dataset;
+            const sem = d.sem !== 'N/A' ? parseFloat(d.sem) : 0;
+            const key = d.key !== 'N/A' ? parseFloat(d.key) : 0;
+            const simScore = (alpha * sem) + ((1 - alpha) * key);
+            return {
+                id: d.docId,
+                title: item.querySelector('.result-title span')?.textContent || "Doc #" + d.docId,
+                score: simScore,
+                originalRank: parseInt(item.dataset.rank || 0),
+                isRel: judgedDocs.has(d.docId)
+            };
+        }).filter(x => x !== null);
+
+        simulated.sort((a,b) => b.score - a.score);
+        renderRerankPreview(simulated);
+    });
+}
+
+function renderRerankPreview(list) {
+    const previewList = document.getElementById('rerankPreviewList');
+    if (!previewList) return;
+
+    previewList.innerHTML = list.map((item, idx) => `
+        <div class="d-flex align-items-center justify-content-between p-2 x-small border-bottom ${item.isRel ? 'bg-success-subtle border-success' : ''}">
+            <div class="d-flex align-items-center gap-2 overflow-hidden">
+                <span class="badge bg-secondary font-monospace" style="font-size: 8px;">#${idx+1}</span>
+                <div class="text-truncate" style="max-width: 140px; font-weight: 500;">${item.title}</div>
+            </div>
+            <div class="text-end ms-2">
+                <div class="fw-bold text-primary" style="font-size: 9px;">${item.score.toFixed(3)}</div>
+                <div class="text-muted" style="font-size: 7px;">Prev Rank: ${item.originalRank || '-'}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function initPRCurveChart() {
+    const ctx = document.getElementById('prCurveChart');
+    if (!ctx) return;
+    prCurveChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Precision-Recall',
+                data: [],
+                borderColor: 'rgb(13, 202, 240)',
+                backgroundColor: 'rgba(13, 202, 240, 0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4
+            }]
+        },
+        options: {
+            scales: {
+                x: { type: 'linear', min: 0, max: 1.0, title: { display: true, text: 'Recall', font: { size: 9 } } },
+                y: { min: 0, max: 1.0, title: { display: true, text: 'Precision', font: { size: 9 } } }
+            },
+            plugins: { legend: { display: false } },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
 // --- Chart.js Initialization ---
 document.addEventListener('DOMContentLoaded', function() {
-    // Initial render
-    // renderResults(fakeResults);
-    
-    // Init Charts
+    // 1. Initialize Charts
     initRadarChart();
     initComparisonChart();
-    initLatencyChart();
+    initPRCurveChart();
+    handleAlphaSimulation();
 
-    // Trigger AI Answer if results exist AND AI is enabled
+    // 2. Render Markdown in Search Results (if present)
+    if (typeof parseMarkdown === 'function') {
+        document.querySelectorAll('.result-content').forEach(el => {
+            // Only parse if not already a complex HTML block (e.g. from Assistant)
+            if (!el.closest('.assistant-chat-bot')) {
+                const raw = el.innerHTML.trim(); // Trim to prevent indented code blocks
+                if (raw) el.innerHTML = parseMarkdown(raw);
+            }
+        });
+    }
+
+    // 3. Trigger AI Answer if results exist AND AI is enabled
     const items = document.querySelectorAll('.result-item');
     if (items.length > 0 && window.ENABLE_AI) {
         triggerAIAnswer();
@@ -787,12 +959,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-// --- Chart.js Globals ---
-
-// --- Chart.js Globals ---
 let radarChart = null;
 let comparisonChart = null;
-let latencyChart = null;
+let prCurveChart = null;
 
 function initRadarChart() {
     const ctx = document.getElementById('scoreRadarChart');
@@ -817,7 +986,8 @@ function initRadarChart() {
         options: {
             elements: { line: { tension: 0.3 } },
             scales: { r: { beginAtZero: true, max: 1.0, ticks: { display: false } } },
-            plugins: { legend: { display: false } }
+            plugins: { legend: { display: false } },
+            maintainAspectRatio: false
         }
     });
 }
@@ -832,11 +1002,11 @@ function initComparisonChart() {
             labels: ['Semantic', 'Keyword', 'Hybrid (You)'],
             datasets: [{
                 label: 'NDCG@10',
-                data: [0, 0, 0], // placeholders
+                data: [0, 0, 0],
                 backgroundColor: [
-                    'rgba(54, 162, 235, 0.6)', // Semantic (Blue)
-                    'rgba(255, 193, 7, 0.6)',  // Keyword (Yellow)
-                    'rgba(25, 135, 84, 0.8)'   // Hybrid (Green)
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(255, 193, 7, 0.6)',
+                    'rgba(25, 135, 84, 0.8)'
                 ],
                 borderColor: [
                     'rgb(54, 162, 235)',
@@ -847,7 +1017,7 @@ function initComparisonChart() {
             }]
         },
         options: {
-            indexAxis: 'y', // Horizontal bars
+            indexAxis: 'y',
             scales: {
                 x: { beginAtZero: true, max: 1.0, title: { display: true, text: 'NDCG@10 Score' } }
             },
@@ -867,58 +1037,6 @@ function initComparisonChart() {
     });
 }
 
-function initLatencyChart() {
-    const ctx = document.getElementById('latencyStackChart');
-    if (!ctx) return;
-
-    latencyChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Latency'],
-            datasets: [
-                {
-                    label: 'Semantic',
-                    data: [0],
-                    backgroundColor: 'rgba(54, 162, 235, 0.8)', // Primary
-                    barThickness: 10
-                },
-                {
-                    label: 'Keyword',
-                    data: [0],
-                    backgroundColor: 'rgba(255, 193, 7, 0.8)', // Warning
-                    barThickness: 10
-                },
-                {
-                    label: 'Fusion',
-                    data: [0],
-                    backgroundColor: 'rgba(108, 117, 125, 0.8)', // Secondary
-                    barThickness: 10
-                }
-            ]
-        },
-        options: {
-            indexAxis: 'y',
-            scales: {
-                x: { stacked: true, display: false },
-                y: { stacked: true, display: false }
-            },
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': ' + context.parsed.x.toFixed(2) + ' ms';
-                        }
-                    }
-                }
-            },
-            responsive: true,
-            maintainAspectRatio: false,
-            layout: { padding: 0 }
-        }
-    });
-}
-
 window.updateComparisonChart = function(sem, key, hybrid) {
     if (comparisonChart) {
         comparisonChart.data.datasets[0].data = [sem, key, hybrid];
@@ -926,29 +1044,12 @@ window.updateComparisonChart = function(sem, key, hybrid) {
     }
 };
 
-window.updateLatencyChart = function(semMs, keyMs, fuseMs) {
-    if (latencyChart) {
-        latencyChart.data.datasets[0].data = [semMs];
-        latencyChart.data.datasets[1].data = [keyMs];
-        latencyChart.data.datasets[2].data = [fuseMs];
-        latencyChart.update();
-    }
-};
-
 function updateRadar(d) {
     if (!radarChart) return;
-    
-    // Parse values safely
     const semVal = d.sem !== 'N/A' ? parseFloat(d.sem) : 0;
     const keyVal = d.key !== 'N/A' ? parseFloat(d.key) : 0;
     const keyNorm = Math.min(1.0, keyVal / 3.0); 
 
-    radarChart.data.datasets[0].data = [
-        semVal,
-        keyNorm,
-        0.5, // Mock Date
-        0.8, // Mock Lang
-        0.3  // Mock Pop
-    ];
+    radarChart.data.datasets[0].data = [semVal, keyNorm, 0.5, 0.8, 0.3];
     radarChart.update();
 }

@@ -172,6 +172,8 @@
   z-index: 100; /* Main results layer */
   max-width: 90%;
   flex-grow: 1;
+  min-width: 0; /* CRITICAL: Prevent flex child from growing beyond parent width */
+  width: 100%;
 }
 
 .response-header {
@@ -194,6 +196,8 @@
   background: none !important;
   border: none !important;
   transition: none;
+  min-width: 0;
+  width: 100%;
 }
 
 .result-title {
@@ -215,6 +219,17 @@
   color: #374151;
   line-height: 1.6;
   margin: 0.6rem 0;
+  overflow-wrap: break-word; /* Ensure long words break */
+  word-break: break-word;
+}
+
+/* Headings inside search results (if any) */
+.result-content h1, .result-content h2, .result-content h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
 }
 
 .result-meta {
@@ -248,25 +263,29 @@
   color: #991b1b;
 }
 
-/* Assistant Markdown Styling */
-.assistant-content {
+/* Assistant & AI Markdown Styling */
+.assistant-content, .ai-answer-text {
     line-height: 1.7;
+    overflow-wrap: break-word; /* Prevent long words going out */
+    word-break: break-word;
 }
 
-.assistant-content p {
+.assistant-content p, .ai-answer-text p {
     margin-bottom: 1rem;
 }
 
-.assistant-content h1, .assistant-content h2, .assistant-content h3 {
-    margin-top: 1.5rem;
+.assistant-content h1, .assistant-content h2, .assistant-content h3,
+.ai-answer-text h1, .ai-answer-text h2, .ai-answer-text h3 {
+    margin-top: 1.25rem;
     margin-bottom: 0.75rem;
     font-weight: 700;
     color: #111827;
+    line-height: 1.3;
 }
 
-.assistant-content h1 { font-size: 1.3rem; }
-.assistant-content h2 { font-size: 1.15rem; }
-.assistant-content h3 { font-size: 1.05rem; }
+.assistant-content h1, .ai-answer-text h1 { font-size: 1.25rem; }
+.assistant-content h2, .ai-answer-text h2 { font-size: 1.1rem; }
+.assistant-content h3, .ai-answer-text h3 { font-size: 1.0rem; }
 
 .assistant-content ul, .assistant-content ol {
     margin-bottom: 1rem;
@@ -322,12 +341,6 @@
     width: 4px;
     height: 100%;
     background: linear-gradient(to bottom, #111827, #6b7280);
-}
-
-.ai-answer-text {
-    font-size: 1rem;
-    line-height: 1.7;
-    color: #1f2937;
 }
 
 .ai-answer-text strong {
@@ -391,6 +404,7 @@ pre {
     font-family: 'JetBrains Mono', 'Fira Code', monospace;
     font-size: 0.9rem;
     line-height: 1.5;
+    max-width: 100%; /* Hard limit */
 }
 
 pre code {
@@ -1134,6 +1148,8 @@ body.modal-open {
   font-size: 0.975rem;
   line-height: 1.7;
   color: #1f2937;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .ai-research-footer {
@@ -1835,10 +1851,9 @@ html {
     background: #ffffff !important;
     padding: 0.5rem;
     min-width: 160px;
-    z-index: 5000 !important; /* Extremely high to beat any sibling box */
+    z-index: 1060; /* Just above modals (1055) */
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-    opacity: 1 !important;
-    visibility: visible !important;
+    /* Removed forced visibility/opacity to let Bootstrap handle it via .show */
 }
 
 .dropdown-item {
@@ -2043,3 +2058,66 @@ body.modal-open .modal-backdrop:last-of-type {
 
 
 
+
+/* === Research Analytics Hub (Thesis v4) === */
+#analysisModal .modal-xl {
+    max-width: 1140px;
+}
+
+#analysisModal .nav-pills .nav-link {
+    color: #6c757d;
+    font-weight: 600;
+    font-size: 11px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+#analysisModal .nav-pills .nav-link.active {
+    background-color: #0dcaf0 !important;
+    color: white !important;
+    border-color: #0dcaf0 !important;
+}
+
+#analysisModal .nav-pills .nav-link:hover:not(.active) {
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+.x-small {
+    font-size: 10px !important;
+}
+
+.ls-1 {
+    letter-spacing: 1px;
+}
+
+/* Alpha Rerank Simulation List */
+#rerankPreviewList::-webkit-scrollbar {
+    width: 4px;
+}
+#rerankPreviewList::-webkit-scrollbar-track {
+    background: transparent;
+}
+#rerankPreviewList::-webkit-scrollbar-thumb {
+    background: #dee2e6;
+    border-radius: 10px;
+}
+#rerankPreviewList .bg-success-subtle {
+    border-left: 3px solid #198754;
+}
+
+/* PR Curve Chart Card */
+#prCurveChart {
+    filter: drop-shadow(0 4px 6px rgba(13, 202, 240, 0.1));
+}
+
+/* GPA Badge Pulse */
+#sessionGPA {
+    text-shadow: 0 0 15px rgba(13, 202, 240, 0.3);
+    animation: gpaPulse 3s infinite ease-in-out;
+}
+
+@keyframes gpaPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.9; }
+}

@@ -8,7 +8,7 @@ from typing import List, Optional
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse, FileResponse, JSONResponse
+from fastapi.responses import RedirectResponse, FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import uuid
@@ -488,10 +488,12 @@ def update_document(doc_id: int, request: UpdateRequest):
             language = row[1] or language
         if model is None:
             raise HTTPException(status_code=500, detail="Embedding model not loaded")
-        cleaned = clean_page_content(content)
-        cleaned = re.sub(r"\s+", " ", cleaned).strip()
-        embedding = model.encode(cleaned).tolist()
-        ok = update_record(conn, cursor, doc_id, cleaned, language, embedding)
+        
+        # High-Fidelity: Skip destructive re.sub(r"\s+", " ", ...) 
+        # cleaned = clean_page_content(content)
+        # cleaned = re.sub(r"\s+", " ", cleaned).strip()
+        embedding = model.encode(content).tolist()
+        ok = update_record(conn, cursor, doc_id, content, language, embedding)
         conn.commit()
         return {"updated": bool(ok), "doc_id": doc_id}
     except Exception as e:
@@ -514,12 +516,12 @@ def insert_new_document(request: InsertRequest):
             model = get_model()
         content = request.content
         language = request.language or "en"
-        cleaned = clean_page_content(content)
-        # insert_document will normalize and detect language; we pass cleaned
-        doc_id = insert_document(cleaned, conn, cursor, model, commit=True, silent=True)
+        # High-Fidelity: Skip aggressive cleaning/normalization for manual entries
+        doc_id = insert_document(content, conn, cursor, model, commit=True, silent=True, preserve_fidelity=True)
         if not doc_id:
             raise HTTPException(status_code=500, detail="Insert failed")
         return {"inserted": True, "doc_id": doc_id}
+
     except Exception as e:
         conn.rollback()
         raise HTTPException(status_code=500, detail=f"Insert failed: {str(e)}")

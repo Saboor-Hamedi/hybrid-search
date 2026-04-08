@@ -1,28 +1,46 @@
 /**
  * Simple Regex-based Markdown Parser
  */
+/**
+ * Advanced Markdown Parser powered by Marked.js
+ */
 function parseMarkdown(text) {
-    text = text.replace(/```(\w*)\n?([\s\S]*?)```/g, (match, lang, code) => {
-        return `
-        <div class="code-block-container">
-            <div class="code-block-header">
-                <span>${lang || 'code'}</span>
-                <button class="copy-code-btn" onclick="copyCode(this)">
-                    <i class="bi bi-clipboard"></i> Copy
-                </button>
-            </div>
-            <pre><code>${code.trim()}</code></pre>
-        </div>`;
-    });
-    text = text.replace(/^### (.*$)/gim, '<h5 class="fw-bold mt-2">$1</h5>');
-    text = text.replace(/^## (.*$)/gim, '<h4 class="fw-bold mt-2">$1</h4>');
-    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    text = text.replace(/`(.*?)`/g, '<code class="bg-light px-1 rounded">$1</code>');
-    text = text.replace(/^\s*-\s+(.*)$/gm, '<div class="d-flex align-items-start mb-1"><span class="me-2 text-muted">•</span><span>$1</span></div>');
-    text = text.replace(/^\s*(\d+)\.\s+(.*)$/gm, '<div class="d-flex align-items-start mb-1"><span class="me-2 fw-bold text-muted">$1.</span><span>$2</span></div>');
-    text = text.replace(/\n/g, '<br>');
-    return text;
+    if (!text) return "";
+    const cleanSource = text.trim(); // TRIMMING prevents indented code blocks
+    
+    // Configure marked if available
+    if (window.marked) {
+        // Custom renderer for code blocks (consistent with assistant.js)
+        const renderer = new marked.Renderer();
+        renderer.code = function(arg1, arg2) {
+            // Handle newer marked versions where the first arg is an object {text, lang, ...}
+            const text = (typeof arg1 === 'object') ? arg1.text : arg1;
+            const lang = (typeof arg1 === 'object') ? (arg1.lang || 'code') : (arg2 || 'code');
+            
+            return `
+            <div class="code-block-container my-3">
+                <div class="code-block-header">
+                    <span>${lang}</span>
+                    <button class="copy-code-btn" onclick="copyCode(this)">
+                        <i class="bi bi-clipboard"></i> Copy
+                    </button>
+                </div>
+                <pre><code class="language-${lang}">${text}</code></pre>
+            </div>`;
+        };
+        
+        return marked.parse(cleanSource, {
+            renderer: renderer,
+            breaks: true,
+            gfm: false // Disable indented code blocks by focusing only on GFM
+        });
+    }
+
+    // Fallback to basic regex if marked is missing
+    let clean = cleanSource.replace(/```(\w*)\n?([\s\S]*?)```/g, '<pre><code>$2</code></pre>');
+    clean = clean.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    clean = clean.replace(/\n/g, '<br>');
+    return clean;
 }
 
 async function triggerAIAnswer(turnId = null) {
@@ -159,7 +177,8 @@ async function triggerAIAnswer(turnId = null) {
 
                     <button id="${copyBtnId}" class="btn btn-sm text-secondary border-0 d-flex align-items-center bg-transparent p-0" 
                             style="min-width: 65px; justify-content: end;" title="Copy to clipboard"
-                            onclick="copyToClipboard(this, \`${finalMarkdown.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)">
+                            data-content="${finalMarkdown.replace(/"/g, '&quot;')}"
+                            onclick="copyToClipboard(this, this.dataset.content)">
                         <i class="bi bi-copy me-1"></i> Copy
                     </button>
                 </div>
