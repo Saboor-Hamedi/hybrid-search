@@ -43,264 +43,19 @@
       <div class="messages-wrapper">
         <div id="historyArea">
         {% block content %}
-        {% if query %}
-          <!-- User Query Message -->
-          <div class="message message-user-turn d-flex gap-3">
-            <div class="chat-avatar user-avatar">
-              <i class="bi bi-person-fill"></i>
-            </div>
-            <div class="query-container">
-              <div class="message-query">
-                {{ query }}
-              </div>
-              <div class="user-actions">
-                  <button class="user-action-btn" 
-                          onclick="copyToClipboard(this, this.dataset.query)" 
-                          data-query="{{ query }}"
-                          title="Copy Prompt">
-                      <i class="bi bi-copy"></i>
-                  </button>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Search Results Response -->
-          <div class="message message-ai-turn d-flex gap-3">
-            <div class="chat-avatar ai-avatar">
-              <i class="bi bi-robot"></i>
-            </div>
-            <div class="message-response flex-grow-1">
-              {% if results %}
-                <div class="response-header d-flex justify-content-between align-items-center mb-3">
-                    <span class="text-muted small">{{ stats.returned }} results found in {{ stats.query_time_ms }}ms</span>
-                    <button class="btn btn-sm btn-outline-primary" style="border-radius: 5px; font-size: 0.8rem;"
-                    onclick="showSessionAnalysis(this)"
-                    data-p="{{ stats.precision_at_k }}"
-                    data-r="{{ stats.recall_at_k }}"
-                    data-map="{{ stats.map_score }}"
-                    data-ndcg="{{ stats.ndcg_score }}"
-                    data-qpms="{{ stats.qpms }}"
-                    data-latency="{{ stats.query_time_ms }}"
-                    data-router="{{ stats.router_accuracy }}"
-                    data-choice="{{ stats.router_choice }}"
-                    data-prompt="{{ query }}"
-                    data-rank-debug='{{ stats.rank_debug | tojson | safe if stats.rank_debug else "{}" }}'
-                    data-latency-stats='{{ stats.latency_stats | tojson | safe if stats.latency_stats else "{}" }}'>
-                    <i class="bi bi-bar-chart-fill"></i> Query Analysis
-                </button>
-                </div>
-
-
-
-                {% for r in results %}
-                <div class="result-item">
-                  <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="result-doc-id fw-bold text-muted small" style="letter-spacing: 0.5px;">#{{ r.doc_id }}</span>
-                    
-                    <div class="d-flex align-items-center gap-2">
-                        {% if mode == 'ltr' or use_mode == 'ltr' or use_ltr %}
-                        <span class="score-badge bg-dark text-white" style="background: linear-gradient(45deg, #111827, #374151); padding: 2px 8px; font-size: 0.75rem;">
-                            <i class="bi bi-stars"></i> AI: {{ "%.4f"|format(r.score) }}
-                        </span>
-                        {% endif %}
-
-                        <!-- Actions Dropdown -->
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-link text-muted p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" onclick="event.stopPropagation()">
-                                <i class="bi bi-three-dots-vertical"></i>
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3" style="font-size: 0.8rem;">
-                                <li>
-                                    <button class="dropdown-item d-flex align-items-center gap-2" onclick="showAnalysis(this)"
-                                        data-doc-id="{{ r.doc_id }}"
-                                        data-score="{{ r.score }}"
-                                        data-sem="{{ r.semantic_score if r.semantic_score is not none else 'N/A' }}"
-                                        data-key="{{ r.bm25_score if r.bm25_score is not none else 'N/A' }}"
-                                        data-sem-w="{{ r.semantic_weight if r.semantic_weight is not none else 'N/A' }}"
-                                        data-key-w="{{ r.bm25_weight if r.bm25_weight is not none else 'N/A' }}"
-                                        data-strategy="{{ r.strategy|default('Linear') }}"
-                                        data-mode="{{ r.origin_mode|default(mode) }}"
-                                        data-prompt="{{ query }}"
-                                        data-content="{{ r.content[:4000] }}"
-                                        data-latency="{{ stats.query_time_ms }}">
-                                        <i class="bi bi-graph-up text-info"></i> Full Analysis
-                                    </button>
-                                </li>
-                                <li>
-                                    <button class="dropdown-item d-flex align-items-center gap-2" onclick="openEditModal('{{ r.doc_id }}', this.dataset.content, '{{ query }}', '{{ mode }}', '{{ r.language }}')"
-                                        data-content="{{ r.content }}">
-                                        <i class="bi bi-pencil text-primary"></i> Edit Entry
-                                    </button>
-                                </li>
-                                <li>
-                                    <button class="dropdown-item d-flex align-items-center gap-2" onclick="copyToClipboard(this, this.closest('.result-item').querySelector('.result-content').innerText)">
-                                        <i class="bi bi-copy"></i> Copy Content
-                                    </button>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <button class="dropdown-item d-flex align-items-center gap-2 text-danger" onclick="deleteRecord('{{ r.doc_id }}')">
-                                        <i class="bi bi-trash"></i> Delete
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                  </div>
-                  
-                  
-                  <div class="result-content mb-2" title="Double click to copy">
-                    {{ r.content_highlighted | safe }}
-                  </div>
-                  <div class="result-meta d-flex justify-content-between align-items-end">
-                    <div class="d-flex flex-column gap-1">
-                        <div class="d-flex align-items-center gap-2 text-muted x-small" style="font-size: 0.7rem;">
-                            <span>{{ r.language|upper }}</span>
-                            <span class="text-secondary opacity-50">•</span>
-                            <span class="human-date" data-date="{{ r.created_at }}">{{ r.created_at }}</span>
-                            <label class="relevance-toggle ms-1" title="Mark as Relevant (Ground Truth)">
-                                <input type="checkbox" onchange="toggleRelevance(this)" data-doc-id="{{ r.doc_id }}">
-                                Relevant?
-                            </label>
-                        </div>
-                        
-                        <div class="rank-badges">
-                            {% if r.semantic_score is not none or r.semantic_rank %}
-                            <span class="rank-badge rank-badge-s" title="Semantic Info">
-                                <i class="bi bi-brain"></i> 
-                                {{ 'S:#' ~ r.semantic_rank if r.semantic_rank else 'S' }}
-                                {% if r.semantic_score is not none %}({{ "%.3f"|format(r.semantic_score) }}){% endif %}
-                            </span>
-                            {% endif %}
-                            
-                            {% if r.bm25_score is not none or r.bm25_rank %}
-                            <span class="rank-badge rank-badge-k" title="Keyword Info">
-                                <i class="bi bi-key"></i> 
-                                {{ 'K:#' ~ r.bm25_rank if r.bm25_rank else 'K' }}
-                                {% if r.bm25_score is not none %}({{ "%.3f"|format(r.bm25_score) }}){% endif %}
-                            </span>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                  </div>
-                </div>
-                {% endfor %}
-
-                <!-- AI Research Summary -->
-                <div class="ai-research-box d-none mt-4">
-                    <div class="ai-research-header">
-                        <div class="loading-shimmer d-none spinner-ai me-2"></div>
-                        <span class="d-flex align-items-center gap-2">
-                             <i class="bi bi-robot"></i> <strong>AI Insight</strong>
-                        </span>
-                    </div>
-                    <div class="ai-research-body">
-                        <div class="ai-answer-text">
-                            <!-- Content will be streamed here -->
-                        </div>
-                    </div>
-                    <div class="ai-research-footer d-none pt-3 mt-3 border-top">
-                        <!-- Footer content -->
-                    </div>
-                </div>
-                
-
-              {% else %}
-                <div class="result-item py-2 border-bottom-0">
-                    <div class="d-flex align-items-baseline gap-2 mb-2 text-muted small">
-                         <strong>Search Assistant</strong>
-                    </div>
-                    <div class="result-content mb-0" style="font-size: 0.9rem; color: #6b7280; text-align: left;">
-                        No results found for "{{ query }}". Try adjusting your keywords or switching to <strong>Semantic</strong> mode.
-                    </div>
-                </div>
-              {% endif %}
-            </div>
-          </div>
+        {% if query is defined and query is not none and query != "" %}
+          {% include 'components/_search_results.html' %}
         {% else %}
-          <!-- Empty State / Welcome -->
-          <div class="empty-state">
-            <div class="empty-state-icon">
-              <i class="bi bi-chat-square-text"></i>
-            </div>
-            <div class="empty-state-title">Welcome to Hybrid Search</div>
-            <div class="empty-state-text">
-              Type your query below to search through documents using<br>
-              semantic embedding and keyword matching.
-            </div>
-            <div class="example-searches">
-              <span class="example-search">Machine learning trends</span>
-              <span class="example-search">Database optimization</span>
-              <span class="example-search">Python async/await</span>
-            </div>
-          </div>
+          {% include 'components/_welcome_screen.html' %}
         {% endif %}
+
         {% endblock %}
         </div>
       </div>
     </div>
 
     <!-- Input Area -->
-    <div class="input-area">
-      {% if not query %}
-      <div class="chat-hero">
-        <h1>What can I help you search for?</h1>
-      </div>
-      {% endif %}
-      <div class="input-wrapper">
-        <form method="POST" action="{{ url_for('home') }}" class="search-form" id="searchForm">
-          <div class="search-input-container">
-            <!-- PDF Upload Trigger -->
-            <input type="file" id="quickPdfInput" accept=".pdf" multiple style="display: none;">
-            <textarea 
-              name="query" 
-              class="search-input" 
-              placeholder="Ask me anything..." 
-              rows="1"
-              autofocus
-            ></textarea>
-            
-            <div class="input-footer">
-              <div class="search-options d-flex align-items-center gap-1">
-                <!-- Search Type Hidden State -->
-                <input type="hidden" name="search_type" id="activeSearchType" value="search">
-                <input type="hidden" name="mode" id="activeModeInput" value="{{ mode or 'hybrid' }}">
-                <input type="hidden" name="page_size" value="10">
-                <input type="checkbox" name="use_ai" id="aiToggle" value="on" {% if use_ai %}checked{% endif %} style="display: none;">
-                
-                <div class="search-type-toggle d-flex align-items-center gap-1 me-2">
-                  <button type="button" class="type-pill active" data-type="search" title="RAG Search Mode">
-                    <i class="bi bi-search"></i>
-                  </button>
-                  <button type="button" class="type-pill" data-type="assistant" title="Direct AI Chat">
-                    <i class="bi bi-robot"></i>
-                  </button>
-                </div>
-
-                <button type="button" class="btn-icon-small" onclick="openCreateModal()" title="Upload Documents">
-                  <i class="bi bi-paperclip"></i>
-                </button>
-
-                <button type="button" class="btn-icon-small" onclick="openSettings()" title="Search Preferences">
-                  <i class="bi bi-sliders"></i>
-                </button>
-              </div>
-
-              <!-- Send button -->
-              <button type="submit" class="search-btn">
-                <i class="bi bi-arrow-up-short"></i> 
-              </button>
-            </div>
-          </div>
-          
-          <input type="hidden" name="page" value="1">
-          <!-- Hidden Bindings for Advanced Search Params (Synced via Command Palette or defaults) -->
-          <input type="hidden" name="fusion_strategy" value="{{ fusion_strategy }}">
-          <input type="hidden" name="use_ltr" value="{{ 'on' if use_ltr else 'off' }}">
-        </form>
-      </div>
-    </div>
+    {% include 'components/_search_input.html' %}
     </div>
   </div>
 
@@ -320,7 +75,7 @@
   {% include 'components/modal_confirm.html' %}
 
   <!-- Settings Modal -->
-  {% include 'portion/setting_modal.html' %}
+  {% include 'components/setting_modal.html' %}
 
   <!-- Edit Modal -->
   {% include 'components/modal_edit.html' %}
