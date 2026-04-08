@@ -45,12 +45,10 @@ document
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Deleting...';
 
     try {
-      const response = await fetch(this.action, {
-        method: "POST",
-        body: new FormData(this),
-      });
+      // Use Industrial ApiService
+      const data = await ApiService.deleteDocument(docId, new FormData(this));
 
-      //  Success: Close modal and remove item from DOM
+      // Success: Close modal and remove item from DOM
       document.getElementById("quickDeleteModal").style.display = "none";
 
 

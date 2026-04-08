@@ -76,32 +76,8 @@ async function handleDynamicSearch(query, searchMode, page = 1) {
         const params = URLManager.buildCleanParams(state);
         URLManager.updateHistory(state);
 
-        const fetchParams = new URLSearchParams(params);
-        fetchParams.append('ajax', '1');
-
-        // Update URL only for main searches (page 1)
-        if (page === 1) {
-            window.history.pushState({}, '', `/?${params.toString()}`);
-        }
-
-        // 2. Fetch Results
-        const response = await fetch(`/?${fetchParams.toString()}`, {
-            headers: { 
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`Server returned status ${response.status}`);
-        }
-
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-            throw new Error('Server did not return JSON. Please check if you are logged out or if there is a server error.');
-        }
-
-        const data = await response.json();
+        // 2. Fetch Results via Industrial ApiService
+        const data = await ApiService.search(params);
 
         // 3. Render Results into THIS turn
         renderSearchResults(data, turnId);

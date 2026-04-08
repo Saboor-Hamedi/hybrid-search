@@ -1,17 +1,28 @@
-# ChatGPT-style Enhancements for Hybrid Search System
+# DRY Architecture & Hardening Roadmap
 
-To transform the current search-based system into a conversational, "ChatGPT-like" intelligence, we suggest the following 10 upgrades:
+This document outlines the strategic steps to transition the Hybrid Search codebase toward a more modular, "Don't Repeat Yourself" (DRY) architecture.
 
-1.  **Session-based Conversation Memory**: Currently the AI works like a "Goldfish" and forgets the previous message. We should implement a short-term memory (last 3-5 turns) that is sent back to the LLM during generation.
-2.  **Persistent Chat History (DB Logic)**: Create a `chat_messages` table in the database to store both User questions and AI answers permanently. This allows for long-term history and multi-day chat sessions.
-3.  [COMPLETED] **Streaming AI Responses (SSE)**: Instead of waiting for the full block of text to arrive, we should use Server-Sent Events (SSE) to "type" the answer word-by-word in real-time. (✅ Implemented in `rag.js` and `assistant.js`)
-4.  [PARTIAL] **Markdown & Syntax Highlighting**: Beautiful Markdown rendering and code blocks in AI answers. (✅ Implemented custom parser with code block "Copy" support in `rag.js`)
-5.  **Multi-turn RAG (Re-querying)**: Use the chat history to "rewrite" the user's latest query before searching.
-6.  **Stop / Interrupt Button**: Add a way for the user to "Stop" an AI response in the middle of generation.
-7.  **Conversation Sidebar**: Build a "History Sidebar" (like ChatGPT) to switch between different chat threads.
-8.  [COMPLETED] **Chat-First Input Muscle Memory**: Implement "Enter to Send" behavior to match industry-standard chat applications. (✅ Implemented in `chat_logic.js`)
-9.  [PARTIAL] **AI Personality / System Prompting**: Optimized the "Expert Academic Research Assistant" system prompt across all providers. (✅ Standardized in `LLMProvider.py`)
-10. **Clear/New Chat Functionality**: Provide a quick way to "Wipe the current memory" and start a clean state.
+## 1. API Service Layer (`/static/services/api.js`)
+Currently, `fetch` calls are scattered across `deleteRecord.js`, `search_dynamic.js`, and `assistant.js`.
+- **Action**: Centralize all backend communication into a single utility.
+- **Benefit**: Standardized error handling, automatic loading state management, and easier transition to newer API versions.
 
----
-*Progress tracked as of April 2026*
+## 2. Global Modal Manager (`/static/utils/modal_manager.js`)
+We are currently manually manipulating the DOM (swapping titles, icons, and buttons) each time we use the `quickDeleteModal`.
+- **Action**: Create a `ModalController` that accepts a JSON configuration (e.g., `{ title: '...', icon: '...', onConfirm: ... }`).
+- **Benefit**: Eliminates redundant DOM selection code and prevents "state leakage" (where old text persists in a new modal instance).
+
+## 3. UI/UX State Sync (`/static/utils/state_manager.js`)
+Control states (Search Mode, AI Toggle, LTR setting) are currently managed via fragmented `localStorage` calls and manual form inputs.
+- **Action**: Implement a "Single Source of Truth" that automatically synchronizes the DOM, LocalStorage, and the URL parameters.
+- **Benefit**: Guarantees that the UI always matches the URL and the user's saved preferences across refreshes without repetitive sync logic.
+
+## 4. CSS Design Tokens & Components (`/static/css/components/`)
+Many premium UI elements (modals, cards, badges) use inline styles or ad-hoc classes.
+- **Action**: Extract repeated styles (border-radius: 12px, shadow layouts, etc.) into a "Core Library" of CSS tokens and utility classes.
+- **Benefit**: Ensures a perfectly consistent aesthetic across the app and makes creating new components 3x faster.
+
+## 5. Template Modularization (`/templates/components/`)
+Main templates like `chat_base.html` are becoming complex through deep nesting.
+- **Action**: Continue fragmenting the UI into small, focused components (e.g., `search_input.html`, `results_list.html`).
+- **Benefit**: Improved readability and much faster manual audits.

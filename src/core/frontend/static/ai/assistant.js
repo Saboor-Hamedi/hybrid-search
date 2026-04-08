@@ -208,19 +208,13 @@ async function handleAssistantChat(message) {
     const aiApiKey = localStorage.getItem('ai_api_key') || '';
     const ollamaBaseUrl = localStorage.getItem('ollama_base_url') || 'http://localhost:11434';
 
-    const response = await fetch('/api/quick-chat-stream', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            message: message,
-            provider: aiProvider,
-            model: aiModel,
-            api_key: aiApiKey,
-            base_url: ollamaBaseUrl
-        })
+    const reader = await ApiService.assistantChatStream({ 
+        message: message,
+        provider: aiProvider,
+        model: aiModel,
+        api_key: aiApiKey,
+        base_url: ollamaBaseUrl
     });
-
-    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     
     const resultsArea = document.getElementById(typingId);
     const botMsgId = 'msg-' + (Date.now() + 1);
@@ -238,7 +232,6 @@ async function handleAssistantChat(message) {
     }
     
     const contentArea = resultsArea.querySelector('.assistant-content');
-    const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let fullReply = "";
 
@@ -296,20 +289,12 @@ async function saveToDatabase(btn) {
     btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...`;
 
     try {
-        const response = await fetch('/document/new_post', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: new URLSearchParams({
-                'content': rawContent,
-                'language': 'en',
-                'ajax': '1'
-            })
-        });
+        const payload = {
+            content: rawContent,
+            language: 'en'
+        };
 
-        const result = await response.json();
+        const result = await ApiService.saveDocument(payload);
         if (result.success) {
             btn.innerHTML = `<i class="bi bi-check-circle-fill"></i> Saved`;
             btn.classList.add('text-success');

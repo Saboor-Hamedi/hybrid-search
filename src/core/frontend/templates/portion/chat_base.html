@@ -349,6 +349,39 @@
         if (aiToggle) aiToggle.checked = isEnabled;
         if (modalAiToggle) modalAiToggle.checked = isEnabled;
     }
+    
+    // SAVE Toggle state on change
+    document.addEventListener('change', function(e) {
+        if (e.target && (e.target.id === 'aiToggle' || e.target.id === 'modalAiToggle')) {
+            const isEnabled = e.target.checked;
+            localStorage.setItem('ai-summarization-enabled', isEnabled);
+            window.ENABLE_AI = isEnabled;
+            
+            // Sync other toggle if it exists
+            const otherId = e.target.id === 'aiToggle' ? 'modalAiToggle' : 'aiToggle';
+            const other = document.getElementById(otherId);
+            if (other) other.checked = isEnabled;
+            
+            // IMMEDIATE URL SYNC: Ensure the address bar reflects the preference
+            if (typeof URLManager !== 'undefined') {
+                const query = document.querySelector('.search-input')?.value || '';
+                const mode = document.getElementById('activeModeInput')?.value || 'hybrid';
+                const fusion = document.querySelector('input[name="fusion_strategy"]')?.value || 'linear';
+                const ltr = document.querySelector('input[name="use_ltr"]')?.checked || false;
+                
+                URLManager.updateHistory({
+                    query: query,
+                    mode: mode,
+                    fusion: fusion,
+                    ltr: ltr,
+                    ai: isEnabled,
+                    page: 1
+                });
+            }
+            
+            console.log(`AI Summarization ${isEnabled ? 'Enabled' : 'Disabled'}`);
+        }
+    });
 
 /**
  * Generic Helper to show the Industrial Confirmation Modal
@@ -431,6 +464,7 @@ function startNewSession() {
   <script src="{{ url_for('static', filename='sidebar.js') }}"></script>
   <script src="{{ url_for('static', filename='export/logic.js') }}"></script>
   <script src="{{ url_for('static', filename='url_manager.js') }}"></script>
+  <script src="{{ url_for('static', filename='api_service.js') }}"></script>
   <script src="{{ url_for('static', filename='chat_logic.js') }}"></script>
   <script src="{{ url_for('static', filename='deleteRecord.js') }}"></script>
 
