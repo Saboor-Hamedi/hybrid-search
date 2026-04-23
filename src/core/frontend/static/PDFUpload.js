@@ -236,10 +236,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         if (pdfUploadBtn) {
-            pdfUploadBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Finish & Reload';
+            pdfUploadBtn.innerHTML = '<i class="bi bi-check-lg"></i> Finish & Reload';
             pdfUploadBtn.disabled = false;
+            pdfUploadBtn.type = 'button'; 
             pdfUploadBtn.style.display = 'block';
-            pdfUploadBtn.onclick = () => window.location.reload();
+            pdfUploadBtn.onclick = (e) => {
+                e.preventDefault();
+                window.location.reload();
+            };
         }
 
         // Auto-close toast after 5s
@@ -251,8 +255,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (pdfUploadBtn) {
             pdfUploadBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Reload & Reset';
             pdfUploadBtn.disabled = false;
+            pdfUploadBtn.type = 'button';
             pdfUploadBtn.style.display = 'block';
-            pdfUploadBtn.onclick = () => window.location.reload();
+            pdfUploadBtn.onclick = (e) => {
+                e.preventDefault();
+                window.location.reload();
+            };
         }
     }
   }
