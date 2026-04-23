@@ -56,6 +56,31 @@ window.Notify = (function() {
             .notify-progress { height: 4px; background: #e5e7eb; border-radius: 2px; margin-top: 8px; overflow: hidden; display: none; }
             .notify-progress-bar { height: 100%; background: #2563eb; width: 0%; transition: width 0.3s ease; }
             .notify-toast.success .notify-progress-bar { background: #10b981; }
+
+            /* Simulator Insight Card */
+            .sim-insight-card {
+                position: fixed;
+                z-index: 12000;
+                width: 320px;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 15px 35px -5px rgba(0,0,0,0.2);
+                border: 1px solid #e5e7eb;
+                padding: 16px;
+                display: none;
+                pointer-events: none;
+                transition: opacity 0.2s, transform 0.2s;
+                transform: translateY(10px);
+                opacity: 0;
+            }
+            .sim-insight-card.show {
+                display: block !important;
+                opacity: 1;
+                transform: translateY(0);
+            }
+            .insight-header { border-bottom: 1px solid #f3f4f6; margin-bottom: 10px; padding-bottom: 8px; }
+            .insight-score-row { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 10px; }
+            .insight-pill { padding: 2px 6px; border-radius: 4px; font-weight: bold; }
         `;
         document.head.appendChild(style);
     }

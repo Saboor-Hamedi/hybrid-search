@@ -869,7 +869,20 @@ function handleAlphaSimulation() {
         const resultItems = Array.from(document.querySelectorAll('.result-item'));
         if (resultItems.length === 0) return;
 
-        // 1. Calculate Simulated Scores with Normalization
+        // 1. Dynamic Normalization: Find the max scores in the current set to balance the slider
+        let maxSem = 0.1;
+        let maxKey = 0.1;
+        resultItems.forEach(item => {
+            const d = item.querySelector('.analysis-btn')?.dataset;
+            if (d) {
+                const s = d.sem !== 'N/A' ? parseFloat(d.sem) : 0;
+                const k = d.key !== 'N/A' ? parseFloat(d.key) : 0;
+                if (s > maxSem) maxSem = s;
+                if (k > maxKey) maxKey = k;
+            }
+        });
+
+        // 2. Calculate Simulated Scores
         const simulated = resultItems.map((item, originalIndex) => {
             const btn = item.querySelector('.analysis-btn') || item.querySelector('button[onclick^="showAnalysis"]');
             if(!btn) return null;
@@ -878,50 +891,150 @@ function handleAlphaSimulation() {
             const sem = d.sem !== 'N/A' ? parseFloat(d.sem) : 0;
             const key = d.key !== 'N/A' ? parseFloat(d.key) : 0;
             
-            // Normalize: Semantic is already 0-1. For Keyword (BM25), we assume ~15 is a strong score.
-            const keyNorm = Math.min(1.0, key / 15.0);
-            const simScore = (alpha * sem) + ((1 - alpha) * keyNorm);
+            // Normalize relative to the best in this specific search
+            const semNorm = sem / (maxSem || 1);
+            const keyNorm = key / (maxKey || 1);
+            
+            // HARD ZEROING: Force absolute 0 if alpha is at edges
+            const semContrib = alpha === 0 ? 0 : (alpha * semNorm);
+            const keyContrib = alpha === 1 ? 0 : ((1 - alpha) * keyNorm);
+            const simScore = semContrib + keyContrib;
             
             return {
                 id: d.docId,
                 title: item.querySelector('.result-title span')?.textContent || "Doc #" + d.docId,
                 score: simScore,
+                semContrib: semContrib,
+                keyContrib: keyContrib,
                 originalRank: originalIndex + 1,
-                isRel: judgedDocs.has(d.docId)
+                isRel: judgedDocs.has(d.docId),
+                snippet: d.content ? d.content.substring(0, 180).replace(/"/g, '&quot;') + "..." : "No preview available"
             };
         }).filter(x => x !== null);
 
         // 2. Sort by Simulated Score
         simulated.sort((a,b) => b.score - a.score);
         
-        // 3. Render with Rank Shift indicators
+        // 3. Render with Rank Shift indicators & Contribution Bars
         renderRerankPreview(simulated);
     });
 }
 
+// === DYNAMIC INSIGHT CARD SYSTEM (INTEGRATED) ===
+const InsightCard = (function() {
+    let card = null;
+    const styles = `
+        .sim-insight-card {
+            position: fixed !important;
+            z-index: 200000 !important;
+            width: 320px;
+            background: white !important;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3) !important;
+            border: 1px solid #e2e8f0 !important;
+            padding: 16px;
+            display: none;
+            pointer-events: none;
+            left: 0; top: 0;
+            font-family: sans-serif;
+        }
+        .sim-insight-card.show { display: block !important; opacity: 1 !important; }
+        .insight-header { border-bottom: 1px solid #f1f5f9; margin-bottom: 10px; padding-bottom: 8px; }
+        .insight-score-row { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 11px; color: #64748b; }
+        .insight-pill { padding: 2px 6px; border-radius: 4px; font-weight: bold; font-size: 10px; }
+        .insight-snippet { font-size: 11px; line-height: 1.4; color: #475569; font-style: italic; background: #f8fafc; padding: 8px; border-radius: 6px; border-left: 3px solid #cbd5e1; }
+    `;
+
+    function init() {
+        if (!document.getElementById('insight-styles')) {
+            const s = document.createElement('style');
+            s.id = 'insight-styles'; s.innerHTML = styles;
+            document.head.appendChild(s);
+        }
+        if (!card) {
+            card = document.createElement('div');
+            card.className = 'sim-insight-card';
+            document.body.appendChild(card);
+        }
+    }
+
+    return {
+        show: function(e, data) {
+            init();
+            if (!data) return;
+            card.innerHTML = `
+                <div class="insight-header d-flex justify-content-between align-items-center">
+                    <span class="badge bg-dark" style="font-size: 9px;">DOC #${data.id}</span>
+                    <span class="text-primary fw-bold" style="font-size: 11px;">MATCH SCORE: ${data.score.toFixed(4)}</span>
+                </div>
+                <div class="mb-3">
+                    <div class="insight-score-row">
+                        <span><i class="bi bi-brain-fill text-info me-2"></i>AI Context Influence</span>
+                        <span class="insight-pill bg-info-subtle text-info">${(data.semPct || 0).toFixed(1)}%</span>
+                    </div>
+                    <div class="insight-score-row">
+                        <span><i class="bi bi-key-fill text-warning me-2"></i>Keyword Frequency</span>
+                        <span class="insight-pill bg-warning-subtle text-warning">${(data.keyPct || 0).toFixed(1)}%</span>
+                    </div>
+                    <div class="progress mt-2" style="height: 6px; border-radius: 10px; background: #f1f5f9; overflow: hidden;">
+                        <div class="progress-bar bg-info" style="width: ${data.semPct}%"></div>
+                        <div class="progress-bar bg-warning" style="width: ${data.keyPct}%"></div>
+                    </div>
+                </div>
+                <div class="insight-snippet">"${data.snippet}"</div>
+                <div class="mt-2 pt-2 border-top x-small text-muted d-flex gap-3 justify-content-center">
+                    <span><span class="badge bg-info p-1 me-1" style="width:10px;height:10px;display:inline-block"></span> AI</span>
+                    <span><span class="badge bg-warning p-1 me-1" style="width:10px;height:10px;display:inline-block"></span> Keywords</span>
+                </div>
+            `;
+            let x = e.clientX + 20; let y = e.clientY - 40;
+            if (x + 320 > window.innerWidth) x = e.clientX - 340;
+            if (y + 180 > window.innerHeight) y = window.innerHeight - 190;
+            card.style.left = x + 'px'; card.style.top = y + 'px';
+            card.classList.add('show');
+        },
+        hide: function() { if (card) card.classList.remove('show'); }
+    };
+})();
+
+// Global simulation store
+window.simDataStore = {};
+
 function renderRerankPreview(list) {
     const previewList = document.getElementById('rerankPreviewList');
     if (!previewList) return;
+    window.simDataStore = {};
 
     previewList.innerHTML = list.map((item, idx) => {
         const newRank = idx + 1;
         const shift = item.originalRank - newRank;
-        let shiftHtml = '';
-        
-        if (shift > 0) shiftHtml = `<span class="text-success"><i class="bi bi-caret-up-fill"></i>${shift}</span>`;
-        else if (shift < 0) shiftHtml = `<span class="text-danger"><i class="bi bi-caret-down-fill"></i>${Math.abs(shift)}</span>`;
-        else shiftHtml = `<span class="text-muted opacity-50">•</span>`;
+        let shiftHtml = (shift > 0) ? `<span class="text-success">↑${shift}</span>` : (shift < 0 ? `<span class="text-danger">↓${Math.abs(shift)}</span>` : `<span class="text-muted">•</span>`);
+
+        const total = item.semContrib + item.keyContrib;
+        const semPct = total > 0 ? (item.semContrib / total) * 100 : 0;
+        const keyPct = total > 0 ? (item.keyContrib / total) * 100 : 0;
+
+        const itemId = `sim_${item.id}_${idx}`;
+        window.simDataStore[itemId] = { id: item.id, score: item.score, semPct: semPct, keyPct: keyPct, snippet: item.snippet };
 
         return `
-        <div class="d-flex align-items-center justify-content-between p-2 x-small border-bottom ${item.isRel ? 'bg-success-subtle border-success' : ''}">
+        <div class="d-flex align-items-center justify-content-between p-2 x-small border-bottom ${item.isRel ? 'bg-success-subtle border-success' : ''}" 
+             onmouseenter="InsightCard.show(event, window.simDataStore['${itemId}'])" 
+             onmouseleave="InsightCard.hide()" style="cursor: help;">
             <div class="d-flex align-items-center gap-2 overflow-hidden">
-                <div class="d-flex flex-column align-items-center" style="min-width: 20px;">
-                    <span class="badge bg-secondary font-monospace" style="font-size: 8px;">#${newRank}</span>
-                    <div style="font-size: 7px; font-weight: bold;">${shiftHtml}</div>
+                <div class="d-flex flex-column align-items-center" style="min-width: 24px;">
+                    <span class="badge bg-secondary" style="font-size: 8px;">#${newRank}</span>
+                    <div style="font-size: 7px;">${shiftHtml}</div>
                 </div>
-                <div class="text-truncate" style="max-width: 140px; font-weight: 500;">${item.title}</div>
+                <div class="overflow-hidden">
+                    <div class="text-truncate" style="max-width: 130px; font-weight: 500;">${item.title}</div>
+                    <div class="d-flex mt-1" style="height: 3px; width: 80px; background: #eee; border-radius: 1px; overflow: hidden;">
+                        <div style="width: ${semPct}%; min-width: ${semPct > 0 ? '2px' : '0'}; background: #0dcaf0;"></div>
+                        <div style="width: ${keyPct}%; min-width: ${keyPct > 0 ? '2px' : '0'}; background: #ffc107;"></div>
+                    </div>
+                </div>
             </div>
-            <div class="text-end ms-2">
+            <div class="text-end">
                 <div class="fw-bold text-primary" style="font-size: 9px;">${item.score.toFixed(3)}</div>
                 <div class="text-muted" style="font-size: 7px;">Was #${item.originalRank}</div>
             </div>
