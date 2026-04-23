@@ -1,261 +1,312 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/modal_analysis.css') }}">
 
 <div class="modal fade" id="analysisModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="false">
-  <div class="modal-dialog modal-dialog-centered modal-xl">
-    <div class="modal-content">
-        <!-- FULL-WIDTH DASHBOARD HEADER (CONTROL BRIDGE) -->
-        <div class="px-3 d-flex align-items-center justify-content-between z-index-2" style="height: 38px; background: #0f172a; border-bottom: 1px solid rgba(255,255,255,0.1);">
-            <div class="d-flex align-items-center gap-3">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+            <!-- FULL-WIDTH DASHBOARD HEADER (CONTROL BRIDGE) -->
+            <div class="px-3 d-flex align-items-center justify-content-between z-index-2"
+                style="height: 38px; background: #0f172a; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="neural-pulse-small"></div>
+                        <div>
+                            <div
+                                style="font-size: 7px; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; color: #38bdf8; line-height: 1;">
+                                Research Context</div>
+                            <div class="text-white fw-bold" id="modalPrompt"
+                                style="max-width: 300px; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                -</div>
+                        </div>
+                    </div>
+                    <div class="border-start border-white border-opacity-20 ps-3">
+                        <div
+                            style="font-size: 7px; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; color: #38bdf8; line-height: 1;">
+                            Grade</div>
+                        <div class="fw-black text-white" id="sessionGPAHeader" style="font-size: 11px;">A+</div>
+                    </div>
+                </div>
+
                 <div class="d-flex align-items-center gap-2">
-                    <div class="neural-pulse-small"></div>
-                    <div>
-                        <div style="font-size: 7px; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; color: #38bdf8; line-height: 1;">Research Context</div>
-                        <div class="text-white fw-bold" id="modalPrompt" style="max-width: 300px; font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">-</div>
+                    <!-- NANO-ACTION TRIGGERS -->
+                    <div class="d-flex p-0 border border-white border-opacity-10"
+                        style="border-radius: 4px; overflow: hidden;">
+                        <button class="btn-nano-action border-end border-white border-opacity-10"
+                            onclick="copyAnalysisData(this)">
+                            <i class="bi bi-clipboard2-data"></i> <span>Copy</span>
+                        </button>
+                        <button class="btn-nano-action" onclick="alert('Exporting PDF...')">
+                            <i class="bi bi-file-earmark-pdf"></i> <span>PDF</span>
+                        </button>
                     </div>
-                </div>
-                <div class="border-start border-white border-opacity-20 ps-3">
-                    <div style="font-size: 7px; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; color: #38bdf8; line-height: 1;">Grade</div>
-                    <div class="fw-black text-white" id="sessionGPAHeader" style="font-size: 11px;">A+</div>
+                    <button type="button" class="btn-close-nano" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
             </div>
 
-            <div class="d-flex align-items-center gap-2">
-                <!-- NANO-ACTION TRIGGERS -->
-                <div class="d-flex p-0 border border-white border-opacity-10" style="border-radius: 4px; overflow: hidden;">
-                    <button class="btn-nano-action border-end border-white border-opacity-10" onclick="copyAnalysisData(this)">
-                        <i class="bi bi-clipboard2-data"></i> <span>Copy</span>
-                    </button>
-                    <button class="btn-nano-action" onclick="alert('Exporting PDF...')">
-                        <i class="bi bi-file-earmark-pdf"></i> <span>PDF</span>
-                    </button>
-                </div>
-                <button type="button" class="btn-close-nano" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-        </div>
+            <div class="dashboard-wrapper" style="height: calc(100% - 38px);">
 
-        <div class="dashboard-wrapper" style="height: calc(100% - 38px);">
-            
-            <!-- LEFT SIDEBAR NAVIGATION -->
-            <div class="dashboard-sidebar" style="height: 100%;">
-                <div class="sidebar-header d-flex align-items-center gap-2">
-                    <i class="bi bi-cpu-fill fs-5"></i> RESEARCH CORE
-                </div>
-                
-                <div class="nav flex-column nav-pills mt-2" id="analysisTabs" role="tablist">
-                    <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basicTab" type="button">
-                        <i class="bi bi-grid-1x2-fill"></i> Doc Analysis
-                    </button>
-                    <button class="nav-link" id="metrics-tab" data-bs-toggle="tab" data-bs-target="#metricsTab" type="button">
-                        <i class="bi bi-bar-chart-line-fill"></i> Quality Metrics
-                    </button>
-                    <button class="nav-link" id="hub-tab" data-bs-toggle="tab" data-bs-target="#hubTab" type="button">
-                        <i class="bi bi-bezier2"></i> Thesis Re-ranker
-                    </button>
-                    <button class="nav-link" id="audit-tab" data-bs-toggle="tab" data-bs-target="#auditTab" type="button">
-                        <i class="bi bi-robot"></i> AI Research Auditor
-                    </button>
-                </div>
-                
-                <div class="mt-auto p-3 border-top border-white border-opacity-10">
-                    <div class="text-white-50 x-small mb-2" style="font-size: 7px;">System: RRF_FUSION_V3</div>
-                    <button type="button" class="btn btn-outline-danger btn-sm w-100 fw-bold btn-exit-dash" data-bs-dismiss="modal" style="font-size: 9px; height: 28px;">
-                        EXIT DASHBOARD
-                    </button>
-                </div>
-            </div>
-
-            <!-- MAIN CONTENT AREA -->
-            <div class="dashboard-main" style="height: 100%;">
-                <!-- SCROLLABLE DATA CONTENT -->
-                <div class="dashboard-content-scroll tab-content" id="analysisTabContent">
-                    
-                    <!-- TAB 1: DOCUMENT CONTEXT -->
-                    <div class="tab-pane fade show active" id="basicTab" role="tabpanel">
-                        <div class="row g-4">
-                            <div class="col-md-5">
-                                <div class="metric-card" style="min-height: 450px;">
-                                    <h6 class="metric-label border-bottom pb-2 mb-4">Neural Fingerprint Profile</h6>
-                                    <div style="height: 350px;">
-                                        <canvas id="scoreRadarChart"></canvas>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-7">
-                                <div class="row g-3">
-                                    <div class="col-6">
-                                        <div class="metric-card">
-                                            <div class="metric-label">Neural match Prob.</div>
-                                            <div class="metric-value-inset text-primary w-100" id="modalTableFinal">-</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="metric-card">
-                                            <div class="metric-label">Engine Strategy</div>
-                                            <div class="metric-value-inset w-100" id="modalTableStrategy">-</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="metric-card border-start border-4 border-info">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span class="metric-label mb-0">Semantic Alignment</span>
-                                                <span class="fw-bold text-info" style="font-size: 10px;" id="modalTableSem">-</span>
-                                            </div>
-                                            <div class="progress mt-2" style="height: 4px; background: #f1f5f9; border-radius: 10px;">
-                                                <div class="progress-bar bg-info" style="width: 70%; box-shadow: 0 0 10px rgba(13, 202, 240, 0.5);"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="metric-card border-start border-4 border-warning">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <span class="metric-label mb-0">Keyword Overlap</span>
-                                                <span class="fw-bold text-warning" style="font-size: 10px;" id="modalTableKey">-</span>
-                                            </div>
-                                            <div class="progress mt-2" style="height: 4px; background: #f1f5f9; border-radius: 10px;">
-                                                <div class="progress-bar bg-warning" style="width: 30%; box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-4">
-                                    <div class="metric-card">
-                                        <h6 class="metric-label border-bottom pb-2 mb-3">Contextual Fragment Preview</h6>
-                                        <div class="text-muted" id="modalContentPreview" style="font-size: 14px; line-height: 1.8; max-height: 200px; overflow-y: auto;">-</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                <!-- LEFT SIDEBAR NAVIGATION -->
+                <div class="dashboard-sidebar" style="height: 100%;">
+                    <div class="sidebar-header d-flex align-items-center gap-2">
+                        <i class="bi bi-cpu-fill fs-5"></i> RESEARCH CORE
                     </div>
 
-                    <!-- TAB 2: QUALITY METRICS -->
-                    <div class="tab-pane fade" id="metricsTab" role="tabpanel">
-                        <div class="row g-4">
-                            <div class="col-md-8">
-                                <div class="row g-3 mb-4">
-                                    <div class="col-md-3">
-                                        <div class="metric-card text-center">
-                                            <div class="metric-label">Precision @10</div>
-                                            <div class="h3 fw-bold text-dark mb-0" id="metricP">-</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="metric-card text-center">
-                                            <div class="metric-label">Recall @10</div>
-                                            <div class="h3 fw-bold text-dark mb-0" id="metricR">-</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="metric-card text-center border-primary border-opacity-25" style="background: linear-gradient(135deg, #fff, #f0f9ff);">
-                                            <div class="metric-label text-primary">F1-Score</div>
-                                            <div class="h3 fw-bold text-primary mb-0" id="metricF1">-</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <div class="metric-card text-center border-success border-opacity-25" style="background: linear-gradient(135deg, #fff, #f0fdf4);">
-                                            <div class="metric-label text-success">NDCG @10</div>
-                                            <div class="h3 fw-bold text-success mb-0" id="metricNDCG">-</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="metric-card" style="height: 400px;">
-                                    <h6 class="metric-label mb-4">Strategy Benchmarking (Current vs Baseline)</h6>
-                                    <canvas id="strategyComparisonChart"></canvas>
-                                </div>
-                            </div>
-
-                            <div class="col-md-4">
-                                <div class="row g-2">
-                                    <!-- ROW 1: CORE ACCURACY -->
-                                    <div class="col-6">
-                                        <div class="metric-card p-2 text-center border-success border-opacity-20">
-                                            <div class="metric-label" style="font-size: 7px;">HITS</div>
-                                            <div class="metric-value-inset text-success w-100 py-1" style="font-size: 14px;" id="matrixTP">0</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="metric-card p-2 text-center border-danger border-opacity-20">
-                                            <div class="metric-label" style="font-size: 7px;">NOISE</div>
-                                            <div class="metric-value-inset text-danger w-100 py-1" style="font-size: 14px;" id="matrixFP">0</div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- ROW 2: ERROR VECTORS -->
-                                    <div class="col-6">
-                                        <div class="metric-card p-2 text-center border-warning border-opacity-20">
-                                            <div class="metric-label" style="font-size: 7px;">MISSES</div>
-                                            <div class="metric-value-inset text-warning w-100 py-1" style="font-size: 14px;" id="matrixFN">0</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="metric-card p-2 text-center">
-                                            <div class="metric-label" style="font-size: 7px;">SKIP</div>
-                                            <div class="metric-value-inset text-muted w-100 py-1" style="font-size: 14px;" id="matrixTN">0</div>
-                                        </div>
-                                    </div>
-
-                                    <!-- ROW 3: EFFICIENCY -->
-                                    <div class="col-6">
-                                        <div class="metric-card p-2 text-center border-primary border-opacity-20">
-                                            <div class="metric-label" style="font-size: 7px;">MRR</div>
-                                            <div class="metric-value-inset text-primary w-100 py-1" style="font-size: 14px;" id="metricMRR">-</div>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="metric-card p-2 text-center border-primary border-opacity-20">
-                                            <div class="metric-label" style="font-size: 7px;">QpMS</div>
-                                            <div class="metric-value-inset text-primary w-100 py-1" style="font-size: 14px;" id="metricQpMS">-</div>
-                                        </div>
-                                    </div>
-
-                                    <!-- ROW 4: STATUS -->
-                                    <div class="col-12">
-                                        <div class="metric-card p-2 d-flex justify-content-between align-items-center">
-                                            <div class="d-flex align-items-center gap-2">
-                                                <div class="metric-label mb-0" style="font-size: 7px;">ROUTER STATE</div>
-                                                <span class="text-primary fw-bold" style="font-size: 9px;" id="metricRouter">0%</span>
-                                            </div>
-                                            <span class="badge bg-success rounded-pill" style="font-size: 7px; padding: 3px 8px;" id="metricRouterBadge">OPTIMAL</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="nav flex-column nav-pills mt-2" id="analysisTabs" role="tablist">
+                        <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basicTab"
+                            type="button">
+                            <i class="bi bi-grid-1x2-fill"></i> Doc Analysis
+                        </button>
+                        <button class="nav-link" id="metrics-tab" data-bs-toggle="tab" data-bs-target="#metricsTab"
+                            type="button">
+                            <i class="bi bi-bar-chart-line-fill"></i> Quality Metrics
+                        </button>
+                        <button class="nav-link" id="hub-tab" data-bs-toggle="tab" data-bs-target="#hubTab"
+                            type="button">
+                            <i class="bi bi-bezier2"></i> Thesis Re-ranker
+                        </button>
+                        <button class="nav-link" id="audit-tab" data-bs-toggle="tab" data-bs-target="#auditTab"
+                            type="button">
+                            <i class="bi bi-robot"></i> AI Research Auditor
+                        </button>
                     </div>
 
-                    <!-- TAB 3: THESIS RE-RANKER -->
-                    <div class="tab-pane fade" id="hubTab" role="tabpanel">
-                        <div class="row g-4">
-                            <div class="col-md-8">
-                                <div class="row g-4">
-                                    <div class="col-md-12">
-                                        <div class="metric-card">
-                                            <h6 class="metric-label mb-4">Precision-Recall Dynamic Trajectory</h6>
-                                            <div style="height: 300px;">
-                                                <canvas id="prCurveChart"></canvas>
-                                            </div>
+                    <div class="mt-auto p-3 border-top border-white border-opacity-10">
+                        <div class="text-white-50 x-small mb-2" style="font-size: 7px;">System: RRF_FUSION_V3</div>
+                        <button type="button" class="btn btn-outline-danger btn-sm w-100 fw-bold btn-exit-dash"
+                            data-bs-dismiss="modal" style="font-size: 9px; height: 28px;">
+                            EXIT DASHBOARD
+                        </button>
+                    </div>
+                </div>
+
+                <!-- MAIN CONTENT AREA -->
+                <div class="dashboard-main" style="height: 100%;">
+                    <!-- SCROLLABLE DATA CONTENT -->
+                    <div class="dashboard-content-scroll tab-content" id="analysisTabContent">
+
+                        <!-- TAB 1: DOCUMENT CONTEXT -->
+                        <div class="tab-pane fade show active" id="basicTab" role="tabpanel">
+                            <div class="row g-4">
+                                <div class="col-md-5">
+                                    <div class="metric-card" style="min-height: 450px;">
+                                        <h6 class="metric-label border-bottom pb-2 mb-4">Neural Fingerprint Profile</h6>
+                                        <div style="height: 350px;">
+                                            <canvas id="scoreRadarChart"></canvas>
                                         </div>
                                     </div>
-                                    <div class="col-md-12">
-                                        <div class="metric-card border-top border-4 border-primary" style="background: #f0f9ff;">
-                                            <div class="row align-items-center">
-                                                <div class="col-md-3 text-center border-end border-primary border-opacity-10">
-                                                    <div class="display-6 fw-black text-primary" id="sessionGPA">A+</div>
-                                                    <div class="text-uppercase" style="font-size: 8px; font-weight: 800; letter-spacing: 1px; color: #38bdf8;">NEURAL GRADE</div>
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="row g-3">
+                                        <div class="col-6">
+                                            <div class="metric-card">
+                                                <div class="metric-label">Neural match Prob.</div>
+                                                <div class="metric-value-inset text-primary w-100" id="modalTableFinal">
+                                                    -</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="metric-card">
+                                                <div class="metric-label">Engine Strategy</div>
+                                                <div class="metric-value-inset w-100" id="modalTableStrategy">-</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="metric-card border-start border-4 border-info">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="metric-label mb-0">Semantic Alignment</span>
+                                                    <span class="fw-bold text-info" style="font-size: 10px;"
+                                                        id="modalTableSem">-</span>
                                                 </div>
-                                                <div class="col-md-9 px-4">
-                                                    <div class="row g-2">
-                                                        <div class="col-6">
-                                                            <div class="p-2">
-                                                                <div class="text-muted" style="font-size: 9px; text-transform: uppercase; font-weight: 800;">Global NDCG</div>
-                                                                <div class="h6 fw-bold mb-0 text-dark" id="sessionNDCG">-</div>
-                                                            </div>
+                                                <div class="progress mt-2"
+                                                    style="height: 4px; background: #f1f5f9; border-radius: 10px;">
+                                                    <div class="progress-bar bg-info"
+                                                        style="width: 70%; box-shadow: 0 0 10px rgba(13, 202, 240, 0.5);">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="metric-card border-start border-4 border-warning">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <span class="metric-label mb-0">Keyword Overlap</span>
+                                                    <span class="fw-bold text-warning" style="font-size: 10px;"
+                                                        id="modalTableKey">-</span>
+                                                </div>
+                                                <div class="progress mt-2"
+                                                    style="height: 4px; background: #f1f5f9; border-radius: 10px;">
+                                                    <div class="progress-bar bg-warning"
+                                                        style="width: 30%; box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4">
+                                        <div class="metric-card">
+                                            <h6 class="metric-label border-bottom pb-2 mb-3">Contextual Fragment Preview
+                                            </h6>
+                                            <div class="text-muted" id="modalContentPreview"
+                                                style="font-size: 14px; line-height: 1.8; max-height: 200px; overflow-y: auto;">
+                                                -</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB 2: QUALITY METRICS -->
+                        <div class="tab-pane fade" id="metricsTab" role="tabpanel">
+                            <div class="row g-4">
+                                <div class="col-md-8">
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-3">
+                                            <div class="metric-card text-center">
+                                                <div class="metric-label">Precision @10</div>
+                                                <div class="h3 fw-bold text-dark mb-0" id="metricP">-</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="metric-card text-center">
+                                                <div class="metric-label">Recall @10</div>
+                                                <div class="h3 fw-bold text-dark mb-0" id="metricR">-</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="metric-card text-center border-primary border-opacity-25"
+                                                style="background: linear-gradient(135deg, #fff, #f0f9ff);">
+                                                <div class="metric-label text-primary">F1-Score</div>
+                                                <div class="h3 fw-bold text-primary mb-0" id="metricF1">-</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="metric-card text-center border-success border-opacity-25"
+                                                style="background: linear-gradient(135deg, #fff, #f0fdf4);">
+                                                <div class="metric-label text-success">NDCG @10</div>
+                                                <div class="h3 fw-bold text-success mb-0" id="metricNDCG">-</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="metric-card" style="height: 400px;">
+                                        <h6 class="metric-label mb-4">Strategy Benchmarking (Current vs Baseline)</h6>
+                                        <canvas id="strategyComparisonChart"></canvas>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="row g-2">
+                                        <!-- ROW 1: CORE ACCURACY -->
+                                        <div class="col-6">
+                                            <div class="metric-card p-2 text-center border-success border-opacity-20 shadow-sm">
+                                                <div class="metric-label" style="font-size: 7px;">HITS (TP)</div>
+                                                <div class="metric-value-inset text-success w-100 py-1"
+                                                    style="font-size: 13px;" id="matrixTP">0</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="metric-card p-2 text-center border-danger border-opacity-20 shadow-sm">
+                                                <div class="metric-label" style="font-size: 7px;">NOISE (FP)</div>
+                                                <div class="metric-value-inset text-danger w-100 py-1"
+                                                    style="font-size: 13px;" id="matrixFP">0</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- ROW 2: ERROR VECTORS -->
+                                        <div class="col-6">
+                                            <div class="metric-card p-2 text-center border-warning border-opacity-20 shadow-sm">
+                                                <div class="metric-label" style="font-size: 7px;">MISS (FN)</div>
+                                                <div class="metric-value-inset text-warning w-100 py-1"
+                                                    style="font-size: 13px;" id="matrixFN">0</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="metric-card p-2 text-center border-secondary border-opacity-20 shadow-sm">
+                                                <div class="metric-label" style="font-size: 7px;">SKIP (TN)</div>
+                                                <div class="metric-value-inset text-muted w-100 py-1"
+                                                    style="font-size: 13px;" id="matrixTN">0</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- ROW 3: EFFICIENCY -->
+                                        <div class="col-6">
+                                            <div class="metric-card p-2 text-center border-primary border-opacity-20 shadow-sm">
+                                                <div class="metric-label" style="font-size: 7px;">MRR Score</div>
+                                                <div class="metric-value-inset text-primary w-100 py-1"
+                                                    style="font-size: 13px;" id="metricMRR">-</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="metric-card p-2 text-center border-primary border-opacity-20 shadow-sm">
+                                                <div class="metric-label" style="font-size: 7px;">QpMS Index</div>
+                                                <div class="metric-value-inset text-primary w-100 py-1"
+                                                    style="font-size: 13px;" id="metricQpMS">-</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- ROW 4: STATUS -->
+                                        <div class="col-12">
+                                            <div
+                                                class="metric-card p-2 d-flex justify-content-between align-items-center">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="metric-label mb-0" style="font-size: 7px;">ROUTER STATE
+                                                    </div>
+                                                    <span class="text-primary fw-bold" style="font-size: 10px;"
+                                                        id="metricRouter">0%</span>
+                                                </div>
+                                                <span class="badge bg-success rounded-pill"
+                                                    style="font-size: 7px; padding: 3px 8px;"
+                                                    id="metricRouterBadge">OPTIMAL</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TAB 3: THESIS RE-RANKER -->
+                        <div class="tab-pane fade" id="hubTab" role="tabpanel">
+                            <div class="row g-4">
+                                <div class="col-md-8">
+                                    <div class="row g-4">
+                                        <div class="col-md-12">
+                                            <div class="metric-card">
+                                                <h6 class="metric-label mb-4">Precision-Recall Dynamic Trajectory</h6>
+                                                <div style="height: 300px;">
+                                                    <canvas id="prCurveChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12">
+                                            <div class="metric-card border-top border-4 border-primary"
+                                                style="background: #f0f9ff;">
+                                                <div class="row align-items-center">
+                                                    <div
+                                                        class="col-md-3 text-center border-end border-primary border-opacity-10">
+                                                        <div class="display-6 fw-black text-primary" id="sessionGPA">A+
                                                         </div>
-                                                        <div class="col-6">
-                                                            <div class="p-2">
-                                                                <div class="text-muted" style="font-size: 9px; text-transform: uppercase; font-weight: 800;">Global MRR</div>
-                                                                <div class="h6 fw-bold mb-0 text-dark" id="sessionMRR">-</div>
+                                                        <div class="text-uppercase"
+                                                            style="font-size: 8px; font-weight: 800; letter-spacing: 1px; color: #38bdf8;">
+                                                            NEURAL GRADE</div>
+                                                    </div>
+                                                    <div class="col-md-9 px-4">
+                                                        <div class="row g-2">
+                                                            <div class="col-6">
+                                                                <div class="p-2">
+                                                                    <div class="text-muted"
+                                                                        style="font-size: 9px; text-transform: uppercase; font-weight: 800;">
+                                                                        Global NDCG</div>
+                                                                    <div class="h6 fw-bold mb-0 text-dark"
+                                                                        id="sessionNDCG">-</div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6">
+                                                                <div class="p-2">
+                                                                    <div class="text-muted"
+                                                                        style="font-size: 9px; text-transform: uppercase; font-weight: 800;">
+                                                                        Global MRR</div>
+                                                                    <div class="h6 fw-bold mb-0 text-dark"
+                                                                        id="sessionMRR">-</div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -264,40 +315,49 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="col-md-4">
-                                <div class="metric-card p-0 overflow-hidden border border-primary border-opacity-20 shadow-sm">
-                                    <div class="p-3 d-flex align-items-center justify-content-between text-white" style="background: #0f172a;">
-                                        <span style="font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #38bdf8;">Alpha simulator</span>
-                                        <span class="badge bg-white bg-opacity-10 text-white px-3 rounded-pill" style="font-size: 10px; border: 1px solid rgba(255,255,255,0.1);" id="alphaValueDisplay">α = 0.50</span>
-                                    </div>
-                                    <div class="p-4">
-                                        <div class="mb-5 p-3 rounded-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-                                            <div class="d-flex justify-content-between x-small fw-black text-muted mb-3" style="font-size: 8px; letter-spacing: 0.5px;">
-                                                <span>KEYWORD MATCH</span>
-                                                <span>SEMANTIC CONTEXT</span>
-                                            </div>
-                                            <input type="range" class="form-range" id="alphaSimulationRange" min="0" max="1" step="0.05" value="0.5">
+                                <div class="col-md-4">
+                                    <div
+                                        class="metric-card p-0 overflow-hidden border border-primary border-opacity-20 shadow-sm">
+                                        <div class="p-3 d-flex align-items-center justify-content-between text-white"
+                                            style="background: #0f172a;">
+                                            <span
+                                                style="font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #38bdf8;">Alpha
+                                                simulator</span>
+                                            <span class="badge bg-white bg-opacity-10 text-white px-3 rounded-pill"
+                                                style="font-size: 10px; border: 1px solid rgba(255,255,255,0.1);"
+                                                id="alphaValueDisplay">α = 0.50</span>
                                         </div>
+                                        <div class="p-4">
+                                            <div class="mb-5 p-3 rounded-3"
+                                                style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                                <div class="d-flex justify-content-between x-small fw-black text-muted mb-3"
+                                                    style="font-size: 8px; letter-spacing: 0.5px;">
+                                                    <span>KEYWORD MATCH</span>
+                                                    <span>SEMANTIC CONTEXT</span>
+                                                </div>
+                                                <input type="range" class="form-range" id="alphaSimulationRange" min="0"
+                                                    max="1" step="0.05" value="0.5">
+                                            </div>
 
-                                        <h6 class="metric-label border-bottom pb-2 mb-3">Rank-Shift Projection</h6>
-                                        <div id="rerankPreviewList" style="max-height: 380px; overflow-y: auto;">
-                                            <div class="text-center py-5 text-muted opacity-50 italic x-small">Mark relevance to simulate weights</div>
+                                            <h6 class="metric-label border-bottom pb-2 mb-3">Rank-Shift Projection</h6>
+                                            <div id="rerankPreviewList" style="max-height: 380px; overflow-y: auto;">
+                                                <div class="text-center py-5 text-muted opacity-50 italic x-small">Mark
+                                                    relevance to simulate weights</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- TAB 4: AI AUDITOR -->
-                    {% include "components/_ai_auditor.html" %}
+                        <!-- TAB 4: AI AUDITOR -->
+                        {% include "components/_ai_auditor.html" %}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-  </div>
 </div>
 
 <!-- SIMULATOR INSIGHT CARD - FLOATING TOOLTIP -->
@@ -309,7 +369,7 @@
         </div>
         <div class="insight-pill" id="insightRank">#1</div>
     </div>
-    
+
     <div class="insight-scores">
         <div class="insight-score-row">
             <span>Neural Relevance</span>
@@ -319,6 +379,6 @@
             <div id="insightScoreBar" class="progress-bar bg-primary" style="width: 0%"></div>
         </div>
     </div>
-    
+
     <div id="insightSnippet" class="insight-snippet mt-3">-</div>
 </div>

@@ -706,7 +706,7 @@ function calculateAndSyncMetrics(contextEl) {
 }
 
 function calculateSingleStrategyNDCG(idList, trueIds, k) {
-    if (!idList || idList.length === 0) return 0.0;
+    if (!idList || idList.length === 0 || !trueIds || trueIds.size === 0) return 0.0;
     let dcg = 0;
     let idcg = 0;
     let rank = 1;
@@ -714,7 +714,8 @@ function calculateSingleStrategyNDCG(idList, trueIds, k) {
     
     // Iterate top K of the STRATEGY list
     for (let i = 0; i < Math.min(idList.length, k); i++) {
-        const id = String(idList[i]); // Ensure string comparison
+        // HARD FIX: Ensure we are comparing strings to strings
+        const id = String(idList[i]); 
         if (trueIds.has(id)) {
             dcg += 1 / Math.log2(rank + 1);
         }
