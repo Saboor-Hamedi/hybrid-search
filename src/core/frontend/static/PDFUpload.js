@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
             pdfStopBtn.disabled = true;
             pdfStopBtn.textContent = 'STOPPING...';
         }
-        window.Notify.show("Stopping batch process...", "warning");
+        // Notification is handled by the loop's check for shouldCancel
     }
   };
 
@@ -167,15 +167,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const masterToast = window.Notify.show(`Starting batch: 0/${total}`, 'info', -1, true);
 
     for (let i = 0; i < total; i++) {
+        const badge = document.getElementById(`file-badge-${i}`);
+        // SKIP if already finished (for Resume support)
+        if (badge && badge.textContent === 'FINISHED') {
+            successCount++; // Keep our count accurate
+            continue;
+        }
+
         if (shouldCancel) {
           masterToast.update(`Stopped at ${i}/${total}. Processed ${successCount} files.`, "warning");
+          if (masterToast.setLoading) masterToast.setLoading(false); 
           setTimeout(() => masterToast.close(), 5000);
           break;
         }
 
         const file = selectedFiles[i];
         const row = document.getElementById(`file-row-${i}`);
-        const badge = document.getElementById(`file-badge-${i}`);
         const progress = document.getElementById(`file-progress-${i}`);
         const icon = document.getElementById(`file-icon-${i}`);
 
@@ -253,13 +260,13 @@ document.addEventListener('DOMContentLoaded', () => {
             bulkUploadText.innerHTML = `<span class="text-warning"><i class="bi bi-slash-circle"></i> Batch Stopped: ${successCount} documents indexed.</span>`;
         }
         if (pdfUploadBtn) {
-            pdfUploadBtn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Reload & Reset';
+            pdfUploadBtn.innerHTML = '<i class="bi bi-play-fill"></i> Resume Upload';
             pdfUploadBtn.disabled = false;
             pdfUploadBtn.type = 'button';
             pdfUploadBtn.style.display = 'block';
             pdfUploadBtn.onclick = (e) => {
                 e.preventDefault();
-                window.location.reload();
+                processUploadBatch(); // RE-CALL to resume
             };
         }
     }

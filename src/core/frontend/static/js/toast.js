@@ -11,7 +11,7 @@ window.Notify = (function() {
         container.id = 'unified-toast-container';
         container.style.cssText = `
             position: fixed;
-            top: 100px;
+            top: 60px;
             right: 20px;
             z-index: 11000;
             display: flex;
@@ -40,7 +40,7 @@ window.Notify = (function() {
                 border-radius: 16px;
                 padding: 12px 16px;
                 box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 5px 10px -5px rgba(0,0,0,0.04);
-                border-left: 5px solid #2563eb;
+                border: 1px solid #f3f4f6;
                 display: flex;
                 align-items: center;
                 gap: 12px;
@@ -49,9 +49,6 @@ window.Notify = (function() {
                 transition: opacity 0.3s, transform 0.3s;
             }
             .notify-toast.hiding { animation: toastSlideOut 0.4s forwards; }
-            .notify-toast.success { border-left-color: #10b981; }
-            .notify-toast.danger { border-left-color: #ef4444; }
-            .notify-toast.warning { border-left-color: #f59e0b; }
             .notify-content { flex-grow: 1; min-width: 0; }
             .notify-title { font-size: 0.85rem; font-weight: 700; color: #111827; line-height: 1.3; }
             .notify-desc { font-size: 0.75rem; color: #6b7280; line-height: 1.2; word-wrap: break-word; margin-top: 2px; }
