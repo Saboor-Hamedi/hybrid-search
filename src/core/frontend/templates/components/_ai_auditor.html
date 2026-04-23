@@ -1,0 +1,85 @@
+<div class="tab-pane fade h-100" id="auditTab" role="tabpanel">
+    <!-- FLEX NOWRAP ENSURES SIDE-BY-SIDE ALIGNMENT -->
+    <div class="d-flex flex-nowrap w-100" style="height: calc(85vh - 85px); background: white; overflow: hidden; border-radius: 4px;">
+        
+        <!-- LEFT: AUDIT STREAM (SLEEK LIGHT TERMINAL) -->
+        <div class="audit-log-panel flex-grow-1 d-flex flex-column" style="background: #ffffff; position: relative; border-right: 1px solid #eef2f7; min-width: 0;">
+            <div class="flex-grow-1 p-4 d-flex flex-column" style="overflow-y: auto; scrollbar-width: none;">
+                
+                <!-- SCROLLABLE NARRATIVE AREA -->
+                <div id="aiAuditNarrative" class="audit-text flex-grow-1">
+                    <div class="mb-3 opacity-50 font-monospace text-primary" style="font-size: 8px;">>> SYSTEM_READY</div>
+                    <p class="text-dark" style="font-size: 11px; line-height: 1.5; font-weight: 400;">
+                        Telemetry initialized. Adjust the Alpha slider to generate a live performance audit for the current research thread.
+                    </p>
+                </div>
+
+                <!-- BOTTOM METRICS TRAY -->
+                <div class="mt-4 pt-4 border-top">
+                    <div class="row g-3">
+                        <div class="col-4">
+                            <div class="p-3 rounded bg-light border border-opacity-50 h-100">
+                                <div class="text-muted" style="font-size: 8px; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 6px;">Strategy</div>
+                                <div id="aiOptimizationAdvice" class="text-primary fw-bold" style="font-size: 10px;">Pending...</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-3 rounded bg-light border border-opacity-50 h-100">
+                                <div class="text-muted" style="font-size: 8px; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 6px;">Confidence</div>
+                                <div id="auditConfidence" class="text-success fw-bold" style="font-size: 10px;">98.2%</div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-3 rounded bg-light border border-opacity-50 h-100">
+                                <div class="text-muted" style="font-size: 8px; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; margin-bottom: 6px;">Status</div>
+                                <div id="aiBottlenecks" class="text-warning fw-bold" style="font-size: 10px;">Ready</div>
+                                <div id="auditGrounding" style="display:none;">100%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: MINIMAL ASSISTANT SIDEBAR (FIXED WIDTH) -->
+        <div class="audit-assistant-sidebar d-flex flex-column bg-white shadow-sm" style="width: 280px; min-width: 280px; flex-shrink: 0; z-index: 5;">
+            <div class="p-2 px-3 border-bottom bg-light d-flex align-items-center justify-content-between">
+                <span class="fw-bold text-muted" style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px;">Auditor AI</span>
+                <i class="bi bi-robot text-primary" style="font-size: 11px;"></i>
+            </div>
+
+            <div class="flex-grow-1 p-3 d-flex flex-column gap-2" id="modalChatHistory" style="overflow-y: auto; background: #fcfdfe;">
+                <div class="modal-chat-bubble bubble-ai">
+                    How can I assist with your evaluation?
+                </div>
+            </div>
+
+            <div class="p-2 bg-white border-top">
+                <div class="position-relative">
+                    <input type="text" id="modalAssistantInput" 
+                           class="form-control border bg-light rounded-pill px-3 py-2" 
+                           style="font-size: 11px; padding-right: 40px;"
+                           placeholder="Ask Auditor..." 
+                           onkeydown="if(event.key==='Enter') sendModalAssistantChat()">
+                    <button id="modalAssistantBtn" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center p-0" 
+                            style="position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px;" 
+                            onclick="sendModalAssistantChat()">
+                        <i class="bi bi-lightning-charge-fill" style="font-size: 10px;"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .audit-text { font-family: 'Inter', sans-serif; font-weight: 400; color: #1e293b; }
+    .audit-text strong { color: #0284c7; font-weight: 700; }
+    .modal-chat-bubble { border-radius: 12px; max-width: 90%; font-weight: 400; line-height: 1.5; font-size: 11px; padding: 8px 12px; }
+    .bubble-user { background: #f1f5f9; align-self: flex-start; color: #334155; border-bottom-left-radius: 2px; }
+    .bubble-ai { background: white; align-self: flex-end; color: #0f172a; border-bottom-right-radius: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #eef2f7; }
+    
+    .audit-entry-success { background: #f0fdf4; border-left: 2px solid #22c55e; padding: 10px; border-radius: 4px; margin-bottom: 12px; }
+    .audit-entry-warning { background: #fffcf0; border-left: 2px solid #eab308; padding: 10px; border-radius: 4px; margin-bottom: 12px; }
+    .audit-entry-danger { background: #fef2f2; border-left: 2px solid #ef4444; padding: 10px; border-radius: 4px; margin-bottom: 12px; }
+</style>

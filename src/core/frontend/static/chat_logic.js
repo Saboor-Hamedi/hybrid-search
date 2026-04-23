@@ -949,13 +949,16 @@ const IRMetrics = {
             gpaEl.textContent = grade;
         }
 
-        if (window.prCurveChart && m.prData) {
+        if (window.prCurveChart && window.prCurveChart.data && window.prCurveChart.data.datasets && m.prData) {
             try {
                 const data = m.prData.map(p => ({ x: p.r, y: p.p }));
                 window.prCurveChart.data.datasets[0].data = data;
                 window.prCurveChart.update('none');
             } catch(e) { console.warn("PR Chart update failed", e); }
         }
+
+        // Trigger AI Audit refresh
+        triggerAiAudit(m);
     }
 };
 
@@ -1301,7 +1304,7 @@ function initComparisonChart() {
 }
 
 window.updateComparisonChart = function(sem, key, hybrid) {
-    if (comparisonChart) {
+    if (comparisonChart && comparisonChart.data && comparisonChart.data.datasets) {
         comparisonChart.data.datasets[0].data = [sem, key, hybrid];
         comparisonChart.update();
     }
@@ -1328,4 +1331,184 @@ function updateRadar(d) {
     // Force a resize/render if visible
     radarChart.update('none');
     radarChart.resize(); 
+}
+
+// === AI AUDITOR LOGIC ENGINE (NEW) ===
+function refreshAiAudit() {
+    const range = document.getElementById('alphaSimulationRange');
+    if (range) range.dispatchEvent(new Event('input'));
+}
+
+function triggerAiAudit(m) {
+    const narrativeEl = document.getElementById('aiAuditNarrative');
+    const adviceEl = document.getElementById('aiOptimizationAdvice');
+    const bottleneckEl = document.getElementById('aiBottlenecks');
+    const groundingEl = document.getElementById('auditGrounding');
+    if (!narrativeEl || !m) return;
+
+    const alpha = parseFloat(document.getElementById('alphaSimulationRange')?.value || 0.5);
+    
+    // 1. Generate Narrative Narrative
+    let narrative = `<div class="mb-3">> Analysis complete for α=${alpha.toFixed(2)}</div>`;
+    
+    if (m.ndcg > 0.8) {
+        narrative += `<div class="text-success mb-2 fw-bold">✓ EXCELLENT ALIGNMENT DETECTED</div>`;
+        narrative += `<p>The current Alpha balance has achieved near-optimal document ordering. <strong>${m.matrix.tp} documents</strong> are in perfect rank positions.</p>`;
+    } else if (m.ndcg > 0.5) {
+        narrative += `<div class="text-info mb-2 fw-bold">ℹ EFFECTIVE HYBRID STATE</div>`;
+        narrative += `<p>System is performing well, but <span class="highlight-warning">${m.matrix.fn} relevant documents</span> remain buried. Re-ranking is recommended.</p>`;
+    } else {
+        narrative += `<div class="text-danger mb-2 fw-bold">⚠ CRITICAL DISCONNECT</div>`;
+        narrative += `<p>Search precision has dropped significantly. The current weights are producing <span class="highlight-danger">${m.matrix.fp} noise items</span> in the Top 5.</p>`;
+    }
+
+    // Add specific findings
+    if (alpha < 0.3) {
+        narrative += `<p>> <span class="highlight-warning">Keyword Bias Warning:</span> The engine is ignoring semantic intent. Rare terminology matches are outweighing actual relevance.</p>`;
+    } else if (alpha > 0.7) {
+        narrative += `<p>> <span class="highlight-warning">Semantic Drift Warning:</span> The engine is too focused on "meaning" and missing specific technical keyword hits.</p>`;
+    }
+
+    narrativeEl.innerHTML = narrative;
+
+    // 2. Optimization Strategy
+    if (m.ndcg >= 0.9) {
+        adviceEl.innerHTML = "Maintain current state. You have reached the local maxima for this query.";
+        adviceEl.className = "fw-bold text-success";
+    } else if (m.matrix.fn > 0) {
+        const dir = alpha < 0.5 ? "INCREASE" : "DECREASE";
+        adviceEl.innerHTML = `${dir} Alpha by 0.15 to pull hidden hits into the top spots.`;
+        adviceEl.className = "fw-bold text-primary";
+    } else {
+        adviceEl.innerHTML = "Shift Alpha towards 0.50 to balance Keyword/Semantic noise.";
+        adviceEl.className = "fw-bold text-dark";
+    }
+
+    // 3. Bottlenecks
+    let bottlenecks = "";
+    if (m.matrix.fp > 2) {
+        bottlenecks += `<div class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 10px;"></i><span class="x-small">High Noise Density in Top 5</span></div>`;
+    }
+    if (m.mrr < 0.3) {
+        bottlenecks += `<div class="d-flex align-items-center gap-2 mb-2"><i class="bi bi-exclamation-circle-fill text-warning" style="font-size: 10px;"></i><span class="x-small">Delayed Relevance (First hit buried)</span></div>`;
+    }
+    if (!bottlenecks) {
+        bottlenecks = `<div class="d-flex align-items-center gap-2 mb-2 opacity-50"><i class="bi bi-check-circle-fill text-success" style="font-size: 10px;"></i><span class="x-small">No significant bottlenecks</span></div>`;
+    }
+    bottleneckEl.innerHTML = bottlenecks;
+
+    // 4. Grounding (Mocked logic for now)
+    if (groundingEl) groundingEl.textContent = (m.ndcg * 100).toFixed(1) + "%";
+}
+
+function sendAuditorChat() {
+    const input = document.getElementById('auditorChatInput');
+    const narrativeEl = document.getElementById('aiAuditNarrative');
+    if (!input || !narrativeEl || !input.value.trim()) return;
+
+    const userMsg = input.value.trim();
+    input.value = '';
+
+    // Append User Message
+    const userHtml = `<div class="mt-3 text-info fw-bold">USER> ${userMsg}</div>`;
+    narrativeEl.innerHTML += userHtml;
+    narrativeEl.scrollTop = narrativeEl.scrollHeight;
+
+    // Simulate AI Auditor Response
+    setTimeout(() => {
+        let response = `<div class="mt-2 text-white-50">> Processing query with local telemetry...</div>`;
+        
+        // Simple logic-based responses for simulation
+        if (userMsg.toLowerCase().includes('noise') || userMsg.toLowerCase().includes('fp')) {
+            response += `<div class="text-warning">AUDITOR: High Noise (FP) usually indicates that irrelevant terms in the query are matching document fragments too strongly. Try increasing Alpha to favor semantic meaning.</div>`;
+        } else if (userMsg.toLowerCase().includes('miss') || userMsg.toLowerCase().includes('fn')) {
+            response += `<div class="text-warning">AUDITOR: Misses (FN) occur when relevant documents have low keyword overlap. The semantic engine should be able to find them if you increase the Semantic Weight.</div>`;
+        } else if (userMsg.toLowerCase().includes('gpa') || userMsg.toLowerCase().includes('rating')) {
+            response += `<div class="text-info">AUDITOR: Your current GPA is calculated based on a weighted average of NDCG (60%) and F1-Score (40%). It reflects both ranking precision and overall retrieval coverage.</div>`;
+        } else {
+            response += `<div class="text-info">AUDITOR: Based on the current Decision Matrix, I recommend fine-tuning the Alpha slider. The system is currently detecting a ${judgedDocs.size > 0 ? judgedDocs.size : 0} document relevance set.</div>`;
+        }
+
+        narrativeEl.innerHTML += response;
+        narrativeEl.scrollTop = narrativeEl.scrollHeight;
+    }, 600);
+}
+
+async function sendModalAssistantChat() {
+    const input = document.getElementById('modalAssistantInput');
+    const historyEl = document.getElementById('modalChatHistory');
+    if (!input || !historyEl || !input.value.trim()) return;
+
+    const userMsg = input.value.trim();
+    input.value = '';
+
+    // 1. Append User Message
+    const userBubble = document.createElement('div');
+    userBubble.className = 'modal-chat-bubble bubble-user';
+    userBubble.textContent = userMsg;
+    historyEl.appendChild(userBubble);
+    historyEl.scrollTop = historyEl.scrollHeight;
+
+    // 2. Prepare Context (The "Neural Awareness" Layer)
+    const prompt = document.getElementById('modalPrompt')?.textContent || 'Unknown Query';
+    const tp = document.getElementById('matrixTP')?.textContent || '0';
+    const fp = document.getElementById('matrixFP')?.textContent || '0';
+    const fn = document.getElementById('matrixFN')?.textContent || '0';
+    const gpa = document.getElementById('sessionGPAHeader')?.textContent || 'N/A';
+    
+    // Capture some result snippets if available
+    let resultContext = "";
+    const previewEl = document.getElementById('modalContentPreview');
+    if (previewEl) {
+        resultContext = `Active Document Preview: ${previewEl.textContent.substring(0, 300)}...`;
+    }
+
+    const systemContext = `You are the Neural Research Auditor. 
+CONTEXT: Analyzing query "${prompt}". 
+CURRENT METRICS: GPA: ${gpa}, Hits: ${tp}, Noise: ${fp}, Misses: ${fn}.
+${resultContext}
+Task: Answer the researcher's query about these specific results. Be technical, precise, and concise.`;
+
+    // 3. Create AI Bubble (Typing State)
+    const aiBubble = document.createElement('div');
+    aiBubble.className = 'modal-chat-bubble bubble-ai';
+    aiBubble.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+    historyEl.appendChild(aiBubble);
+    historyEl.scrollTop = historyEl.scrollHeight;
+
+    try {
+        const response = await fetch('/api/quick-chat-stream', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                message: `${systemContext}\n\nUser Question: ${userMsg}`,
+                provider: localStorage.getItem('ai_provider') || 'ollama',
+                model: localStorage.getItem('ai_model') || 'qwen2.5:0.5b',
+                api_key: localStorage.getItem('ai_api_key') || '',
+                base_url: localStorage.getItem('ollama_base_url') || 'http://localhost:11434'
+            })
+        });
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullReply = "";
+        aiBubble.innerHTML = ""; // Clear typing indicator
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value, { stream: true });
+            fullReply += chunk;
+            // Use marked if available, else fallback
+            if (window.marked) {
+                aiBubble.innerHTML = marked.parse(fullReply);
+            } else {
+                aiBubble.textContent = fullReply;
+            }
+            historyEl.scrollTop = historyEl.scrollHeight;
+        }
+    } catch (err) {
+        console.error("Auditor Chat Failed:", err);
+        aiBubble.innerHTML = `<span class="text-danger small">Connection Error: ${err.message}</span>`;
+    }
 }

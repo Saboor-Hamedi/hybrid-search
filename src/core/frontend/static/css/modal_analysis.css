@@ -1,0 +1,244 @@
+/* =========================================
+   NEURAL RESEARCH STUDIO - ANALYTICS HUB
+   Industrial-Grade 'Pro-Max' Aesthetic
+   ========================================= */
+
+/* MODAL & CORE LAYOUT */
+#analysisModal .modal-content {
+    border-radius: 12px;
+    overflow: hidden;
+    height: 85vh;
+    max-height: 900px;
+    background: #0f172a;
+    border: none;
+    box-shadow: 0 0 100px rgba(0,0,0,0.3);
+}
+
+.dashboard-wrapper {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* SIDEBAR NAVIGATION (GLASSMORPHISM) */
+.dashboard-sidebar {
+    width: 200px;
+    background: #0f172a;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    z-index: 10;
+    border-right: 1px solid rgba(255,255,255,0.05);
+}
+
+.sidebar-header {
+    padding: 18px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #38bdf8;
+    font-weight: 800;
+}
+
+.dashboard-sidebar .nav-link {
+    color: #94a3b8;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 4px 10px;
+    font-size: 11px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: left;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: calc(100% - 20px);
+    background: transparent;
+    border: none;
+}
+
+.dashboard-sidebar .nav-link i { font-size: 14px; opacity: 0.7; }
+
+.dashboard-sidebar .nav-link.active {
+    background: rgba(56, 189, 248, 0.12);
+    color: #38bdf8;
+    backdrop-filter: blur(10px);
+    box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.2);
+}
+
+.dashboard-sidebar .nav-link:hover:not(.active) {
+    background: rgba(255,255,255,0.05);
+    color: white;
+}
+
+/* MAIN CONTENT AREA (SINGLE FRAME) */
+.dashboard-main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    overflow: hidden;
+    width: 100%;
+}
+
+.dashboard-content-scroll {
+    flex-grow: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 16px;
+    scrollbar-width: thin;
+    background: white;
+}
+
+/* METRIC CARDS (HIGH-PRECISION INSET) */
+.metric-card {
+    background: white;
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-label { 
+    font-size: 8px; 
+    text-transform: uppercase; 
+    color: #64748b; 
+    font-weight: 800; 
+    margin-bottom: 6px; 
+    letter-spacing: 1px; 
+}
+
+.metric-value-inset {
+    background: #f1f5f9;
+    border-radius: 4px;
+    padding: 8px 12px;
+    display: inline-block;
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid #e2e8f0;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.metric-value-inset.text-primary { color: #0ea5e9 !important; }
+.metric-value-inset.text-success { color: #22c55e !important; }
+
+/* KINETIC STATUS INDICATORS */
+.neural-pulse-small { 
+    width: 6px; 
+    height: 6px; 
+    background: #0ea5e9; 
+    border-radius: 50%; 
+    box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4); 
+    animation: pulse-small 2s infinite; 
+}
+
+@keyframes pulse-small { 
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4); } 
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(14, 165, 233, 0); } 
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); } 
+}
+
+/* SCROLLBAR REFINEMENT */
+.dashboard-content-scroll::-webkit-scrollbar { width: 6px; }
+.dashboard-content-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+.dashboard-content-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+.dashboard-main .btn-link {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none !important;
+}
+
+.dashboard-main .btn-link:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #38bdf8 !important;
+    text-decoration: none;
+}
+
+.dashboard-main .btn-link:hover i {
+    color: #38bdf8 !important;
+}
+
+/* SIMULATOR INSIGHT TOOLTIP */
+.sim-insight-card {
+    position: fixed !important;
+    z-index: 999999 !important;
+    width: 340px;
+    background: white !important;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    border: 1px solid #e2e8f0 !important;
+    padding: 20px;
+    display: none;
+    pointer-events: none;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    left: 0; 
+    top: 0;
+}
+
+/* NANO-ACTION BUTTONS */
+.btn-nano-action {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 9px;
+    padding: 0 10px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-nano-action:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #38bdf8;
+}
+
+.btn-nano-action i {
+    font-size: 10px;
+    color: #38bdf8;
+}
+
+/* CAUTION RED HOVER (CLOSE) */
+.btn-close-nano {
+    width: 24px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.1) url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/8px auto no-repeat;
+    border: none;
+    border-radius: 4px;
+    margin-left: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-close-nano:hover {
+    background-color: #ef4444 !important;
+    transform: rotate(90deg);
+}
+
+/* EXIT DASHBOARD (SIDEBAR) */
+.btn-exit-dash {
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+    color: #ef4444 !important;
+    background: transparent;
+    transition: all 0.2s ease;
+}
+
+.btn-exit-dash:hover {
+    background: #ef4444 !important;
+    color: white !important;
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+}
+
+.sim-insight-card.show { display: block !important; opacity: 1; }
+.insight-header { border-bottom: 1px solid #f1f5f9; margin-bottom: 15px; padding-bottom: 10px; }
+.insight-score-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; color: #64748b; font-weight: 500; }
+.insight-pill { padding: 4px 10px; border-radius: 8px; font-weight: 800; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.insight-snippet { font-size: 12px; line-height: 1.7; color: #334155; font-style: italic; background: #f8fafc; padding: 12px; border-radius: 10px; border-left: 4px solid #38bdf8; margin-top: 15px; }
