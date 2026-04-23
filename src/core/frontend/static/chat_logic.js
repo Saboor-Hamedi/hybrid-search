@@ -853,6 +853,110 @@ function updatePRCurve(results, judgedIds) {
     prCurveChart.update();
 }
 
+// === IR METRICS ENGINE (DRY) ===
+const IRMetrics = {
+    // FORMULAS
+    calculate: function(list) {
+        const k = list.length;
+        if (k === 0) return { p:0, r:0, f1:0, mrr:0, ndcg:0 };
+
+        const relevant = list.filter(item => item.isRel);
+        const relCount = relevant.length;
+        
+        const precision = relCount / k;
+        const totalJudgedRel = judgedDocs.size || 1;
+        const recall = relCount / totalJudgedRel;
+        const f1 = (precision + recall) > 0 ? (2 * precision * recall) / (precision + recall) : 0;
+        
+        let mrr = 0;
+        const firstRelIdx = list.findIndex(item => item.isRel);
+        if (firstRelIdx !== -1) mrr = 1 / (firstRelIdx + 1);
+        
+        let dcg = 0;
+        list.forEach((item, i) => { if (item.isRel) dcg += 1 / Math.log2(i + 2); });
+        let idcg = 0;
+        for (let i = 0; i < Math.min(relCount, k); i++) idcg += 1 / Math.log2(i + 2);
+        const ndcg = idcg > 0 ? dcg / idcg : 0;
+
+        // 6. Confusion Matrix (Top 5 as 'Predicted Relevant')
+        const top5 = list.slice(0, 5);
+        const rest = list.slice(5);
+        const tp = top5.filter(i => i.isRel).length;
+        const fp = top5.filter(i => !i.isRel).length;
+        const fn = rest.filter(i => i.isRel).length;
+        const tn = rest.filter(i => !i.isRel).length;
+
+        // 7. PR Trajectory Data
+        const prData = [];
+        let runningRel = 0;
+        list.forEach((item, i) => {
+            if (item.isRel) runningRel++;
+            prData.push({
+                p: runningRel / (i + 1),
+                r: runningRel / totalJudgedRel
+            });
+        });
+
+        return { 
+            p: precision * 100, 
+            r: recall * 100, 
+            f1: f1, 
+            mrr: mrr, 
+            ndcg: ndcg,
+            matrix: { tp, fp, fn, tn },
+            hits: list.map(i => i.isRel),
+            prData: prData
+        };
+    },
+    
+    // UI BRIDGE
+    updateUI: function(m) {
+        if (!m || !m.matrix) return;
+        
+        const map = {
+            'metricP': m.p.toFixed(1) + '%',
+            'metricR': m.r.toFixed(1) + '%',
+            'metricF1': m.f1.toFixed(3),
+            'metricMRR': m.mrr.toFixed(3),
+            'metricNDCG': m.ndcg.toFixed(3),
+            'sessionNDCG': m.ndcg.toFixed(3),
+            'sessionMRR': m.mrr.toFixed(3),
+            'matrixTP': m.matrix.tp,
+            'matrixFP': m.matrix.fp,
+            'matrixFN': m.matrix.fn,
+            'matrixTN': m.matrix.tn,
+            'metricH1': m.hits && m.hits[0] ? '✓' : '✗',
+            'metricH3': m.hits && m.hits.slice(0,3).some(x=>x) ? '✓' : '✗',
+            'metricH5': m.hits && m.hits.slice(0,5).some(x=>x) ? '✓' : '✗',
+            'metricH10': m.hits && m.hits.slice(0,10).some(x=>x) ? '✓' : '✗'
+        };
+        
+        Object.entries(map).forEach(([id, val]) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        });
+
+        const gpaEl = document.getElementById('sessionGPA');
+        if (gpaEl) {
+            const score = (m.f1 * 0.4) + (m.ndcg * 0.6);
+            let grade = 'C';
+            if (score > 0.9) grade = 'A+';
+            else if (score > 0.8) grade = 'A';
+            else if (score > 0.7) grade = 'B+';
+            else if (score > 0.6) grade = 'B';
+            gpaEl.textContent = grade;
+        }
+
+        if (window.prCurveChart && m.prData) {
+            try {
+                const data = m.prData.map(p => ({ x: p.r, y: p.p }));
+                window.prCurveChart.data.datasets[0].data = data;
+                window.prCurveChart.update('none');
+            } catch(e) { console.warn("PR Chart update failed", e); }
+        }
+    }
+};
+
 // === THESIS HUB: DYNAMIC RE-RANKING (NEW) ===
 function handleAlphaSimulation() {
     const range = document.getElementById('alphaSimulationRange');
@@ -915,7 +1019,15 @@ function handleAlphaSimulation() {
         // 2. Sort by Simulated Score
         simulated.sort((a,b) => b.score - a.score);
         
-        // 3. Render with Rank Shift indicators & Contribution Bars
+        // 3. Update Metrics Dashboard (with error safety)
+        try {
+            const metrics = IRMetrics.calculate(simulated);
+            IRMetrics.updateUI(metrics);
+        } catch(err) {
+            console.error("Metric sync failed", err);
+        }
+
+        // 4. Render Preview List (CRITICAL)
         renderRerankPreview(simulated);
     });
 }

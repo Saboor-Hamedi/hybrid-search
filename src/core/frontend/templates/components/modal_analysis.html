@@ -168,6 +168,28 @@
                                     <div class="flex-grow-1 p-1 border rounded bg-dark text-white x-small">H@10 <div class="fw-bold" id="metricH10">-</div></div>
                                 </div>
                             </div>
+
+                            <div class="mt-4">
+                                <h6 class="text-primary fw-bold text-uppercase small mb-3">Decision Matrix</h6>
+                                <div class="row g-1 text-center font-monospace" style="font-size: 10px;">
+                                    <div class="col-6 p-2 border bg-success-subtle rounded-start">
+                                        <div class="text-muted">HITS (TP)</div>
+                                        <div class="h5 fw-bold text-success mb-0" id="matrixTP">0</div>
+                                    </div>
+                                    <div class="col-6 p-2 border bg-danger-subtle rounded-end">
+                                        <div class="text-muted">NOISE (FP)</div>
+                                        <div class="h5 fw-bold text-danger mb-0" id="matrixFP">0</div>
+                                    </div>
+                                    <div class="col-6 p-2 border bg-warning-subtle rounded-start">
+                                        <div class="text-muted">MISSES (FN)</div>
+                                        <div class="h5 fw-bold text-warning mb-0" id="matrixFN">0</div>
+                                    </div>
+                                    <div class="col-6 p-2 border bg-light rounded-end">
+                                        <div class="text-muted">SKIP (TN)</div>
+                                        <div class="h5 fw-bold text-muted mb-0" id="matrixTN">0</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
