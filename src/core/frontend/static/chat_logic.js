@@ -812,15 +812,17 @@ function updateGPA(ndcg, mrr, qpms) {
     setT('sessionMRR', avgMRR.toFixed(4));
     setT('sessionQpMS', avgQpMS.toFixed(4));
 
-    // Dynamic Letter Grade
-    const gpaEl = document.getElementById('sessionGPA');
-    if (gpaEl) {
-        if (avgNDCG > 0.8) gpaEl.textContent = 'A+';
-        else if (avgNDCG > 0.6) gpaEl.textContent = 'A';
-        else if (avgNDCG > 0.4) gpaEl.textContent = 'B';
-        else if (avgNDCG > 0.2) gpaEl.textContent = 'C';
-        else gpaEl.textContent = 'D';
-    }
+    // Dynamic Letter Grade (Neural Weighted Scaling)
+    const score = (avgNDCG * 0.6) + (avgMRR * 0.4); // For global average, we weight by MRR as F1 varies too much
+    let grade = 'C';
+    if (score > 0.9) grade = 'A+';
+    else if (score > 0.8) grade = 'A';
+    else if (score > 0.7) grade = 'B+';
+    else if (score > 0.6) grade = 'B';
+    
+    const setGrade = (id) => { const el = document.getElementById(id); if(el) el.textContent = grade; };
+    setGrade('sessionGPA');
+    setGrade('sessionGPAHeader');
 }
 
 function updatePRCurve(results, judgedIds) {
@@ -939,17 +941,17 @@ const IRMetrics = {
             if (el) el.textContent = val;
         });
 
-        const gpaEl = document.getElementById('sessionGPA');
-        if (gpaEl) {
-            const score = (m.f1 * 0.4) + (m.ndcg * 0.6);
-            let grade = 'C';
-            if (score > 0.9) grade = 'A+';
-            else if (score > 0.8) grade = 'A';
-            else if (score > 0.7) grade = 'B+';
-            else if (score > 0.6) grade = 'B';
-            gpaEl.textContent = grade;
-        }
-
+        const score = (m.f1 * 0.4) + (m.ndcg * 0.6);
+        let grade = 'C';
+        if (score > 0.9) grade = 'A+';
+        else if (score > 0.8) grade = 'A';
+        else if (score > 0.7) grade = 'B+';
+        else if (score > 0.6) grade = 'B';
+        
+        const setGrade = (id) => { const el = document.getElementById(id); if(el) el.textContent = grade; };
+        setGrade('sessionGPA');
+        setGrade('sessionGPAHeader');
+    
         if (window.prCurveChart && window.prCurveChart.data && window.prCurveChart.data.datasets && m.prData) {
             try {
                 const data = m.prData.map(p => ({ x: p.r, y: p.p }));
