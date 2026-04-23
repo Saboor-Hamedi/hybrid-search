@@ -370,6 +370,12 @@ function showSessionAnalysis(btn) {
     // Load Chart
     preloadStrategyChart();
     
+    // Trigger Alpha Simulation to populate the preview list
+    setTimeout(() => {
+        const range = document.getElementById('alphaSimulationRange');
+        if (range) range.dispatchEvent(new Event('input'));
+    }, 200);
+    
     bootstrap.Modal.getOrCreateInstance(document.getElementById('analysisModal')).show();
 }
 
@@ -860,28 +866,35 @@ function handleAlphaSimulation() {
         const currentModalBtn = document.querySelector('button[onclick="showSessionAnalysis(this)"]');
         if (!currentModalBtn) return;
         
-        const container = currentModalBtn.closest('.tab-content') || document;
         const resultItems = Array.from(document.querySelectorAll('.result-item'));
-        
         if (resultItems.length === 0) return;
 
-        const simulated = resultItems.map(item => {
-            const btn = item.querySelector('.analysis-btn');
+        // 1. Calculate Simulated Scores with Normalization
+        const simulated = resultItems.map((item, originalIndex) => {
+            const btn = item.querySelector('.analysis-btn') || item.querySelector('button[onclick^="showAnalysis"]');
             if(!btn) return null;
             const d = btn.dataset;
+            
             const sem = d.sem !== 'N/A' ? parseFloat(d.sem) : 0;
             const key = d.key !== 'N/A' ? parseFloat(d.key) : 0;
-            const simScore = (alpha * sem) + ((1 - alpha) * key);
+            
+            // Normalize: Semantic is already 0-1. For Keyword (BM25), we assume ~15 is a strong score.
+            const keyNorm = Math.min(1.0, key / 15.0);
+            const simScore = (alpha * sem) + ((1 - alpha) * keyNorm);
+            
             return {
                 id: d.docId,
                 title: item.querySelector('.result-title span')?.textContent || "Doc #" + d.docId,
                 score: simScore,
-                originalRank: parseInt(item.dataset.rank || 0),
+                originalRank: originalIndex + 1,
                 isRel: judgedDocs.has(d.docId)
             };
         }).filter(x => x !== null);
 
+        // 2. Sort by Simulated Score
         simulated.sort((a,b) => b.score - a.score);
+        
+        // 3. Render with Rank Shift indicators
         renderRerankPreview(simulated);
     });
 }
@@ -890,18 +903,31 @@ function renderRerankPreview(list) {
     const previewList = document.getElementById('rerankPreviewList');
     if (!previewList) return;
 
-    previewList.innerHTML = list.map((item, idx) => `
+    previewList.innerHTML = list.map((item, idx) => {
+        const newRank = idx + 1;
+        const shift = item.originalRank - newRank;
+        let shiftHtml = '';
+        
+        if (shift > 0) shiftHtml = `<span class="text-success"><i class="bi bi-caret-up-fill"></i>${shift}</span>`;
+        else if (shift < 0) shiftHtml = `<span class="text-danger"><i class="bi bi-caret-down-fill"></i>${Math.abs(shift)}</span>`;
+        else shiftHtml = `<span class="text-muted opacity-50">•</span>`;
+
+        return `
         <div class="d-flex align-items-center justify-content-between p-2 x-small border-bottom ${item.isRel ? 'bg-success-subtle border-success' : ''}">
             <div class="d-flex align-items-center gap-2 overflow-hidden">
-                <span class="badge bg-secondary font-monospace" style="font-size: 8px;">#${idx+1}</span>
+                <div class="d-flex flex-column align-items-center" style="min-width: 20px;">
+                    <span class="badge bg-secondary font-monospace" style="font-size: 8px;">#${newRank}</span>
+                    <div style="font-size: 7px; font-weight: bold;">${shiftHtml}</div>
+                </div>
                 <div class="text-truncate" style="max-width: 140px; font-weight: 500;">${item.title}</div>
             </div>
             <div class="text-end ms-2">
                 <div class="fw-bold text-primary" style="font-size: 9px;">${item.score.toFixed(3)}</div>
-                <div class="text-muted" style="font-size: 7px;">Prev Rank: ${item.originalRank || '-'}</div>
+                <div class="text-muted" style="font-size: 7px;">Was #${item.originalRank}</div>
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function initPRCurveChart() {

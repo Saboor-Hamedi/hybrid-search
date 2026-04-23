@@ -38,7 +38,7 @@
               </button>
               <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3" style="font-size: 0.8rem;">
                   <li>
-                      <button class="dropdown-item d-flex align-items-center gap-2" onclick="showAnalysis(this)"
+                      <button class="dropdown-item d-flex align-items-center gap-2 analysis-btn" onclick="showAnalysis(this)"
                           data-doc-id="{{ r.doc_id }}"
                           data-score="{{ r.score }}"
                           data-sem="{{ r.semantic_score if r.semantic_score is not none else 'N/A' }}"
