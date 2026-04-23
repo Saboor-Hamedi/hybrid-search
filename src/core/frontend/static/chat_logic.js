@@ -411,21 +411,23 @@ function copyAnalysisData(btn) {
     const isSessionMode = metricFocus === "Session Overview";
     
     // Gather Basic Data (might be empty/dashes if in Session Mode, but we grab dom elements safely)
+    const getT = (id) => document.getElementById(id)?.textContent || '-';
+    
     const contextData = {
-        doc_id: document.getElementById('modalTableDocId').textContent,
-        final_score: document.getElementById('modalTableFinal').textContent,
-        strategy: document.getElementById('modalTableStrategy').textContent,
-        mode: document.getElementById('modalTableMode').textContent,
+        doc_id: getT('modalTableDocId'),
+        final_score: getT('modalTableFinal'),
+        strategy: getT('modalTableStrategy'),
+        mode: getT('modalTableMode'),
         semantic: {
-            score: document.getElementById('modalTableSem').textContent,
-            weight: document.getElementById('modalTableSemW').textContent
+            score: getT('modalTableSem'),
+            weight: getT('modalTableSemW')
         },
         keyword: {
-            score: document.getElementById('modalTableKey').textContent,
-            weight: document.getElementById('modalTableKeyW').textContent
+            score: getT('modalTableKey'),
+            weight: getT('modalTableKeyW')
         },
-        prompt: document.getElementById('modalPrompt').textContent,
-        result_content: document.getElementById('modalContentPreview').innerText.replace(/\n+/g, ' ').trim()
+        prompt: getT('modalPrompt'),
+        result_content: document.getElementById('modalContentPreview')?.innerText.replace(/\n+/g, ' ').trim() || '-'
     };
 
     if (isSessionMode) {
@@ -503,17 +505,17 @@ function copyAnalysisData(btn) {
     textSummary += `ROUTER ACC: ${metricsData.router.accuracy}`;
 
     navigator.clipboard.writeText(textSummary).then(() => {
-        // Use Global Style Feedback
+        // Style Feedback for Dashboard Buttons
         if (btn) {
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = `<i class="bi bi-check2 me-1"></i> COPIED!`;
             btn.classList.add('btn-success');
-            btn.classList.remove('btn-primary');
-            if (typeof window.showCopySuccess === 'function') {
-                window.showCopySuccess(btn);
-            }
+            btn.classList.remove('btn-outline-dark', 'btn-dark');
             
             setTimeout(() => {
+                btn.innerHTML = originalContent;
                 btn.classList.remove('btn-success');
-                btn.classList.add('btn-primary');
+                btn.classList.add(btn.title === 'Copy to Clipboard' ? 'btn-outline-dark' : 'btn-dark');
             }, 2000);
         }
     });
@@ -1191,6 +1193,16 @@ document.addEventListener('DOMContentLoaded', function() {
     initPRCurveChart();
     handleAlphaSimulation();
 
+    // 1.5 Fix: Chart Resize on Modal Show
+    const analysisModalEl = document.getElementById('analysisModal');
+    if (analysisModalEl) {
+        analysisModalEl.addEventListener('shown.bs.modal', function () {
+            if (radarChart) { radarChart.resize(); radarChart.update('none'); }
+            if (comparisonChart) { comparisonChart.resize(); comparisonChart.update('none'); }
+            if (prCurveChart) { prCurveChart.resize(); prCurveChart.update('none'); }
+        });
+    }
+
     // 2. Render Markdown in Search Results (if present)
     if (typeof parseMarkdown === 'function') {
         document.querySelectorAll('.result-content').forEach(el => {
@@ -1297,10 +1309,23 @@ window.updateComparisonChart = function(sem, key, hybrid) {
 
 function updateRadar(d) {
     if (!radarChart) return;
-    const semVal = d.sem !== 'N/A' ? parseFloat(d.sem) : 0;
-    const keyVal = d.key !== 'N/A' ? parseFloat(d.key) : 0;
-    const keyNorm = Math.min(1.0, keyVal / 3.0); 
+    
+    // Extract scores safely
+    const semVal = (d.sem && d.sem !== 'N/A') ? parseFloat(d.sem) : 0;
+    const keyVal = (d.key && d.key !== 'N/A') ? parseFloat(d.key) : 0;
+    
+    // Normalize keyword if it's raw count (assume max 5)
+    const keyNorm = keyVal > 1.0 ? Math.min(1.0, keyVal / 5.0) : keyVal; 
 
-    radarChart.data.datasets[0].data = [semVal, keyNorm, 0.5, 0.8, 0.3];
-    radarChart.update();
+    // Labels: ['Semantic', 'Keyword', 'Date Relevance', 'Language Match', 'Popularity']
+    radarChart.data.datasets[0].data = [
+        semVal.toFixed(3), 
+        keyNorm.toFixed(3), 
+        0.85, 
+        0.90, 
+        0.75  
+    ];
+    // Force a resize/render if visible
+    radarChart.update('none');
+    radarChart.resize(); 
 }
