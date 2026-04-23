@@ -10,22 +10,17 @@
       <div class="search-input-container">
         <!-- PDF Upload Trigger -->
         <input type="file" id="quickPdfInput" accept=".pdf" multiple style="display: none;">
-        <textarea 
-          name="query" 
-          class="search-input" 
-          placeholder="Ask me anything..." 
-          rows="1"
-          autofocus
-        ></textarea>
-        
+        <textarea name="query" class="search-input" placeholder="Ask me anything..." rows="1" autofocus></textarea>
+
         <div class="input-footer">
           <div class="search-options d-flex align-items-center gap-1">
             <!-- Search Type Hidden State -->
             <input type="hidden" name="search_type" id="activeSearchType" value="search">
             <input type="hidden" name="mode" id="activeModeInput" value="{{ mode or 'hybrid' }}">
             <input type="hidden" name="page_size" value="10">
-            <input type="checkbox" name="use_ai" id="aiToggle" value="on" {% if use_ai %}checked{% endif %} style="display: none;">
-            
+            <input type="checkbox" name="use_ai" id="aiToggle" value="on" {% if use_ai %}checked{% endif %}
+              style="display: none;">
+
             <div class="search-type-toggle d-flex align-items-center gap-1 me-2">
               <button type="button" class="type-pill active" data-type="search" title="RAG Search Mode">
                 <i class="bi bi-search"></i>
@@ -46,11 +41,11 @@
 
           <!-- Send button -->
           <button type="submit" class="search-btn">
-            <i class="bi bi-arrow-up-short"></i> 
+            <i class="bi bi-arrow-up-short"></i>
           </button>
         </div>
       </div>
-      
+
       <input type="hidden" name="page" value="1">
       <!-- Hidden Bindings for Advanced Search Params (Synced via Command Palette or defaults) -->
       <input type="hidden" name="fusion_strategy" value="{{ fusion_strategy }}">

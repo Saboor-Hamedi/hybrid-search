@@ -599,8 +599,52 @@ async def upload_pdf_endpoint(background_tasks: BackgroundTasks, file: UploadFil
         raise HTTPException(status_code=500, detail=f"PDF upload failed: {str(e)}")
 
 # --------------------------------------------------------------------- #
-# System Stats & Reset
+# System Health & Stats
 # --------------------------------------------------------------------- #
+@app.get("/api/system/health")
+def get_system_health():
+    """Detailed telemetry for HNSW index and storage health."""
+    conn, cursor = get_db()
+    try:
+        # Get counts
+        cursor.execute("SELECT COUNT(*) FROM document")
+        doc_count = cursor.fetchone()[0]
+        
+        cursor.execute("SELECT COUNT(*) FROM document_embedding")
+        embed_count = cursor.fetchone()[0]
+        
+        # Get HNSW stats
+        cursor.execute("""
+            SELECT pg_size_pretty(pg_relation_size('document_embedding_embedding_idx'));
+        """)
+        index_size = cursor.fetchone()[0]
+        
+        # Get storage size of the table themselves
+        cursor.execute("SELECT pg_size_pretty(pg_total_relation_size('document'));")
+        doc_storage = cursor.fetchone()[0]
+        
+        cursor.execute("SELECT pg_size_pretty(pg_total_relation_size('document_embedding'));")
+        embed_storage = cursor.fetchone()[0]
+        
+        return {
+            "status": "healthy",
+            "document_count": doc_count,
+            "embedding_count": embed_count,
+            "index_size": index_size,
+            "doc_storage": doc_storage,
+            "embed_storage": embed_storage,
+            "hnsw_config": {
+                "index_name": "document_embedding_embedding_idx",
+                "m": 16,
+                "ef_construction": 64
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Health probe failed: {str(e)}")
+    finally:
+        cursor.close()
+        conn.close()
+
 @app.get("/api/system/stats")
 def get_system_stats():
     conn, cursor = get_db()

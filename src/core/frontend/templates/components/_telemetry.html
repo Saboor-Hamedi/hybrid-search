@@ -1,0 +1,59 @@
+<!-- Sidebar Telemetry Widget (HNSW Insight) -->
+<div class="telemetry-sidebar-widget px-1 py-1" style="font-size: 0.75rem;">
+    <div class="d-flex align-items-center gap-2 mb-2">
+        <span class="status-dot-pulse"></span>
+        <span class="fw-bold text-muted x-small" style="text-transform: uppercase;">Node: pgvector</span>
+    </div>
+    
+    <div class="telemetry-stats d-flex flex-column gap-1 opacity-75">
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="text-secondary small">HNSW Index:</span>
+            <span id="telemetryIndexSize" class="fw-bold text-info">--</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="text-secondary small">Total Docs:</span>
+            <span id="telemetryDocCount" class="fw-bold">--</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="text-secondary small">Disk Usage:</span>
+            <span id="telemetryStorage" class="fw-bold text-warning">--</span>
+        </div>
+    </div>
+    
+    <div class="mt-2 pt-2 border-top border-secondary opacity-50" style="font-size: 0.65rem;">
+        HNSW M: 16 | EF: 64
+    </div>
+</div>
+
+<style>
+.status-dot-pulse {
+    width: 6px; height: 6px; background: #10b981; border-radius: 50%;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    animation: pulse-green 2s infinite;
+}
+@keyframes pulse-green {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+</style>
+
+<script>
+    async function updateTelemetrySidebar() {
+        try {
+            const resp = await fetch('http://localhost:8000/api/system/health');
+            if (!resp.ok) return;
+            const data = await resp.json();
+            
+            document.getElementById('telemetryIndexSize').textContent = data.index_size || '--';
+            document.getElementById('telemetryDocCount').textContent = data.document_count ? data.document_count.toLocaleString() : '--';
+            document.getElementById('telemetryStorage').textContent = data.embed_storage || '--';
+        } catch (e) {
+            console.error("Telemetry widget sync failed", e);
+        }
+    }
+
+    // Refresh every 30s
+    setInterval(updateTelemetrySidebar, 30000);
+    document.addEventListener('DOMContentLoaded', updateTelemetrySidebar);
+</script>

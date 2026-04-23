@@ -19,24 +19,11 @@
       </button>
     </div>
 
-    <div class="sidebar-section">
-      <h6>Recent History</h6>
-      <div class="history-list">
-        <!-- Placeholders or dynamic items -->
-        <div class="history-item active">
-          <i class="bi bi-chat-left-text"></i>
-          <span>Current Search</span>
-        </div>
-        <div class="history-item">
-          <i class="bi bi-chat-left"></i>
-          <span>Machine Learning Basics</span>
-        </div>
-        <div class="history-item">
-          <i class="bi bi-chat-left"></i>
-          <span>Python Fast API</span>
-        </div>
-      </div>
+    <div class="sidebar-section mt-4 mb-4">
+      <h6 class="text-muted small">System Health</h6>
+      {% include 'components/_telemetry.html' %}
     </div>
+
   </div>
 
   <div class="sidebar-footer">
