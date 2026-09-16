@@ -7,11 +7,20 @@
 #analysisModal .modal-content {
     border-radius: 12px;
     overflow: hidden;
-    height: 85vh;
-    max-height: 900px;
+    height: 96vh;
+    max-height: 1100px;
     background: #0f172a;
     border: none;
+    z-index: 100;
     box-shadow: 0 0 100px rgba(0,0,0,0.3);
+}
+
+#analysisModal .modal-dialog {
+    max-width: 98vw;
+}
+
+#analysisModal .modal-xl {
+    max-width: 98vw;
 }
 
 .dashboard-wrapper {
@@ -242,3 +251,40 @@
 .insight-score-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; color: #64748b; font-weight: 500; }
 .insight-pill { padding: 4px 10px; border-radius: 8px; font-weight: 800; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
 .insight-snippet { font-size: 12px; line-height: 1.7; color: #334155; font-style: italic; background: #f8fafc; padding: 12px; border-radius: 10px; border-left: 4px solid #38bdf8; margin-top: 15px; }
+
+/* CHART CONTAINER — ALL CANVASES FILL PARENT */
+#scoreRadarChart,
+#strategyComparisonChart,
+#prCurveChart,
+#latencyChart,
+#histogramChart,
+#scatterChart,
+#methodChart,
+#doughnutChart {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.metric-card canvas {
+    max-height: 100%;
+}
+
+#winnerSummary {
+    font-size: 10px;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+/* BIGGER SIDEBAR FITS LARGER CONTENT */
+.dashboard-sidebar {
+    width: 220px;
+}
+
+/* INCREASE METRIC VALUE SIZE */
+.metric-value-inset {
+    font-size: 22px;
+    padding: 10px 14px;
+}
+
+.metric-value-inset.text-primary { color: #0ea5e9 !important; }
+.metric-value-inset.text-success { color: #22c55e !important; }

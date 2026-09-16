@@ -1,4 +1,4 @@
-from utils.ColorScheme import ColorScheme
+from core.utils.ColorScheme import ColorScheme
 
 cs = ColorScheme()
 MENU = {
@@ -35,7 +35,7 @@ def safe_int_input(prompt: str) -> int | None:
         return None
 
 def is_back(text: str) -> bool:
-    from utils.helper_functions import go_back
+    from core.utils.helper_functions import go_back
     return go_back(text)
 
 

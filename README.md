@@ -106,8 +106,10 @@ git clone <repository-url>
 cd hybrid_search
 ```
 
-2. **Install Dependencies**
+2. **Create Virtual Environment & Install Dependencies**
 ```bash
+python -m venv venv
+venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
@@ -134,13 +136,17 @@ export DB_PASSWORD=your_password
 python src/core/db/migrations/create_tables.py
 ```
 
-6. **Start Services**
+6. **Activate Environment & Start Services**
 ```bash
+# Activate virtual environment
+venv\Scripts\activate
+
 # Terminal 1: FastAPI backend
-cd src/core
+cd src
 uvicorn app:app --reload --port 8000
 
 # Terminal 2: Flask frontend
+cd src
 python flask_app.py
 ```
 

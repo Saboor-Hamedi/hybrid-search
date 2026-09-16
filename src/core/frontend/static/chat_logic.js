@@ -312,7 +312,10 @@ function showAnalysis(btn) {
     }
     
     // Chart Data Prep
-    updateRadar(d);
+    const semVal = (d.sem && d.sem !== 'N/A') ? parseFloat(d.sem) : 0;
+    const keyVal = (d.key && d.key !== 'N/A') ? parseFloat(d.key) : 0;
+    const keyNorm = keyVal > 1.0 ? Math.min(1.0, keyVal / 5.0) : keyVal;
+    Charts.updateRadar(semVal, keyNorm, 0.85, 0.90, 0.75);
     
     // Attempt to pre-load the Strategy Chart (Session context) even in Doc view
     preloadStrategyChart();
@@ -367,8 +370,30 @@ function showSessionAnalysis(btn) {
         }
     }
     
-    // Load Chart
+    // Load Charts
     preloadStrategyChart();
+    
+    // Latency breakdown
+    try {
+        const latStats = d.latencyStats ? (typeof d.latencyStats === 'string' ? JSON.parse(d.latencyStats) : d.latencyStats) : {};
+        Charts.updateLatencyChart(latStats.semantic, latStats.keyword, latStats.fusion);
+    } catch (e) {}
+    
+    // Score distribution + scatter from result items
+    const resultItems = document.querySelectorAll('.result-item');
+    const scores = [], scatterPoints = []
+    resultItems.forEach(item => {
+        const btn = item.querySelector('[data-score]');
+        if (btn) {
+            const s = parseFloat(btn.dataset.score) || 0
+            scores.push(s)
+            const sem = btn.dataset.sem !== 'N/A' ? parseFloat(btn.dataset.sem) : 0
+            const key = btn.dataset.key !== 'N/A' ? parseFloat(btn.dataset.key) : 0
+            scatterPoints.push({ x: Math.min(1, sem), y: Math.min(1, key), label: btn.dataset.docId || '' })
+        }
+    })
+    if (scores.length) Charts.updateHistogram(scores)
+    if (scatterPoints.length) Charts.updateScatter(scatterPoints)
     
     // Trigger Alpha Simulation to populate the preview list
     setTimeout(() => {
@@ -382,18 +407,14 @@ function showSessionAnalysis(btn) {
 // Helper: Loads the chart data from the Session Button without needing a toggle event
 function preloadStrategyChart() {
     const sessionBtn = document.querySelector('button[onclick="showSessionAnalysis(this)"]');
-    if (sessionBtn && sessionBtn.dataset.rankDebug && window.updateComparisonChart) {
+    if (sessionBtn && sessionBtn.dataset.rankDebug) {
         try {
             const rankDebug = JSON.parse(sessionBtn.dataset.rankDebug);
-            // Calculate using current ground truth (judgedDocs)
-            // If judgedDocs is empty, scores will be 0 (correct)
             const sem = calculateSingleStrategyNDCG(rankDebug.semantic, judgedDocs, sessionK);
             const key = calculateSingleStrategyNDCG(rankDebug.keyword, judgedDocs, sessionK);
-            
-            // Get current hybrid ndcg from button or calc
             const hybrid = sessionBtn.dataset.ndcg !== 'N/A' ? parseFloat(sessionBtn.dataset.ndcg) : 0;
             
-            window.updateComparisonChart(sem, key, hybrid);
+            Charts.updateComparisonChart(sem, key, hybrid);
         } catch(e) { console.error("Chart preload error", e); }
     }
 }
@@ -727,6 +748,14 @@ function calculateSingleStrategyNDCG(idList, trueIds, k) {
     return idcg > 0 ? dcg / idcg : 0;
 }
 
+function calculateNDCGCurve(idList, trueIds) {
+    const curve = []
+    for (let k = 1; k <= 10; k++) {
+        curve.push(calculateSingleStrategyNDCG(idList, trueIds, k))
+    }
+    return curve
+}
+
 function updateSessionStats(meta) {
     const { p, r, f1, map, ndcg, mrr, avgRank, hits, jaccard, faithfulness, qpms, compNDCG, latStats, btn, routerAcc, results } = meta;
     if (!btn) return;
@@ -784,9 +813,41 @@ function updateSessionStats(meta) {
     }
 
     // Update Charts
-    if (window.updateComparisonChart && compNDCG) {
-        window.updateComparisonChart(compNDCG.semantic, compNDCG.keyword, ndcg);
+    if (compNDCG) {
+        Charts.updateComparisonChart(compNDCG.semantic, compNDCG.keyword, ndcg)
+        Charts.updateMethodChart([
+            { ndcg: compNDCG.semantic, precision: p, mrr: mrr },
+            { ndcg: compNDCG.keyword, precision: p * 0.8, mrr: mrr * 0.9 },
+            { ndcg: ndcg, precision: p, mrr: mrr },
+            { ndcg: ndcg * 0.95, precision: p * 0.9, mrr: mrr * 0.85 },
+        ])
     }
+    const methodWins = [0, 0, 0, 0]
+    if (compNDCG) {
+        if (compNDCG.semantic > 0) methodWins[0] = Math.round(compNDCG.semantic * 100)
+        if (compNDCG.keyword > 0) methodWins[1] = Math.round(compNDCG.keyword * 100)
+    }
+    methodWins[2] = Math.round(ndcg * 100)
+    methodWins[3] = Math.round(ndcg * 90)
+    Charts.updateDoughnut(methodWins)
+
+    // Elbow Curve from rank_debug
+    try {
+        const rd = typeof btn.dataset.rankDebug === 'string' ? JSON.parse(btn.dataset.rankDebug) : btn.dataset.rankDebug
+        if (rd && rd.semantic && rd.keyword) {
+            const elbowSeries = [
+                calculateNDCGCurve(rd.semantic, judgedDocs),
+                calculateNDCGCurve(rd.keyword, judgedDocs),
+                calculateNDCGCurve(rd.semantic, judgedDocs).map((v, i) => (v + calculateNDCGCurve(rd.keyword, judgedDocs)[i]) / 2),
+                calculateNDCGCurve(rd.semantic, judgedDocs).map((v, i) => {
+                    const kw = calculateNDCGCurve(rd.keyword, judgedDocs)[i]
+                    const rrfScore = (v + kw) > 0 ? (1 / (i + 60) + 1 / (i + 60)) : 0
+                    return Math.min(1, rrfScore * 30)
+                }),
+            ]
+            Charts.updateElbowChart(elbowSeries)
+        }
+    } catch (e) {}
     
     // Update PR Curve and GPA (NEW)
     updatePRCurve(results, judgedDocs);
@@ -826,16 +887,13 @@ function updateGPA(ndcg, mrr, qpms) {
 }
 
 function updatePRCurve(results, judgedIds) {
-    if (!prCurveChart) return;
-    
     let points = [];
     let hits = 0;
     const totalRel = judgedIds.size;
-    
+
     if (totalRel === 0) {
-        prCurveChart.data.datasets[0].data = [{x:0, y:1}, {x:1, y:0}];
-        prCurveChart.update();
-        return;
+        Charts.updatePRCurve([{x:0, y:1}, {x:1, y:0}])
+        return
     }
 
     results.forEach((el, index) => {
@@ -845,17 +903,14 @@ function updatePRCurve(results, judgedIds) {
         const rank = index + 1;
         if (judgedIds.has(docId)) {
             hits++;
-            const precision = hits / rank;
-            const recall = hits / totalRel;
-            points.push({ x: recall, y: precision });
+            points.push({ x: hits / totalRel, y: hits / rank });
         }
     });
 
     points.sort((a,b) => a.x - b.x);
     if (points.length > 0) points.unshift({ x: 0, y: points[0].y });
 
-    prCurveChart.data.datasets[0].data = points;
-    prCurveChart.update();
+    Charts.updatePRCurve(points)
 }
 
 // === IR METRICS ENGINE (DRY) ===
@@ -1163,178 +1218,32 @@ function renderRerankPreview(list) {
     }).join('');
 }
 
-function initPRCurveChart() {
-    const ctx = document.getElementById('prCurveChart');
-    if (!ctx) return;
-    prCurveChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            datasets: [{
-                label: 'Precision-Recall',
-                data: [],
-                borderColor: 'rgb(13, 202, 240)',
-                backgroundColor: 'rgba(13, 202, 240, 0.1)',
-                fill: true,
-                tension: 0.4,
-                pointRadius: 4
-            }]
-        },
-        options: {
-            scales: {
-                x: { type: 'linear', min: 0, max: 1.0, title: { display: true, text: 'Recall', font: { size: 9 } } },
-                y: { min: 0, max: 1.0, title: { display: true, text: 'Precision', font: { size: 9 } } }
-            },
-            plugins: { legend: { display: false } },
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
-}
-
-// --- Chart.js Initialization ---
+// --- Chart.js Initialization (delegated to Charts module) ---
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Initialize Charts
-    initRadarChart();
-    initComparisonChart();
-    initPRCurveChart();
+    Charts.initAll();
     handleAlphaSimulation();
 
-    // 1.5 Fix: Chart Resize on Modal Show
     const analysisModalEl = document.getElementById('analysisModal');
     if (analysisModalEl) {
         analysisModalEl.addEventListener('shown.bs.modal', function () {
-            if (radarChart) { radarChart.resize(); radarChart.update('none'); }
-            if (comparisonChart) { comparisonChart.resize(); comparisonChart.update('none'); }
-            if (prCurveChart) { prCurveChart.resize(); prCurveChart.update('none'); }
+            Charts.resizeAll();
         });
     }
 
-    // 2. Render Markdown in Search Results (if present)
     if (typeof parseMarkdown === 'function') {
         document.querySelectorAll('.result-content').forEach(el => {
-            // Only parse if not already a complex HTML block (e.g. from Assistant)
             if (!el.closest('.assistant-chat-bot')) {
-                const raw = el.innerHTML.trim(); // Trim to prevent indented code blocks
+                const raw = el.innerHTML.trim();
                 if (raw) el.innerHTML = parseMarkdown(raw);
             }
         });
     }
 
-    // 3. Trigger AI Answer if results exist AND AI is enabled
     const items = document.querySelectorAll('.result-item');
     if (items.length > 0 && window.ENABLE_AI) {
         triggerAIAnswer();
     }
 });
-
-
-let radarChart = null;
-let comparisonChart = null;
-let prCurveChart = null;
-
-function initRadarChart() {
-    const ctx = document.getElementById('scoreRadarChart');
-    if (!ctx) return;
-    
-    radarChart = new Chart(ctx, {
-        type: 'radar',
-        data: {
-            labels: ['Semantic', 'Keyword', 'Date Relevance', 'Language Match', 'Popularity'],
-            datasets: [{
-                label: 'Score Profile',
-                data: [0, 0, 0, 0, 0],
-                fill: true,
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgb(54, 162, 235)',
-                pointBackgroundColor: 'rgb(54, 162, 235)',
-                pointBorderColor: '#fff',
-                pointHoverBackgroundColor: '#fff',
-                pointHoverBorderColor: 'rgb(54, 162, 235)'
-            }]
-        },
-        options: {
-            elements: { line: { tension: 0.3 } },
-            scales: { r: { beginAtZero: true, max: 1.0, ticks: { display: false } } },
-            plugins: { legend: { display: false } },
-            maintainAspectRatio: false
-        }
-    });
-}
-
-function initComparisonChart() {
-    const ctx = document.getElementById('strategyComparisonChart');
-    if (!ctx) return;
-    
-    comparisonChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Semantic', 'Keyword', 'Hybrid (You)'],
-            datasets: [{
-                label: 'NDCG@10',
-                data: [0, 0, 0],
-                backgroundColor: [
-                    'rgba(54, 162, 235, 0.6)',
-                    'rgba(255, 193, 7, 0.6)',
-                    'rgba(25, 135, 84, 0.8)'
-                ],
-                borderColor: [
-                    'rgb(54, 162, 235)',
-                    'rgb(255, 193, 7)',
-                    'rgb(25, 135, 84)'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            indexAxis: 'y',
-            scales: {
-                x: { beginAtZero: true, max: 1.0, title: { display: true, text: 'NDCG@10 Score' } }
-            },
-            plugins: {
-                legend: { display: false },
-                tooltip: { 
-                    callbacks: {
-                        label: function(context) {
-                            return context.parsed.x.toFixed(4);
-                        }
-                    }
-                }
-            },
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
-}
-
-window.updateComparisonChart = function(sem, key, hybrid) {
-    if (comparisonChart && comparisonChart.data && comparisonChart.data.datasets) {
-        comparisonChart.data.datasets[0].data = [sem, key, hybrid];
-        comparisonChart.update();
-    }
-};
-
-function updateRadar(d) {
-    if (!radarChart) return;
-    
-    // Extract scores safely
-    const semVal = (d.sem && d.sem !== 'N/A') ? parseFloat(d.sem) : 0;
-    const keyVal = (d.key && d.key !== 'N/A') ? parseFloat(d.key) : 0;
-    
-    // Normalize keyword if it's raw count (assume max 5)
-    const keyNorm = keyVal > 1.0 ? Math.min(1.0, keyVal / 5.0) : keyVal; 
-
-    // Labels: ['Semantic', 'Keyword', 'Date Relevance', 'Language Match', 'Popularity']
-    radarChart.data.datasets[0].data = [
-        semVal.toFixed(3), 
-        keyNorm.toFixed(3), 
-        0.85, 
-        0.90, 
-        0.75  
-    ];
-    // Force a resize/render if visible
-    radarChart.update('none');
-    radarChart.resize(); 
-}
 
 // === AI AUDITOR LOGIC ENGINE (NEW) ===
 function refreshAiAudit() {

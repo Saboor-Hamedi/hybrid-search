@@ -1,5 +1,6 @@
-sentence-transformers==5.1.1
-langchain-text-splitters==0.3.11
+sentence-transformers==5.6.1
+langchain-text-splitters>=1.1.2
+langchain-community==0.4.2
 python-bidi==0.6.7
 arabic-reshaper==3.0.0
 python-dotenv==1.2.1
@@ -15,5 +16,13 @@ unicodedata2==17.0.0
 console==0.9911
 rich==14.2.0
 optimum==2.0.0
-pip install sentence-transformers
-pip install feedparser
+feedparser==6.0.12
+tf-keras==2.21.0
+fastapi==0.115.12
+uvicorn==0.34.2
+flask==3.1.1
+markupsafe==3.0.2
+requests>=2.32.5
+openai==1.95.0
+google-genai==2.1.0
+pydantic==2.11.1

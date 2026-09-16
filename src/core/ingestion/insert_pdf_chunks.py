@@ -1,10 +1,7 @@
 import os
 import re
 
-# 1. Unstructured_pdf_elements
-from ingestion.unstructured_pdf_elements import parse_pdf
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from utils.helper_functions import measure_time
+from core.utils.helper_functions import measure_time
 
 from core.db.operations.document_management import insert_document
 from core.models.ai_model import get_embedder
@@ -19,7 +16,6 @@ from core.utils.text_properties import (
 )
 
 cs = ColorScheme()
-model = get_embedder("paraphrase-multilingual-MiniLM-L12-v2")
 
 # Expanded patterns for common PDF noise
 HEADER_PATTERNS = [
@@ -68,6 +64,7 @@ def insert_pdf(file_path: str, conn, cursor):
     )
 
     # Parse PDF to elements
+    from core.ingestion.unstructured_pdf_elements import parse_pdf
     raw_elements = parse_pdf(file_path)
     if not raw_elements:
         print(f"{cs.YELLOW}No elements extracted. Aborting.{cs.RESET}")
@@ -84,6 +81,7 @@ def insert_pdf(file_path: str, conn, cursor):
         pdf_language = "unknown"
 
     # Chunking with better settings
+    from langchain_text_splitters import RecursiveCharacterTextSplitter
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=CHUNK_SIZE,
         chunk_overlap=CHUNK_OVERLAP,

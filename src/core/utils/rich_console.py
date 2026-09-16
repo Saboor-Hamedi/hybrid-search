@@ -7,8 +7,8 @@ from pygments import highlight
 from rich.console import Console
 from rich.table import Table, box
 from rich.text import Text
-from utils.ColorScheme import ColorScheme
-from utils.text_properties import repair_fragments
+from core.utils.ColorScheme import ColorScheme
+from core.utils.text_properties import repair_fragments
 
 cs = ColorScheme()
 console = Console()

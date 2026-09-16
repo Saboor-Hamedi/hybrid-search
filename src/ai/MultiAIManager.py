@@ -7,11 +7,11 @@ try:
     from .GeminiClient import GeminiClient
     from .OllamaClient import OllamaClient
 except ImportError:
-    from LLMProvider import LLMProvider
-    from ChatGPTClient import ChatGPTClient
-    from ClaudeClient import ClaudeClient
-    from DeepSeekClient import DeepSeekClient
-    from GeminiClient import GeminiClient
+    from ai.LLMProvider import LLMProvider
+    from ai.ChatGPTClient import ChatGPTClient
+    from ai.ClaudeClient import ClaudeClient
+    from ai.DeepSeekClient import DeepSeekClient
+    from ai.GeminiClient import GeminiClient
 
 class MultiAIManager:
     """

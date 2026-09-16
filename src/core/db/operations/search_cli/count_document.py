@@ -1,10 +1,3 @@
-import os
-import sys
-
-# NOTE: Since _execute_count only uses cursor, we don't strictly need conn in its signature.
-# We ensure the path is set correctly for imports if this is a separate file.
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-
 import psycopg2
 
 from core.utils.ColorScheme import ColorScheme

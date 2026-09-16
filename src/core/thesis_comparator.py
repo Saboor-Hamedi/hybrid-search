@@ -1,10 +1,5 @@
 import contextlib
-import os
-import sys
 from typing import Dict, List, Set, Tuple
-
-# Setup path
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from rich.console import Console
 from rich.table import Table
@@ -45,9 +40,9 @@ def compare_algorithms(query: str, top_n: int = 5):
 
     # 1. Run all searches and track latency
     latencies = {}
-    
+
     import time
-    
+
     # Semantic
     start = time.time()
     sem_results, _ = search_semantic(query, conn, cursor, model, top_k=20)
@@ -101,13 +96,13 @@ def compare_algorithms(query: str, top_n: int = 5):
     # Include LTR results in the candidate pool for the table
     for r_list in [sem_results, key_results, hyb_results, sum_results, mnz_results, rrf_results, ltr_results]:
         all_top_ids.extend([r[0] for r in r_list[:top_n]])
-    
+
     unique_ids = list(dict.fromkeys(all_top_ids)) # Preserve order of first appearance
 
     # 4. Build the Comparison Table
     table = Table(
-        title=f"\n[bold white]Algorithm Benchmarking & Side-by-Side Comparison (Top {top_n})[/]", 
-        header_style="bold magenta", 
+        title=f"\n[bold white]Algorithm Benchmarking & Side-by-Side Comparison (Top {top_n})[/]",
+        header_style="bold magenta",
         border_style="cyan",
         box=box.DOUBLE_EDGE,
         show_lines=True
@@ -163,53 +158,53 @@ def compare_algorithms(query: str, top_n: int = 5):
 
     console.print("\n")
     console.print(table)
-    
+
     # 5. Summary Insights & Performance
     perf_table = Table(title="Performance Measurement", box=box.SIMPLE)
     perf_table.add_column("Algorithm", style="cyan")
     perf_table.add_column("Latency (ms)", justify="right", style="green")
-    
+
     for m in ["semantic", "keyword", "linear", "combsum", "combmnz", "rrf", "ltr"]:
         perf_table.add_row(m.capitalize(), f"{latencies[m]:.1f}ms")
-        
+
     console.print(perf_table)
 
     console.print("\n[bold cyan]Analysis Summary:[/]")
-    
+
     s_top = set(list(sem_ranks.keys())[:5])
     r_top = set(list(rrf_ranks.keys())[:5])
     l_top = set(list(ltr_ranks.keys())[:5])
-    
+
     overlap_sr = len(s_top.intersection(r_top))
     overlap_sl = len(s_top.intersection(l_top))
-    
+
     console.print(f" • [white]RRF Alignment:[/] Overlaps with [green]{overlap_sr}/5[/] Semantic top hits.")
     console.print(f" • [white]LTR Alignment:[/] Overlaps with [green]{overlap_sl}/5[/] Semantic top hits.")
-    
+
     if ltr_results and sem_results:
         ltr_top = ltr_results[0][0]
         sem_top = sem_results[0][0]
         if ltr_top != sem_top:
              console.print(f" • [yellow]AI Re-Rank Change:[/] LTR chose Doc [bold white]#{ltr_top}[/] over Semantic's [bold white]#{sem_top}[/].")
-    
+
     cursor.close()
     conn.close()
 
 if __name__ == "__main__":
     console.clear()
     console.print(Panel.fit("[bold green]Thesis Algorithm Bench Loaded[/]\n[dim]Type 'exit' or 'q' to stop.[/]", border_style="green"))
-    
+
     while True:
         query = console.input("\n[bold yellow]Enter query to compare:[/] ").strip()
-        
+
         if query.lower() in ["exit", "q", "quit"]:
             console.print("[bold red]Evaluation Bench Closed.[/]")
             break
-            
+
         if not query:
             query = "artificial intelligence"
             console.print(f"[dim]Empty input. Using default: '{query}'[/]")
-        
+
         try:
             compare_algorithms(query)
             console.print("\n" + "─" * 80 + "\n")

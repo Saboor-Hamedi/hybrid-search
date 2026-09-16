@@ -69,10 +69,10 @@
                         </button>
                     </div>
 
-                    <div class="mt-auto p-3 border-top border-white border-opacity-10">
+                    <div class="mt-auto p-2 border-top border-white border-opacity-10">
                         <div class="text-white-50 x-small mb-2" style="font-size: 7px;">System: RRF_FUSION_V3</div>
                         <button type="button" class="btn btn-outline-danger btn-sm w-100 fw-bold btn-exit-dash"
-                            data-bs-dismiss="modal" style="font-size: 9px; height: 28px;">
+                            data-bs-dismiss="modal" style="font-size: 9px; ">
                             EXIT DASHBOARD
                         </button>
                     </div>
@@ -87,9 +87,9 @@
                         <div class="tab-pane fade show active" id="basicTab" role="tabpanel">
                             <div class="row g-4">
                                 <div class="col-md-5">
-                                    <div class="metric-card" style="min-height: 450px;">
+                                    <div class="metric-card" style="min-height: 500px;">
                                         <h6 class="metric-label border-bottom pb-2 mb-4">Neural Fingerprint Profile</h6>
-                                        <div style="height: 350px;">
+                                        <div style="height: 420px;">
                                             <canvas id="scoreRadarChart"></canvas>
                                         </div>
                                     </div>
@@ -187,7 +187,22 @@
                                         </div>
                                     </div>
 
-                                    <div class="metric-card" style="height: 400px;">
+                                    <div class="row g-3 mb-4">
+                                        <div class="col-md-6">
+                                            <div class="metric-card" style="height: 380px;">
+                                                <h6 class="metric-label mb-3">Latency Breakdown</h6>
+                                                <canvas id="latencyChart"></canvas>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="metric-card" style="height: 380px;">
+                                                <h6 class="metric-label mb-3">Score Distribution</h6>
+                                                <canvas id="histogramChart"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="metric-card" style="height: 460px;">
                                         <h6 class="metric-label mb-4">Strategy Benchmarking (Current vs Baseline)</h6>
                                         <canvas id="strategyComparisonChart"></canvas>
                                     </div>
@@ -195,55 +210,54 @@
 
                                 <div class="col-md-4">
                                     <div class="row g-2">
-                                        <!-- ROW 1: CORE ACCURACY -->
                                         <div class="col-6">
-                                            <div class="metric-card p-2 text-center border-success border-opacity-20 shadow-sm">
+                                            <div
+                                                class="metric-card p-2 text-center border-success border-opacity-20 shadow-sm">
                                                 <div class="metric-label" style="font-size: 7px;">HITS (TP)</div>
                                                 <div class="metric-value-inset text-success w-100 py-1"
                                                     style="font-size: 13px;" id="matrixTP">0</div>
                                             </div>
                                         </div>
                                         <div class="col-6">
-                                            <div class="metric-card p-2 text-center border-danger border-opacity-20 shadow-sm">
+                                            <div
+                                                class="metric-card p-2 text-center border-danger border-opacity-20 shadow-sm">
                                                 <div class="metric-label" style="font-size: 7px;">NOISE (FP)</div>
                                                 <div class="metric-value-inset text-danger w-100 py-1"
                                                     style="font-size: 13px;" id="matrixFP">0</div>
                                             </div>
                                         </div>
-
-                                        <!-- ROW 2: ERROR VECTORS -->
                                         <div class="col-6">
-                                            <div class="metric-card p-2 text-center border-warning border-opacity-20 shadow-sm">
+                                            <div
+                                                class="metric-card p-2 text-center border-warning border-opacity-20 shadow-sm">
                                                 <div class="metric-label" style="font-size: 7px;">MISS (FN)</div>
                                                 <div class="metric-value-inset text-warning w-100 py-1"
                                                     style="font-size: 13px;" id="matrixFN">0</div>
                                             </div>
                                         </div>
                                         <div class="col-6">
-                                            <div class="metric-card p-2 text-center border-secondary border-opacity-20 shadow-sm">
+                                            <div
+                                                class="metric-card p-2 text-center border-secondary border-opacity-20 shadow-sm">
                                                 <div class="metric-label" style="font-size: 7px;">SKIP (TN)</div>
                                                 <div class="metric-value-inset text-muted w-100 py-1"
                                                     style="font-size: 13px;" id="matrixTN">0</div>
                                             </div>
                                         </div>
-
-                                        <!-- ROW 3: EFFICIENCY -->
                                         <div class="col-6">
-                                            <div class="metric-card p-2 text-center border-primary border-opacity-20 shadow-sm">
+                                            <div
+                                                class="metric-card p-2 text-center border-primary border-opacity-20 shadow-sm">
                                                 <div class="metric-label" style="font-size: 7px;">MRR Score</div>
                                                 <div class="metric-value-inset text-primary w-100 py-1"
                                                     style="font-size: 13px;" id="metricMRR">-</div>
                                             </div>
                                         </div>
                                         <div class="col-6">
-                                            <div class="metric-card p-2 text-center border-primary border-opacity-20 shadow-sm">
+                                            <div
+                                                class="metric-card p-2 text-center border-primary border-opacity-20 shadow-sm">
                                                 <div class="metric-label" style="font-size: 7px;">QpMS Index</div>
                                                 <div class="metric-value-inset text-primary w-100 py-1"
                                                     style="font-size: 13px;" id="metricQpMS">-</div>
                                             </div>
                                         </div>
-
-                                        <!-- ROW 4: STATUS -->
                                         <div class="col-12">
                                             <div
                                                 class="metric-card p-2 d-flex justify-content-between align-items-center">
@@ -268,14 +282,51 @@
                             <div class="row g-4">
                                 <div class="col-md-8">
                                     <div class="row g-4">
+
                                         <div class="col-md-12">
                                             <div class="metric-card">
                                                 <h6 class="metric-label mb-4">Precision-Recall Dynamic Trajectory</h6>
-                                                <div style="height: 300px;">
+                                                <div style="height: 360px;">
                                                     <canvas id="prCurveChart"></canvas>
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <div class="col-md-6">
+                                            <div class="metric-card" style="height: 380px;">
+                                                <h6 class="metric-label mb-3">Score Correlation: Semantic vs BM25</h6>
+                                                <canvas id="scatterChart"></canvas>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="metric-card" style="height: 380px;">
+                                                <h6 class="metric-label mb-3">Method Comparison (All 5)</h6>
+                                                <canvas id="methodChart"></canvas>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="metric-card" style="height: 360px;">
+                                                <h6 class="metric-label mb-3">Winner Distribution by Query</h6>
+                                                <div class="d-flex flex-column align-items-center justify-content-center" style="height: 280px;">
+                                                    <div style="width: 200px; height: 200px;">
+                                                        <canvas id="doughnutChart"></canvas>
+                                                    </div>
+                                                    <div class="mt-2 small text-muted text-center" style="font-size: 10px; max-width: 220px;">
+                                                        <div id="winnerSummary">No relevant docs marked yet</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="metric-card" style="height: 360px;">
+                                                <h6 class="metric-label mb-3">NDCG@K Elbow Curve</h6>
+                                                <div style="height: 300px;">
+                                                    <canvas id="elbowChart"></canvas>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div class="col-md-12">
                                             <div class="metric-card border-top border-4 border-primary"
                                                 style="background: #f0f9ff;">
@@ -290,7 +341,7 @@
                                                     </div>
                                                     <div class="col-md-9 px-4">
                                                         <div class="row g-2">
-                                                            <div class="col-6">
+                                                            <div class="col-4">
                                                                 <div class="p-2">
                                                                     <div class="text-muted"
                                                                         style="font-size: 9px; text-transform: uppercase; font-weight: 800;">
@@ -299,13 +350,22 @@
                                                                         id="sessionNDCG">-</div>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-6">
+                                                            <div class="col-4">
                                                                 <div class="p-2">
                                                                     <div class="text-muted"
                                                                         style="font-size: 9px; text-transform: uppercase; font-weight: 800;">
                                                                         Global MRR</div>
                                                                     <div class="h6 fw-bold mb-0 text-dark"
                                                                         id="sessionMRR">-</div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-4">
+                                                                <div class="p-2">
+                                                                    <div class="text-muted"
+                                                                        style="font-size: 9px; text-transform: uppercase; font-weight: 800;">
+                                                                        Global QpMS</div>
+                                                                    <div class="h6 fw-bold mb-0 text-dark"
+                                                                        id="sessionQpMS">-</div>
                                                                 </div>
                                                             </div>
                                                         </div>

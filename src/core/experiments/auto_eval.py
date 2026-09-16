@@ -14,17 +14,18 @@ Usage:
     python src/core/experiments/auto_eval.py --mode data
 """
 
-import sys
-import requests
-import os
+import argparse
 import csv
-import time
 import json
 import logging
-import argparse
+import os
 import random
+import sys
+import time
 from datetime import datetime
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
+import requests
 
 # Ensure correct path for imports
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
@@ -33,12 +34,15 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../"
 # Note: we bind to 'core' because we appended src/ folder to path
 # Import Search Logic
 # Note: we bind to 'core' because we appended src/ folder to path
+from ai.DeepSeekClient import DeepSeekClient
+from core.db.db_connection import db_connection
 from core.db.operations.search_flask.hybrid_search import search_hybrid
 from core.db.operations.search_flask.rrf_search import search_rrf
-from core.db.operations.search_queries import execute_vector_query, execute_bm25_query  # <-- Added
-from core.db.db_connection import db_connection
+from core.db.operations.search_queries import (  # <-- Added
+    execute_bm25_query,
+    execute_vector_query,
+)
 from core.models.ai_model import get_embedder
-from ai.OllamaClient import OllamaClient
 
 # Setup Logging
 logging.basicConfig(
@@ -123,15 +127,15 @@ def extract_metrics(doc_tuple: tuple, stats: Dict, strategy_type: str) -> Dict:
         doc_id = doc_tuple[0]
         content = doc_tuple[1]
         score = doc_tuple[2]
-        
+
         sem_score = 0
         bm25_score = 0
-        
+
         if strategy_type == 'hybrid' and 'components' in stats:
             comp = stats['components'].get(doc_id, {})
             sem_score = comp.get('sem_score', 0)
             bm25_score = comp.get('bm25_score', 0)
-            
+
         return {
             "doc_id": doc_id,
             "hybrid_score": round(float(score), 4),
@@ -151,34 +155,34 @@ def judge_relevance(query: str, content: str) -> Dict[str, Any]:
         return {"is_relevant": False, "score": 0, "reason": "Empty Content"}
 
     # Initialize client from environment or defaults
-    model_name = os.environ.get("OLLAMA_MODEL", "qwen2.5:0.5b")
-    client = OllamaClient(model=model_name)
-    
+    api_key = os.environ.get("DEEPSEARCH_MODEL", "")
+    client = DeepSeekClient(api_key=api_key)
+
     prompt = (
         f"Query: {query}\n"
         f"Content fragment: {content[:800]}\n\n"
         "Task: Evaluate if the content matches the query.\n"
         "Return strictly JSON: {\"is_relevant\": <bool>, \"score\": <0-10>, \"reason\": \"<short text>\"}"
     )
-    
+
     try:
         # Use standardized client with JSON format requirement
         # Note: we use generate_response but add the format logic if needed.
         # However, OllamaClient.py uses /api/generate without format: json by default.
         # We'll just use the raw response and parse it as we did before.
-        
+
         response_text = client.generate_response(
             prompt=prompt,
             system_instruction="You are a meticulous Evaluation AI that outputs ONLY JSON.",
             temperature=0
         )
-        
+
         clean_text = response_text.strip()
         if "```json" in clean_text:
             clean_text = clean_text.split("```json")[1].split("```")[0].strip()
         elif "```" in clean_text:
             clean_text = clean_text.split("```")[1].strip()
-        
+
         try:
             data = json.loads(clean_text)
             return {
@@ -188,16 +192,16 @@ def judge_relevance(query: str, content: str) -> Dict[str, Any]:
             }
         except json.JSONDecodeError:
              return {"is_relevant": False, "score": 0, "reason": "JSON Parse error"}
-             
+
     except Exception as e:
         logger.error(f"Judge Exception: {e}")
-        
+
     return {"is_relevant": False, "score": 0, "reason": "Execution Error"}
 
 # --- Main Engine ---
 def run_evaluation(mode: str, query_limit: int):
     logger.info(f"Starting Thesis Evaluation Engine | Mode: {mode.upper()} | Limit: {query_limit} queries")
-    
+
     model = get_embedder("paraphrase-multilingual-MiniLM-L12-v2")
     conn = db_connection()
     if not conn:
@@ -207,23 +211,23 @@ def run_evaluation(mode: str, query_limit: int):
 
     results_data = []
     queries = DEFAULT_QUERIES[:query_limit]
-    
+
     try:
         for q_idx, query in enumerate(queries):
             logger.info(f"Processing Query {q_idx+1}/{len(queries)}: '{query}'")
-            
+
             query_results = {}  # Aggregator for this query
-            
+
             for strat in STRATEGIES:
                 s_name = strat["name"]
                 start_ts = time.time()
                 docs = []
                 stats = {}
-                
+
                 try:
                     if strat["func"] == "hybrid":
                         docs, stats = search_hybrid(
-                            query=query, conn=conn, cursor=cursor, model=model, 
+                            query=query, conn=conn, cursor=cursor, model=model,
                             top_k=5, **strat["params"]
                         )
                     elif strat["func"] == "rrf":
@@ -236,18 +240,18 @@ def run_evaluation(mode: str, query_limit: int):
                         docs = execute_vector_query(query, conn, cursor, model, top_k=5, threshold=0.0)
                     elif strat["func"] == "keyword":
                         docs = execute_bm25_query(query, cursor, top_k=5)
-                            
+
                 except Exception as e:
                     logger.error(f"Search Error ({s_name}): {e}")
                     continue
-                
+
                 latency = (time.time() - start_ts) * 1000
-                
+
                 # AGGREGATE RESULTS (Pivot by DocID to avoid duplicates)
                 for rank, doc_tuple in enumerate(docs):
                     metrics = extract_metrics(doc_tuple, stats, strat["func"])
                     did = metrics["doc_id"]
-                    
+
                     if did not in query_results:
                         query_results[did] = {
                             "timestamp": datetime.now().isoformat(),
@@ -257,7 +261,7 @@ def run_evaluation(mode: str, query_limit: int):
                             "full_content": doc_tuple[1],
                             "strategies": {}
                         }
-                    
+
                     # Store Strategy-Specific Metrics
                     query_results[did]["strategies"][s_name] = {
                         "rank": rank + 1,
@@ -273,7 +277,7 @@ def run_evaluation(mode: str, query_limit: int):
                     "doc_id": did,
                     "content_preview": data["content_preview"]
                 }
-                
+
                 # Flatten Strategies
                 for strat in STRATEGIES:
                     s = strat["name"]
@@ -293,21 +297,22 @@ def run_evaluation(mode: str, query_limit: int):
                     row["ai_relevant"] = judgment["is_relevant"]
                     row["ai_score"] = judgment["score"]
                     row["ai_reason"] = judgment["reason"]
-                    
+
                     mark = "✅" if row["ai_relevant"] else "❌"
                     print(f"   [AI Judge] Doc: {did} | Score: {row['ai_score']} {mark}")
                 else:
                     row["ai_relevant"] = "N/A"
                     row["ai_score"] = "N/A"
                     row["ai_reason"] = "N/A"
-                
+
                 results_data.append(row)
 
     except KeyboardInterrupt:
         logger.warning("Interrupted by user. Saving partial results...")
 
     # Save to CSV
-    filename = f"thesis_results_{mode}_{int(time.time())}.csv"
+    base_dir = os.path.abspath(os.path.dirname(__file__))
+    filename = os.path.join(base_dir, "ai_judge.csv" if mode == 'ai' else "data_judge.csv")
     if results_data:
         keys = results_data[0].keys()
         with open(filename, 'w', newline='', encoding='utf-8') as f:
@@ -323,6 +328,6 @@ if __name__ == "__main__":
     parser.add_argument("--mode", choices=['ai', 'data'], default='data', help="Evaluation mode")
     parser.add_argument("--limit", type=int, default=5, help="Number of queries to run")
     args = parser.parse_args()
-    
+
     run_evaluation(args.mode, args.limit)
 

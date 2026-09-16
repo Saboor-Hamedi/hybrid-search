@@ -218,7 +218,7 @@ function renderSearchResults(data, turnId) {
                 </div>
                 
                 <div class="result-content mb-2" title="Double click to copy">
-                    ${r.content_highlighted || r.content}
+                    ${r.content_highlighted || escapeHTML(r.content)}
                 </div>
                 
                 <div class="result-meta d-flex justify-content-between align-items-end">

@@ -1,15 +1,8 @@
-import os
-import sys
-
-# Ensure path is set correctly
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-
-# Import necessary utility functions
 import math
 import os
 import time
 
-from utils.ColorScheme import ColorScheme
+from core.utils.ColorScheme import ColorScheme
 
 cs = ColorScheme()
 

@@ -10,7 +10,7 @@ def UploadPDF():
     """Handle PDF file upload and process it into chunks"""
     import tempfile
     from werkzeug.utils import secure_filename
-    from ingestion.insert_pdf_chunks import insert_pdf
+    from core.ingestion.insert_pdf_chunks import insert_pdf
     
     if 'pdfFile' not in request.files:
         return {"success": False, "error": "No file provided"}, 400

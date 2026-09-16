@@ -1,5 +1,5 @@
-from utils.ColorScheme import ColorScheme
-from utils.helper_functions import measure_time
+from core.utils.ColorScheme import ColorScheme
+from core.utils.helper_functions import measure_time
 
 from core.db.operations.keyword_queries import execute_keyword_query
 from core.utils.console_stats import display_search_stats

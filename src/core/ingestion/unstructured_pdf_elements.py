@@ -2,8 +2,6 @@ import os
 import shutil
 import tempfile
 
-from unstructured.partition.pdf import partition_pdf
-
 from core.utils.ColorScheme import ColorScheme
 
 cs = ColorScheme()
@@ -21,6 +19,8 @@ def parse_pdf(pdf_path: str):
         temp_dir = tempfile.mkdtemp(prefix="pdf_parse_")
 
         print(f"{cs.BLUE}📄 Parsing PDF: {file_name}{cs.RESET}")
+
+        from unstructured.partition.pdf import partition_pdf
 
         # Use simpler settings to avoid OCR issues
         elements = partition_pdf(

@@ -1,11 +1,5 @@
 import json
-import os
-import sys
 from datetime import datetime
-
-# Ensure the script can find the local modules
-# Current file: src/core/export/cli.py -> target: src
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
 
 from core.db.db_connection import db_connection
 

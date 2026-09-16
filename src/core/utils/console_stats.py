@@ -1,11 +1,6 @@
-import os
-import sys
-
-# Ensure path is set correctly
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 from typing import Any, Callable, List, Tuple
 
-from utils.helper_functions import measure_time
+from core.utils.helper_functions import measure_time
 
 from core.utils.ColorScheme import ColorScheme
 

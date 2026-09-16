@@ -5,18 +5,11 @@
     ! This file contains the insert_document function, which is a core database operation.
 """
 
-import os
-import sys
-
-# Ensure the parent directory is in sys.path for relative imports
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-
-
 import psycopg2
-import utils.bm25_utils as bm25_utils
-from utils.helper_functions import check_if_empty_input, measure_time
-from utils.languages import detect_language
-from utils.text_properties import normalize_content
+import core.utils.bm25_utils as bm25_utils
+from core.utils.helper_functions import check_if_empty_input, measure_time
+from core.utils.languages import detect_language
+from core.utils.text_properties import normalize_content
 
 from core.utils.ColorScheme import ColorScheme
 

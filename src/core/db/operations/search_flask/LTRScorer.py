@@ -1,5 +1,4 @@
 from typing import List, Tuple, Any, Dict
-from sentence_transformers import CrossEncoder
 
 class LTRScorer:
     """
@@ -16,6 +15,7 @@ class LTRScorer:
             # Use a lightweight but effective cross-encoder (MiniLM-L-6-v2)
             # Alternatives: 'cross-encoder/ms-marco-TinyBERT-L-2-v2' (Faster)
             print("Loading LTR Cross-Encoder (ms-marco-MiniLM-L-6-v2)...")
+            from sentence_transformers import CrossEncoder
             cls._model = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2', max_length=512)
         return cls._instance
 

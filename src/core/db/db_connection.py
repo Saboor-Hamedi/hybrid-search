@@ -3,9 +3,6 @@ import os
 import numpy as np
 import psycopg2
 from dotenv import load_dotenv
-from optimum.onnxruntime import ORTModelForFeatureExtraction
-from sentence_transformers import SentenceTransformer
-from transformers import AutoTokenizer
 
 # Load environment variables explicitly from the repository `src/.env` file
 try:

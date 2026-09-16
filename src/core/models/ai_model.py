@@ -1,4 +1,3 @@
-from sentence_transformers import SentenceTransformer
 import threading
 
 # Thread-safe Singleton for AI Model
@@ -11,7 +10,8 @@ def get_embedder(model_name: str = "paraphrase-multilingual-MiniLM-L12-v2"):
     if _model_instance is None:
         with _model_lock:
             if _model_instance is None:
-                print(f"🚀 Initializing AI Model: {model_name}...")
+                print(f"Initializing AI Model: {model_name}...")
+                from sentence_transformers import SentenceTransformer
                 _model_instance = SentenceTransformer(model_name)
-                print("✅ Model initialized successfully.")
+                print("Model initialized successfully.")
     return _model_instance
